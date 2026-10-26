@@ -108,7 +108,7 @@ export default function Home() {
               title="Desk"
               status="Shipped"
               problem="Cloud RAG proves grounding in a browser. Product / desktop AI roles also want the corpus on your machine — ask a folder, get cited answers, write a report back."
-              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI on 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
+              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI on 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging. 60-second stranger path + demo GIF in the README."
               tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a portfolio bet."
               stack={[
                 "Node",
@@ -117,6 +117,8 @@ export default function Home() {
                 "Local RAG",
                 "CLI",
               ]}
+              writeupHref="https://github.com/jakob-alexander2000/desk#60-second-run"
+              writeupLabel="60s run →"
               sourceHref="https://github.com/jakob-alexander2000/desk"
               sourceLabel="View source"
             />
