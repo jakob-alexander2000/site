@@ -21,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Jakob Alex",
   description:
-    "Berlin-based builder. Small sharp products, live demos, and the boring decisions that make them usable.",
+    "Applied AI builder in Berlin. Agents that verify their own work — live demos, scored evals, local tools.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

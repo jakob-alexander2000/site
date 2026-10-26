@@ -10,7 +10,7 @@ export default function Home() {
         {/* Hero */}
         <section aria-labelledby="hero-heading">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-            Berlin · Builder
+            Berlin · Applied AI
           </p>
           <h1
             id="hero-heading"
@@ -19,12 +19,13 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            If it&apos;s on this site, it runs or it isn&apos;t here.
+            Agents that verify their own work. Live demos, scored evals, local
+            tools — not pitch decks.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            I ship small, sharp products — live demos, real citations, the
-            boring product decisions that make LLM tools usable. CS distance
-            learning, graduating early next year.
+            Building toward frontier applied / product AI roles. CS distance
+            learning, graduating early next year. Humanities edge: taste +
+            writing.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
@@ -67,9 +68,9 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Company handbooks are hard to search. Generic chatbots invent answers — and still look confident."
-              shipped="RAG Q&A over a sample employee handbook with numbered citation chips, a handbook browser, and a verify harness that turns each answer into pass/fail evidence. Public demo — one corpus, one tool loop."
-              tradeoff="Gemini Flash + embeddings over a heavier agent stack. Citations, a readable corpus, and visible verification beat framework demos."
+              problem="LLM answers look confident even when they invent. Citation chips alone don’t prove the prose survived contact with the evidence."
+              shipped="RAG Q&A over a sample handbook with numbered sources, a handbook browser, and a shared verify loop that scores each claim pass / fail / unsupported. Live demo + writeup a hiring manager can click in two minutes."
+              tradeoff="One corpus, one verify path, Gemini Flash — not a multi-agent framework demo. Visible verification beats orchestration theater."
               stack={[
                 "Next.js",
                 "TypeScript",
@@ -79,17 +80,18 @@ export default function Home() {
                 "Vercel",
               ]}
               liveHref="https://citebot-chi.vercel.app"
+              liveLabel="Live demo"
               writeupHref="https://citebot-chi.vercel.app/harness"
-              writeupLabel="Harness →"
+              writeupLabel="Harness writeup →"
               sourceHref="https://github.com/jakob-alexander2000/citebot"
             />
 
             <ProjectCard
               title="citebot-evals"
               status="Shipped"
-              problem="A demo without a score is a vibe. Hiring managers need a cloneable pass/fail table — grounded handbook Qs vs adversarial ones."
-              shipped="Narrow 18-case eval suite mirrored from CiteBot’s handbook. Fixture provider scores 18/18 offline in under a minute; optional live path hits the CiteBot API and reads verify summaries."
-              tradeoff="Fixed handbook cases over mega-benchmarks or multi-model vanity bake-offs. One product, one score line."
+              problem="A demo without a score is a vibe. Labs want a cloneable pass/fail table — grounded handbook questions vs adversarial ones that must refuse."
+              shipped="Narrow 18-case suite mirrored from CiteBot’s handbook. Fixture provider scores 18/18 offline in under a minute; optional live path hits the CiteBot API and reads verify summaries."
+              tradeoff="Fixed product cases over mega-benchmarks or multi-model vanity bake-offs. One product, one score line you can re-run."
               stack={[
                 "TypeScript",
                 "Node",
@@ -105,7 +107,7 @@ export default function Home() {
               title="Desk"
               status="Shipped"
               problem="Cloud RAG proves grounding in a browser. Product / desktop AI roles also want the corpus on your machine — ask a folder, get cited answers, write a report back."
-              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI bound to 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
+              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI on 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
               tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a portfolio bet."
               stack={[
                 "Node",
@@ -136,14 +138,13 @@ export default function Home() {
             <p>
               Based in Berlin. Background in literature, training in CS — I care
               about product taste as much as the stack. Coding bootcamp, then
-              building products; currently finishing a CS degree by distance
-              learning (graduation early next year).
+              building products; finishing a CS degree by distance learning
+              (graduation early next year).
             </p>
             <p>
-              Lately: agentic / LLM systems, demos you can click, and the
-              boring decisions that make them usable. I scope ruthlessly, ship
-              weekly when I can, and write for the next engineer — not the pitch
-              deck version.
+              Focus: applied product / agent systems — verify loops, narrow
+              evals, local tools. I scope ruthlessly, ship weekly when I can,
+              and write for the next engineer — not the pitch-deck version.
             </p>
           </div>
         </section>

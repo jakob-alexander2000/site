@@ -1,9 +1,11 @@
 # Jakob Alex — personal site
 
-Hire-path portfolio shell. Live demos over résumés.
+Hire-path portfolio. English, frontier applied / product AI framing.
 
-- **Site:** this repo
-- **CiteBot (featured):** [citebot-chi.vercel.app](https://citebot-chi.vercel.app) · [source](https://github.com/jakob-alexander2000/citebot)
+- **Live:** [site-eight-ruddy-19.vercel.app](https://site-eight-ruddy-19.vercel.app)
+- **CiteBot:** [citebot-chi.vercel.app](https://citebot-chi.vercel.app) · [harness](https://citebot-chi.vercel.app/harness) · [source](https://github.com/jakob-alexander2000/citebot)
+- **citebot-evals:** [github.com/jakob-alexander2000/citebot-evals](https://github.com/jakob-alexander2000/citebot-evals)
+- **Desk:** [github.com/jakob-alexander2000/desk](https://github.com/jakob-alexander2000/desk)
 
 ## Stack
 
@@ -18,4 +20,4 @@ npm run dev
 
 ## Deploy
 
-Pushed to `main`; Vercel project under the same team as CiteBot.
+Pushed to `main`; Vercel auto-deploys.
