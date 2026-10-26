@@ -57,9 +57,9 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Three related projects: CiteBot verifies answers against a handbook,
-            citebot-evals scores the loop, and Desk brings the same idea onto
-            your machine.
+            Related projects: CiteBot verifies answers against a handbook,
+            citebot-evals scores the loop, Desk runs the idea on a local folder,
+            and desk-index is a tiny Go search API beside them.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -119,6 +119,24 @@ export default function Home() {
               writeupHref="https://github.com/jakob-alexander2000/desk#60-second-run"
               writeupLabel="60s run →"
               sourceHref="https://github.com/jakob-alexander2000/desk"
+              sourceLabel="View source"
+            />
+
+            <ProjectCard
+              title="desk-index"
+              status="Shipped"
+              problem="Desk and CiteBot need a corpus under them. Sometimes you only want ranked Markdown hits from a folder — no model, no cloud, just a small search service."
+              shipped="Go HTTP API: walk a folder of .md files into an in-memory inverted index. GET /search returns ranked paths, titles, and snippets. CLI one-shot search included. Stdlib only."
+              tradeoff="In-memory TF-IDF over SQLite/Elastic. Enough for a notes folder; rebuild with POST /reindex. Zero deps."
+              stack={[
+                "Go",
+                "stdlib HTTP",
+                "Inverted index",
+                "CLI",
+              ]}
+              writeupHref="https://github.com/jakob-alexander2000/desk-index#demo"
+              writeupLabel="Demo →"
+              sourceHref="https://github.com/jakob-alexander2000/desk-index"
               sourceLabel="View source"
             />
           </div>

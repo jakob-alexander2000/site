@@ -19,9 +19,9 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Jakob Alex — CiteBot · evals · Desk",
+  title: "Jakob Alex — CiteBot · evals · Desk · desk-index",
   description:
-    "Applied AI in Berlin. CiteBot verify harness, scored evals, and Desk — a local folder agent.",
+    "Applied AI in Berlin. CiteBot verify harness, scored evals, Desk, and desk-index — a Go Markdown search API.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
