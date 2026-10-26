@@ -88,17 +88,18 @@ export default function Home() {
 
             <ProjectCard
               title="citebot-evals"
-              status="Shipped"
-              problem="A demo without a score is a vibe. Labs want a cloneable pass/fail table — grounded handbook questions vs adversarial ones that must refuse."
-              shipped="Narrow 18-case suite mirrored from CiteBot’s handbook. Fixture provider scores 18/18 offline in under a minute; optional live path hits the CiteBot API and reads verify summaries."
-              tradeoff="Fixed product cases over mega-benchmarks or multi-model vanity bake-offs. One product, one score line you can re-run."
+              status="18/18"
+              problem="A verify harness without a score is a vibe. Labs want a cloneable pass/fail table that backs the CiteBot story."
+              shipped="18 fixed handbook cases (12 grounded + 6 adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
+              tradeoff="Product-bound suite over mega-benchmarks. Fixture CI only — live CiteBot path is optional, never a flaky gate."
               stack={[
                 "TypeScript",
                 "Node",
-                "Eval harness",
-                "Fixture CI",
-                "CiteBot API",
+                "Fixture scorecard",
+                "CiteBot verify",
               ]}
+              writeupHref="https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture"
+              writeupLabel="Scorecard →"
               sourceHref="https://github.com/jakob-alexander2000/citebot-evals"
               sourceLabel="View source"
             />
