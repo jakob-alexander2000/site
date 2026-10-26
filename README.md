@@ -1,7 +1,6 @@
 # Jakob Alex — personal site
 
-English hire-path portfolio for frontier applied / product AI.
-One scroll: **verify loop** (CiteBot + harness) → **evals** → **Desk**.
+Selected work: **CiteBot** (verify harness) · **citebot-evals** · **Desk**.
 
 - **Live:** [site-eight-ruddy-19.vercel.app](https://site-eight-ruddy-19.vercel.app)
 - **CiteBot + harness:** [live](https://citebot-chi.vercel.app) · [annotated examples](https://citebot-chi.vercel.app/harness#grounded) · [source](https://github.com/jakob-alexander2000/citebot)

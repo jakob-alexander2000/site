@@ -19,9 +19,9 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Jakob Alex — verify loop · evals · Desk",
+  title: "Jakob Alex — CiteBot · evals · Desk",
   description:
-    "Frontier applied AI in Berlin. An agent that verifies its own work — CiteBot harness, scored evals, local Desk tool.",
+    "Applied AI in Berlin. CiteBot verify harness, scored evals, and Desk — a local folder agent.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -7,10 +7,10 @@ export default function Home() {
       <Header />
 
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-24 pt-16 sm:px-6 sm:pt-24">
-        {/* Hero — verify loop first */}
+        {/* Hero */}
         <section aria-labelledby="hero-heading">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-            Berlin · Frontier applied AI
+            Berlin · Applied AI
           </p>
           <h1
             id="hero-heading"
@@ -23,9 +23,8 @@ export default function Home() {
             then a scored eval suite and a local folder tool beside it.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Building toward frontier applied / product AI roles. CS distance
-            learning, graduating early next year. Humanities edge: taste +
-            writing.
+            Building applied product and agent systems. CS distance learning,
+            graduating early next year. Humanities edge: taste + writing.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
@@ -40,32 +39,27 @@ export default function Home() {
               href="#work"
               className="inline-flex items-center rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-50"
             >
-              Hire arc ↓
+              Selected work ↓
             </a>
           </div>
         </section>
 
-        {/* Selected work — one scroll: verify → evals → Desk */}
+        {/* Selected work */}
         <section
           id="work"
           aria-labelledby="work-heading"
           className="mt-20 scroll-mt-20 sm:mt-28"
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2
-              id="work-heading"
-              className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400"
-            >
-              Hire arc
-            </h2>
-            <p className="font-mono text-[11px] text-zinc-400">
-              verify → evals → local
-            </p>
-          </div>
+          <h2
+            id="work-heading"
+            className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400"
+          >
+            Selected work
+          </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            One story a hiring manager can finish in under three minutes.
-            CiteBot proves the loop; evals score it; Desk takes the same idea
-            onto your machine.
+            Three related projects: CiteBot verifies answers against a handbook,
+            citebot-evals scores the loop, and Desk brings the same idea onto
+            your machine.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -94,7 +88,7 @@ export default function Home() {
             <ProjectCard
               title="citebot-evals"
               status="18/18"
-              problem="A verify harness without a score is a vibe. Labs want a cloneable pass/fail table that backs the CiteBot story."
+              problem="A verify harness without a score is a vibe. You want a cloneable pass/fail table that backs the CiteBot story."
               shipped="18 fixed handbook cases (12 grounded + 6 adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
               tradeoff="Product-bound suite over mega-benchmarks. Fixture CI only — live CiteBot path is optional, never a flaky gate."
               stack={[
@@ -112,9 +106,9 @@ export default function Home() {
             <ProjectCard
               title="Desk"
               status="Shipped"
-              problem="Cloud RAG proves grounding in a browser. Product / desktop AI roles also want the corpus on your machine — ask a folder, get cited answers, write a report back."
+              problem="Cloud RAG proves grounding in a browser. Desktop workflows also want the corpus on your machine — ask a folder, get cited answers, write a report back."
               shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI on 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
-              tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a portfolio bet."
+              tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a first cut."
               stack={[
                 "Node",
                 "TypeScript",
@@ -130,7 +124,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About / How I work */}
+        {/* About */}
         <section
           id="about"
           aria-labelledby="about-heading"
@@ -140,7 +134,7 @@ export default function Home() {
             id="about-heading"
             className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400"
           >
-            How I work
+            About
           </h2>
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
             <p>
@@ -152,7 +146,7 @@ export default function Home() {
             <p>
               Focus: applied product / agent systems — verify loops, narrow
               evals, local tools. I scope ruthlessly, ship weekly when I can,
-              and write for the next engineer — not the pitch-deck version.
+              and write for the next engineer.
             </p>
           </div>
         </section>
