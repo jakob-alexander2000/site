@@ -36,12 +36,12 @@ export default function Home() {
               Try CiteBot
             </a>
             <a
-              href="https://github.com/jakob-alexander2000/citebot"
+              href="https://citebot-chi.vercel.app/harness"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-50"
             >
-              CiteBot source
+              Verify harness
             </a>
           </div>
         </section>
@@ -67,37 +67,55 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Company handbooks and policy docs are hard to search. Generic chatbots invent answers."
-              shipped="RAG Q&A over a sample employee handbook with numbered citation chips, a handbook browser, and a public demo — no multi-tenant billing, one corpus, one tool loop."
-              tradeoff="Gemini Flash + embeddings over a heavier agent stack. Citations and a readable corpus beat framework demos."
+              problem="Company handbooks are hard to search. Generic chatbots invent answers — and still look confident."
+              shipped="RAG Q&A over a sample employee handbook with numbered citation chips, a handbook browser, and a verify harness that turns each answer into pass/fail evidence. Public demo — one corpus, one tool loop."
+              tradeoff="Gemini Flash + embeddings over a heavier agent stack. Citations, a readable corpus, and visible verification beat framework demos."
               stack={[
                 "Next.js",
                 "TypeScript",
                 "Gemini",
                 "RAG",
-                "Tailwind",
+                "Verify harness",
                 "Vercel",
               ]}
               liveHref="https://citebot-chi.vercel.app"
+              writeupHref="https://citebot-chi.vercel.app/harness"
+              writeupLabel="Harness →"
               sourceHref="https://github.com/jakob-alexander2000/citebot"
             />
 
             <ProjectCard
-              title="Desk"
-              status="Next"
-              placeholder
-              problem="Product / FDE roles want a real CRUD slice — auth, list/detail, seed data — not another chat UI."
-              shipped="Placeholder. Week-2 internal tool metaphor (pipeline or deal notes)."
-              stack={["React", "TypeScript", "Auth", "CRUD"]}
+              title="citebot-evals"
+              status="Shipped"
+              problem="A demo without a score is a vibe. Hiring managers need a cloneable pass/fail table — grounded handbook Qs vs adversarial ones."
+              shipped="Narrow 18-case eval suite mirrored from CiteBot’s handbook. Fixture provider scores 18/18 offline in under a minute; optional live path hits the CiteBot API and reads verify summaries."
+              tradeoff="Fixed handbook cases over mega-benchmarks or multi-model vanity bake-offs. One product, one score line."
+              stack={[
+                "TypeScript",
+                "Node",
+                "Eval harness",
+                "Fixture CI",
+                "CiteBot API",
+              ]}
+              sourceHref="https://github.com/jakob-alexander2000/citebot-evals"
+              sourceLabel="View source"
             />
 
             <ProjectCard
-              title="Ingest"
-              status="Later"
-              placeholder
-              problem="Backend stretch roles want a small service with tests and a container, not another SPA."
-              shipped="Placeholder. Only if week 1 finishes early — Go HTTP + Docker."
-              stack={["Go", "HTTP", "Docker"]}
+              title="Desk"
+              status="Shipped"
+              problem="Cloud RAG proves grounding in a browser. Product / desktop AI roles also want the corpus on your machine — ask a folder, get cited answers, write a report back."
+              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI bound to 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
+              tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a portfolio bet."
+              stack={[
+                "Node",
+                "TypeScript",
+                "Gemini",
+                "Local RAG",
+                "CLI",
+              ]}
+              sourceHref="https://github.com/jakob-alexander2000/desk"
+              sourceLabel="View source"
             />
           </div>
         </section>

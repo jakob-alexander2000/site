@@ -8,7 +8,11 @@ type Props = {
   tradeoff?: string;
   stack: string[];
   liveHref?: string;
+  liveLabel?: string;
+  writeupHref?: string;
+  writeupLabel?: string;
   sourceHref?: string;
+  sourceLabel?: string;
   featured?: boolean;
   placeholder?: boolean;
   children?: ReactNode;
@@ -22,10 +26,19 @@ export function ProjectCard({
   tradeoff,
   stack,
   liveHref,
+  liveLabel = "Live demo",
+  writeupHref,
+  writeupLabel = "Writeup →",
   sourceHref,
+  sourceLabel,
   featured,
   placeholder,
 }: Props) {
+  const hasActions = Boolean(liveHref || writeupHref || sourceHref);
+  const primarySource = Boolean(sourceHref && !liveHref);
+  const resolvedSourceLabel =
+    sourceLabel ?? (primarySource ? "View source" : "Source →");
+
   return (
     <article
       className={
@@ -107,7 +120,7 @@ export function ProjectCard({
         ))}
       </div>
 
-      {(liveHref || sourceHref) && (
+      {hasActions ? (
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {liveHref ? (
             <a
@@ -116,21 +129,41 @@ export function ProjectCard({
               rel="noreferrer"
               className="inline-flex items-center rounded-full bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
-              Live demo
+              {liveLabel}
             </a>
           ) : null}
-          {sourceHref ? (
+          {primarySource && sourceHref ? (
+            <a
+              href={sourceHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            >
+              {resolvedSourceLabel}
+            </a>
+          ) : null}
+          {writeupHref ? (
+            <a
+              href={writeupHref}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-medium text-zinc-500 transition hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              {writeupLabel}
+            </a>
+          ) : null}
+          {!primarySource && sourceHref ? (
             <a
               href={sourceHref}
               target="_blank"
               rel="noreferrer"
               className="text-xs font-medium text-zinc-500 transition hover:text-zinc-900 dark:hover:text-zinc-100"
             >
-              Source →
+              {resolvedSourceLabel}
             </a>
           ) : null}
         </div>
-      )}
+      ) : null}
     </article>
   );
 }
