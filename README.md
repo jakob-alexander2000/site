@@ -1,11 +1,12 @@
 # Jakob Alex — personal site
 
-Selected work: **CiteBot** (verify harness) · **citebot-evals** · **Desk**.
+Quiet English portfolio. Selected work: **CiteBot** · **citebot-evals** · **Desk** · **desk-index**.
 
 - **Live:** [site-eight-ruddy-19.vercel.app](https://site-eight-ruddy-19.vercel.app)
-- **CiteBot + harness:** [live](https://citebot-chi.vercel.app) · [annotated examples](https://citebot-chi.vercel.app/harness#grounded) · [source](https://github.com/jakob-alexander2000/citebot)
+- **CiteBot:** [live](https://citebot-chi.vercel.app) · [verify writeup](https://citebot-chi.vercel.app/harness) · [source](https://github.com/jakob-alexander2000/citebot)
 - **citebot-evals:** [scorecard](https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture) (18/18 fixture)
 - **Desk:** [60-second run](https://github.com/jakob-alexander2000/desk#60-second-run)
+- **desk-index:** [demo](https://github.com/jakob-alexander2000/desk-index#demo)
 
 ## Stack
 

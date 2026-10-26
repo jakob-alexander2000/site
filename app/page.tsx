@@ -10,7 +10,7 @@ export default function Home() {
         {/* Hero */}
         <section aria-labelledby="hero-heading">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-            Berlin · Applied AI
+            Berlin
           </p>
           <h1
             id="hero-heading"
@@ -19,27 +19,15 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            An agent that verifies its own work. Claim → evidence → pass/fail —
-            then a scored eval suite and a local folder tool beside it.
+            I build tools that ground answers in sources and show their work —
+            claim, evidence, pass or fail.
           </p>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Building applied product and agent systems. CS distance learning,
-            graduating early next year. Humanities edge: taste + writing.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="https://citebot-chi.vercel.app/harness#grounded"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-            >
-              See the verify loop
-            </a>
+          <div className="mt-8">
             <a
               href="#work"
-              className="inline-flex items-center rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-50"
+              className="inline-flex items-center rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
-              Selected work ↓
+              Selected work
             </a>
           </div>
         </section>
@@ -57,46 +45,33 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Related projects: CiteBot verifies answers against a handbook,
-            citebot-evals scores the loop, Desk runs the idea on a local folder,
-            and desk-index is a tiny Go search API beside them.
+            Four related pieces: verify answers, score the loop, run it on a
+            local folder, index the Markdown underneath.
           </p>
 
           <div className="mt-6 space-y-4">
             <ProjectCard
-              title="CiteBot + verify harness"
+              title="CiteBot"
               status="Live"
               featured
-              problem="LLM answers look confident even when they invent. Citation chips alone don’t prove the prose survived contact with the evidence."
-              shipped="RAG Q&A over a sample handbook, then a shared verify step that scores each claim pass / fail / unsupported and shows the evidence. Annotated grounded / mixed / trick examples on the writeup."
-              tradeoff="One corpus, one verify path, Gemini Flash — not a multi-agent framework demo. Visible verification beats orchestration theater."
-              stack={[
-                "Next.js",
-                "TypeScript",
-                "Gemini",
-                "RAG",
-                "Verify harness",
-                "Vercel",
-              ]}
+              problem="Confident answers can invent. Citation chips alone don’t prove the prose matches the source."
+              shipped="Handbook Q&A with a shared verify step — each claim scored pass, fail, or unsupported against evidence. Live demo and annotated grounded / mixed / trick examples."
+              tradeoff="One corpus, one verify path. Visible proof over orchestration."
+              stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
               liveHref="https://citebot-chi.vercel.app"
               liveLabel="Live demo"
-              writeupHref="https://citebot-chi.vercel.app/harness#grounded"
-              writeupLabel="Annotated examples →"
+              writeupHref="https://citebot-chi.vercel.app/harness"
+              writeupLabel="Verify writeup →"
               sourceHref="https://github.com/jakob-alexander2000/citebot"
             />
 
             <ProjectCard
               title="citebot-evals"
               status="18/18"
-              problem="A verify harness without a score is a vibe. You want a cloneable pass/fail table that backs the CiteBot story."
-              shipped="18 fixed handbook cases (12 grounded + 6 adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
-              tradeoff="Product-bound suite over mega-benchmarks. Fixture CI only — live CiteBot path is optional, never a flaky gate."
-              stack={[
-                "TypeScript",
-                "Node",
-                "Fixture scorecard",
-                "CiteBot verify",
-              ]}
+              problem="A verify loop without a score is hard to trust — or to re-run."
+              shipped="Eighteen fixed handbook cases (grounded and adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
+              tradeoff="Product-bound suite, not a mega-benchmark. Fixture CI only; live path optional."
+              stack={["TypeScript", "Node"]}
               writeupHref="https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture"
               writeupLabel="Scorecard →"
               sourceHref="https://github.com/jakob-alexander2000/citebot-evals"
@@ -106,16 +81,10 @@ export default function Home() {
             <ProjectCard
               title="Desk"
               status="Shipped"
-              problem="Cloud RAG proves grounding in a browser. Desktop workflows also want the corpus on your machine — ask a folder, get cited answers, write a report back."
-              shipped="Local-first folder agent: CLI ask/report over notes on disk, plus a localhost UI on 127.0.0.1. Same grounding idea as CiteBot, local corpus. No Electron packaging."
-              tradeoff="CLI + localhost UI over a packaged desktop app. Useful in five minutes beats installers and auto-update for a first cut."
-              stack={[
-                "Node",
-                "TypeScript",
-                "Gemini",
-                "Local RAG",
-                "CLI",
-              ]}
+              problem="Grounding in the browser is one thing; notes on disk need the same idea locally."
+              shipped="Folder agent: CLI ask/report over Markdown on disk, plus a localhost UI. Same grounding idea as CiteBot, local corpus."
+              tradeoff="CLI and localhost over Electron. Useful in minutes beats packaging for a first cut."
+              stack={["Node", "TypeScript", "Gemini"]}
               writeupHref="https://github.com/jakob-alexander2000/desk#60-second-run"
               writeupLabel="60s run →"
               sourceHref="https://github.com/jakob-alexander2000/desk"
@@ -125,15 +94,10 @@ export default function Home() {
             <ProjectCard
               title="desk-index"
               status="Shipped"
-              problem="Desk and CiteBot need a corpus under them. Sometimes you only want ranked Markdown hits from a folder — no model, no cloud, just a small search service."
-              shipped="Go HTTP API: walk a folder of .md files into an in-memory inverted index. GET /search returns ranked paths, titles, and snippets. CLI one-shot search included. Stdlib only."
-              tradeoff="In-memory TF-IDF over SQLite/Elastic. Enough for a notes folder; rebuild with POST /reindex. Zero deps."
-              stack={[
-                "Go",
-                "stdlib HTTP",
-                "Inverted index",
-                "CLI",
-              ]}
+              problem="Sometimes you only need ranked Markdown hits — no model, no cloud."
+              shipped="Go HTTP API and CLI: walk a folder of .md files into an in-memory inverted index. Search returns ranked paths, titles, and snippets. Stdlib only."
+              tradeoff="In-memory TF-IDF over a database. Enough for a notes folder; zero deps."
+              stack={["Go"]}
               writeupHref="https://github.com/jakob-alexander2000/desk-index#demo"
               writeupLabel="Demo →"
               sourceHref="https://github.com/jakob-alexander2000/desk-index"
@@ -156,15 +120,15 @@ export default function Home() {
           </h2>
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
             <p>
-              Based in Berlin. Background in literature, training in CS — I care
-              about product taste as much as the stack. Coding bootcamp, then
-              building products; finishing a CS degree by distance learning
-              (graduation early next year).
+              Based in Berlin. Literature background, CS by distance learning
+              (finishing early next year). I care about product taste as much as
+              the stack — clear scope, readable code, writing that explains the
+              tradeoff.
             </p>
             <p>
-              Focus: applied product / agent systems — verify loops, narrow
-              evals, local tools. I scope ruthlessly, ship weekly when I can,
-              and write for the next engineer.
+              Recent work centers on grounding and verification: CiteBot, a
+              scored eval suite, Desk on a local folder, and a small Go search
+              API underneath.
             </p>
           </div>
         </section>
@@ -182,8 +146,7 @@ export default function Home() {
             Contact
           </h2>
           <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
-            GitHub is the best place to reach the work. Email and LinkedIn
-            soon.
+            GitHub is the best place to reach the work. Email and LinkedIn soon.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
             <a
