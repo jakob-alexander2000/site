@@ -45,8 +45,9 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Four related pieces: tool-using Q&A with visible verify, score the
-            loop, run it on a local folder, index the Markdown underneath.
+            Grounding tools — tool-using Q&A with visible verify, score the
+            loop, run it on a local folder, index the Markdown underneath — and
+            a custody ledger for client cash.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -103,6 +104,19 @@ export default function Home() {
               sourceHref="https://github.com/jakob-alexander2000/desk-index"
               sourceLabel="View source"
             />
+
+            <ProjectCard
+              title="Ledger API"
+              status="Shipped"
+              problem="Money movement without a durable settlement record is hard to audit. Floating point and a mutable balance invite silent corruption."
+              shipped="Kotlin Spring Boot custody ledger: open accounts, then settle a deposit, withdrawal, or transfer in one transaction. Append-only ledger rows and a position update under an account lock. Idempotent settle or reject with Idempotency-Key. Flyway, tests, CI, Docker Compose on Postgres."
+              tradeoff="One bounded context: client cash custody. Integer minor units. H2 for bootRun; Postgres in Compose."
+              stack={["Kotlin", "Spring Boot", "Flyway", "PostgreSQL", "Docker"]}
+              writeupHref="https://github.com/jakob-alexander2000/ledger-api#run-locally"
+              writeupLabel="Run locally →"
+              sourceHref="https://github.com/jakob-alexander2000/ledger-api"
+              sourceLabel="View source"
+            />
           </div>
         </section>
 
@@ -126,9 +140,9 @@ export default function Home() {
               tradeoff.
             </p>
             <p>
-              Recent work centers on grounding and verification: CiteBot, a
-              scored eval suite, Desk on a local folder, and a small Go search
-              API underneath.
+              Recent work: CiteBot, a scored eval suite, Desk on a local
+              folder, and a small Go search API underneath, plus Ledger API, a
+              custody ledger for client cash.
             </p>
           </div>
         </section>
