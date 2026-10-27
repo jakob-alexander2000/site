@@ -45,8 +45,8 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Four related pieces: verify answers, score the loop, run it on a
-            local folder, index the Markdown underneath.
+            Four related pieces: tool-using Q&A with visible verify, score the
+            loop, run it on a local folder, index the Markdown underneath.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -54,14 +54,14 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Confident answers can invent. Citation chips alone don’t prove the prose matches the source."
-              shipped="Handbook Q&A with a shared verify step — each claim scored pass, fail, or unsupported against evidence. Live demo and annotated grounded / mixed / trick examples."
-              tradeoff="One corpus, one verify path. Visible proof over orchestration."
+              problem="Confident answers can invent. Citation chips alone don’t prove the draft came from the handbook."
+              shipped="v2 agent loop: plan → handbook tools → draft → verify. UI shows Steps and Evidence — each claim pass or fail against sources. Live at /ask; scored harness at /harness."
+              tradeoff="One handbook, bounded tools. Show the loop instead of a black-box answer."
               stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
-              liveHref="https://citebot-chi.vercel.app"
-              liveLabel="Live demo"
+              liveHref="https://citebot-chi.vercel.app/ask"
+              liveLabel="Ask →"
               writeupHref="https://citebot-chi.vercel.app/harness"
-              writeupLabel="Verify writeup →"
+              writeupLabel="Harness →"
               sourceHref="https://github.com/jakob-alexander2000/citebot"
             />
 
