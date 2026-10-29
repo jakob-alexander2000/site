@@ -80,7 +80,7 @@ export const INDEX = {
   mark: "Live demo",
   name: "desk-index",
   proof: "Ranked notes",
-  idea: "It ranks notes in a folder, with no AI and no database.",
+  idea: "A small Go search service for Markdown notes that searches notes without a model.",
   caption: "Try it. Type a word. Matching notes stack in rank order.",
   problem:
     "A person who only wants the matching notes does not need a written answer. The cost is opening notes that do not contain the word.",
