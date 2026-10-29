@@ -21,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Jakob Alex",
   description:
-    "Selected work: CiteBot, citebot-evals, Desk, desk-index, and Ledger API — grounding tools and a custody ledger.",
+    "Jakob Alex, Berlin. Question answering and search over documents, showing which file each result came from.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

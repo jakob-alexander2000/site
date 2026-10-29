@@ -19,8 +19,8 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            I build tools that ground answers in sources and show their work —
-            claim, evidence, pass or fail.
+            Question answering and search over documents, showing which file
+            each result came from. CiteBot also marks whether each claim holds.
           </p>
           <div className="mt-8">
             <a
@@ -45,9 +45,9 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Grounding tools — tool-using Q&A with visible verify, score the
-            loop, run it on a local folder, index the Markdown underneath — and
-            a custody ledger for client cash.
+            Four projects: question answering with a visible check, a fixed test
+            set for it, answers from a local folder, and Markdown search without
+            a model.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -55,9 +55,9 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Confident answers can invent. Citation chips alone don’t prove the draft came from the handbook."
-              shipped="v2 agent loop: plan → handbook tools → draft → verify. UI shows Steps and Evidence — each claim pass or fail against sources. Live at /ask; scored harness at /harness."
-              tradeoff="One handbook, bounded tools. Show the loop instead of a black-box answer."
+              problem="Confident answers can invent. A list of sources alone doesn’t prove the answer came from the handbook."
+              shipped="Version 2 works in four steps: plan, look things up in the handbook, draft, then check each claim. The page shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
+              tradeoff="One handbook, bounded tools. Show every step, not only the final answer."
               stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
               liveHref="https://citebot-chi.vercel.app/ask"
               liveLabel="Ask →"
@@ -68,10 +68,10 @@ export default function Home() {
 
             <ProjectCard
               title="citebot-evals"
-              status="18/18"
-              problem="A verify loop without a score is hard to trust — or to re-run."
-              shipped="Eighteen fixed handbook cases (grounded and adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
-              tradeoff="Product-bound suite, not a mega-benchmark. Fixture CI only; live path optional."
+              status="18 of 18 example answers pass"
+              problem="Without fixed questions, a change to CiteBot can't be checked the same way twice."
+              shipped="Eighteen fixed handbook questions: twelve where the answer must state a fact and cite the right file, six where it must refuse or correct a false premise. One command, npm run eval, scores example answers written for the test. No model, no key."
+              tradeoff="Scores example answers, not live model output. A live call to CiteBot is optional and is not the gate."
               stack={["TypeScript", "Node"]}
               writeupHref="https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture"
               writeupLabel="Scorecard →"
@@ -82,12 +82,12 @@ export default function Home() {
             <ProjectCard
               title="Desk"
               status="Shipped"
-              problem="Grounding in the browser is one thing; notes on disk need the same idea locally."
-              shipped="Folder agent: CLI ask/report over Markdown on disk, plus a localhost UI. Same grounding idea as CiteBot, local corpus."
-              tradeoff="CLI and localhost over Electron. Useful in minutes beats packaging for a first cut."
+              problem="CiteBot answers from one handbook on the web. Notes on your own computer need answers that name their files too."
+              shipped="Ask a folder of Markdown notes from the command line, or write a report back into the folder. A local web page answers questions too. Each answer lists its sources by file and line range."
+              tradeoff="A command line and a local page; no desktop app."
               stack={["Node", "TypeScript", "Gemini"]}
               writeupHref="https://github.com/jakob-alexander2000/desk#60-second-run"
-              writeupLabel="60s run →"
+              writeupLabel="60-second run →"
               sourceHref="https://github.com/jakob-alexander2000/desk"
               sourceLabel="View source"
             />
@@ -96,25 +96,12 @@ export default function Home() {
               title="desk-index"
               status="Shipped"
               problem="Sometimes you only need ranked Markdown hits — no model, no cloud."
-              shipped="Go HTTP API and CLI: walk a folder of .md files into an in-memory inverted index. Search returns ranked paths, titles, and snippets. Stdlib only."
-              tradeoff="In-memory TF-IDF over a database. Enough for a notes folder; zero deps."
+              shipped="Go web service and command line: walk a folder of .md files into an in-memory inverted index. Search returns ranked paths, titles, and snippets. Go standard library only."
+              tradeoff="An in-memory index ranks files by how often the query words appear and how rare they are. Enough for a notes folder; no outside packages."
               stack={["Go"]}
               writeupHref="https://github.com/jakob-alexander2000/desk-index#demo"
               writeupLabel="Demo →"
               sourceHref="https://github.com/jakob-alexander2000/desk-index"
-              sourceLabel="View source"
-            />
-
-            <ProjectCard
-              title="Ledger API"
-              status="Shipped"
-              problem="Money movement without a durable settlement record is hard to audit. Floating point and a mutable balance invite silent corruption."
-              shipped="Kotlin Spring Boot custody ledger: open accounts, then settle a deposit, withdrawal, or transfer in one transaction. Append-only ledger rows and a position update under an account lock. Idempotent settle or reject with Idempotency-Key. Flyway, tests, CI, Docker Compose on Postgres."
-              tradeoff="One bounded context: client cash custody. Integer minor units. H2 for bootRun; Postgres in Compose."
-              stack={["Kotlin", "Spring Boot", "Flyway", "PostgreSQL", "Docker"]}
-              writeupHref="https://github.com/jakob-alexander2000/ledger-api#run-locally"
-              writeupLabel="Run locally →"
-              sourceHref="https://github.com/jakob-alexander2000/ledger-api"
               sourceLabel="View source"
             />
           </div>
@@ -134,15 +121,14 @@ export default function Home() {
           </h2>
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
             <p>
-              Based in Berlin. Literature background, CS by distance learning
+              Based in Berlin. Literature background, computer science by distance learning
               (finishing early next year). I care about product taste as much as
               the stack — clear scope, readable code, writing that explains the
               tradeoff.
             </p>
             <p>
-              Recent work: CiteBot, a scored eval suite, Desk on a local
-              folder, and a small Go search API underneath, plus Ledger API, a
-              custody ledger for client cash.
+              Recent work: CiteBot, a scored test set for it, Desk on a local
+              folder, and a small Go search service for Markdown notes.
             </p>
           </div>
         </section>
@@ -160,7 +146,7 @@ export default function Home() {
             Contact
           </h2>
           <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
-            GitHub is the best place to reach the work. Email and LinkedIn soon.
+            GitHub is the best place to reach the work.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
             <a
