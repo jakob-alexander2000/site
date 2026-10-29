@@ -1,11 +1,18 @@
-// Real sample data copied from the project repositories.
+// Sample workplace notes for the on-page search. Neutral on purpose.
 export const DESK_NOTES = [
   {
-    "path": "desk-brief.md",
-    "content": "# Desk brief\n\nDesk is a local-first folder agent.\n\n## Workflow\n1. Point at a folder of notes or docs\n2. Ask a question grounded in those files\n3. Optionally write a markdown report back into the folder\n\n## Stack\n- Node 20+\n- Gemini API via `GEMINI_API_KEY`\n- CLI primary; optional localhost UI (`desk ui`)\n\n## Non-goals (v0.1)\n- Electron / Tauri packaging\n- Ollama (documented as future)\n- Cloud sync\n"
+    path: "core-hours.md",
+    content:
+      "# Core hours\n\nCore hours are 10:00 to 16:00 Berlin time, Monday through Friday.\n",
   },
   {
-    "path": "meeting-2026-10-20.md",
-    "content": "# Sync — 20 Oct 2026\n\nAttendees: Jakob, Career Coach bot notes\n\nDecisions:\n- Ship CiteBot + verify harness first (done)\n- Then narrow eval suite (citebot-evals)\n- Then Desk as the local folder agent\n\nOpen questions:\n- Whether Desk stays CLI-only for v1 or adds a tray later\n- Whether to demo on a personal notes folder or keep sample-notes for strangers\n"
-  }
+    path: "paid-time-off.md",
+    content:
+      "# Paid time off\n\nFull-time staff receive 30 days of paid time off each year.\nUnused paid time off does not carry past March.\n",
+  },
+  {
+    path: "team-offsite.md",
+    content:
+      "# Team offsite\n\nThe June offsite meets in person.\nBook travel with the expense note before you go.\n",
+  },
 ] as const;

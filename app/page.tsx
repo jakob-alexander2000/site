@@ -286,8 +286,8 @@ export default function Home() {
               </p>
               <SearchDemo
                 kind="desk"
-                suggestions={["What is Desk?", "report", "strangers"]}
-                lead="Live demo. This is Desk’s passage ranking, on two sample notes from the project. The program that writes the answer stays in Desk."
+                suggestions={["What are core hours?", "offsite", "parking"]}
+                lead="Live demo. This is Desk’s passage ranking, on three sample notes about core hours, paid time off, and a team offsite. The program that writes the answer stays in Desk."
               />
               <div className="links">
                 <a className="tap" href="https://github.com/jakob-alexander2000/desk">
@@ -335,8 +335,8 @@ export default function Home() {
               </p>
               <SearchDemo
                 kind="index"
-                suggestions={["Berlin", "pager", "core hours"]}
-                lead="Live demo. The same ranking as the Go search server, on two sample notes from the project."
+                suggestions={["What are core hours?", "expense", "parking"]}
+                lead="Live demo. The same ranking as the Go search server, on three sample notes about core hours, an expense policy, and a team offsite."
               />
               <div className="links">
                 <a className="tap" href="https://github.com/jakob-alexander2000/desk-index">

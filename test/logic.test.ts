@@ -47,28 +47,30 @@ test("the planted 25-day sentence fails the vacation case", () => {
 });
 
 test("Desk ranking uses the sample notes", () => {
+  assert.ok(DESK_NOTES.length >= 3);
   assert.deepEqual(
     DESK_NOTES.map((note) => note.path),
-    ["desk-brief.md", "meeting-2026-10-20.md"],
+    ["core-hours.md", "paid-time-off.md", "team-offsite.md"],
   );
-  const desk = searchDesk("What is Desk?");
-  assert.equal(desk[0]?.path, "desk-brief.md");
+  const desk = searchDesk("What are core hours?");
+  assert.equal(desk[0]?.path, "core-hours.md");
   assert.ok((desk[0]?.score ?? 0) > (desk[1]?.score ?? 0));
-  assert.equal(searchDesk("strangers")[0]?.path, "meeting-2026-10-20.md");
-  assert.equal(searchDesk("localhost UI")[0]?.path, "desk-brief.md");
+  assert.equal(searchDesk("offsite")[0]?.path, "team-offsite.md");
+  assert.equal(searchDesk("parking").length, 0);
   const empty = searchDesk("");
-  assert.equal(empty.length, 2);
+  assert.equal(empty.length, 3);
   assert.equal(empty[0]?.score, 0);
 });
 
 test("desk-index ranking uses the sample notes", () => {
+  assert.ok(INDEX_NOTES.length >= 3);
   assert.deepEqual(
     INDEX_NOTES.map((note) => note.path),
-    ["ops/oncall.md", "remote-work.md"],
+    ["notes/core-hours.md", "notes/expense-policy.md", "notes/offsite.md"],
   );
-  assert.equal(searchIndex("Berlin")[0]?.path, "remote-work.md");
-  assert.equal(searchIndex("pager")[0]?.path, "ops/oncall.md");
-  assert.equal(searchIndex("core hours")[0]?.title, "Remote work");
-  assert.equal(searchIndex("applied").length, 0);
+  assert.equal(searchIndex("What are core hours?")[0]?.path, "notes/core-hours.md");
+  assert.equal(searchIndex("expense")[0]?.path, "notes/expense-policy.md");
+  assert.equal(searchIndex("core hours")[0]?.title, "Core hours");
+  assert.equal(searchIndex("parking").length, 0);
   assert.equal(searchIndex("a").length, 0);
 });
