@@ -129,7 +129,7 @@ test("home shows the check, the four projects, and no banned words", async () =>
   assert.equal(text.includes("18/18"), false);
   assert.equal(
     text.includes(
-      "Tools that answer from sources you can check: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without a model.",
+      "Four projects: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without a model.",
     ),
     true,
   );
@@ -147,6 +147,19 @@ test("home shows the check, the four projects, and no banned words", async () =>
     false,
   );
   assert.equal(text.includes("not from files a visitor brings"), true);
+  assert.equal(
+    text.includes(
+      "It splits the answer into claims and checks each claim against the handbook passages it looked up.",
+    ),
+    true,
+  );
+  assert.equal(
+    text.includes(
+      "An answer is split into claims, and each claim is checked against the handbook passages it looked up.",
+    ),
+    true,
+  );
+  assert.equal(/page it came from|passage it came from/i.test(text), false);
   assert.equal(text.includes("only when a passage matches"), true);
   assert.equal(/saved answers|saved replies/i.test(text), false);
   assert.equal(/\bPTO\b/.test(text), false);

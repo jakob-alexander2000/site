@@ -64,9 +64,9 @@ export default function Home() {
                 </a>
               </p>
               <p className="sentence">
-                Tools that answer from sources you can check: question answering
-                with a visible check, a fixed test set for it, answers from a
-                local folder, and Markdown search without a model.
+                Four projects: question answering with a visible check, a fixed
+                test set for it, answers from a local folder, and Markdown
+                search without a model.
                 <a className="mark tap" href="#note-work">
                   <span className="sr-only">Note </span>2
                 </a>
@@ -93,7 +93,7 @@ export default function Home() {
                 <p>
                   CiteBot answers from its own sample handbook, not from files a
                   visitor brings. It splits the answer into claims and checks
-                  each claim against the passage it came from.
+                  each claim against the handbook passages it looked up.
                 </p>
                 <a className="tap" href="https://citebot-chi.vercel.app/ask">
                   Live
@@ -116,7 +116,7 @@ export default function Home() {
                 <li>
                   <span className="work-copy">
                     <span className="work-name">CiteBot</span>
-                    <span className="work-idea">Claims checked against the page.</span>
+                    <span className="work-idea">Claims checked against the passages.</span>
                   </span>
                   <a className="try tap" id="first-try" href="#citebot">
                     Try it
@@ -177,7 +177,7 @@ export default function Home() {
             <div>
               <h2 id="citebot-title">
                 An answer is split into claims, and each claim is checked
-                against the handbook page it came from.
+                against the handbook passages it looked up.
               </h2>
               <p className="problem">
                 <span className="lab">The problem</span>
