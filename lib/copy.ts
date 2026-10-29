@@ -28,5 +28,41 @@ export const CLAIMS = [
 
 export const PAGE_QUOTES = [
   "Full-time employees receive 30 days of paid vacation per calendar year, plus German public holidays observed in Berlin.",
-  "Unused PTO does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
+  "Unused paid time off does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
 ] as const;
+
+/**
+ * Jakob's own sentence for each project: what he chose, designed, or cut.
+ * Leave the string empty until he writes it. Empty strings are not rendered,
+ * so a filled line appears in the existing paragraph style.
+ */
+export const DECISIONS: Record<string, string> = {
+  citebot: "",
+  "citebot-evals": "",
+  desk: "",
+  "desk-index": "",
+};
+
+export function visibleDecision(line: string | undefined): string | null {
+  const trimmed = line?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+export function missSentence(query: string): string {
+  const word = query.trim().replace(/[.?!]+$/g, "");
+  return `No note mentions ${word}.`;
+}
+
+export type QueryPhase = "idle" | "empty" | "short" | "miss" | "hit";
+
+export function queryPhase(submitted: string | null, tokens: number, hits: number): QueryPhase {
+  if (submitted === null) return "idle";
+  if (submitted.trim() === "") return "empty";
+  if (tokens === 0) return "short";
+  if (hits === 0) return "miss";
+  return "hit";
+}
+
+export const SEARCH_HINT = "Type a word such as work, berlin, or invoice.";
+export const SEARCH_EMPTY = "Type a word to search the notes.";
+export const SEARCH_SHORT = "Type a longer word to search the notes.";

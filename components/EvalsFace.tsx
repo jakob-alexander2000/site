@@ -21,22 +21,6 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
 
   return (
     <div className="well evals" ref={well} data-live="0">
-      <p className="score">
-        <span className="score-num">
-          {passed}/{marks.length}
-        </span>
-        <span className="kicker">saved answers</span>
-      </p>
-      <div className="ticks" aria-hidden="true">
-        {marks.map((ok, i) => (
-          <span
-            key={i}
-            className={ok ? "tick" : "tick off"}
-            style={{ ["--i" as string]: i }}
-          />
-        ))}
-      </div>
-      <p className="well-note">Suite checks on the saved answers. No AI is called.</p>
       <button
         type="button"
         className="press"
@@ -46,6 +30,22 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
       >
         Try it
       </button>
+      <p className="score">
+        <span className="score-num">
+          {passed}/{marks.length}
+        </span>
+        <span className="kicker">saved answers</span>
+      </p>
+      <div className="ticks" aria-hidden="true">
+        {marks.map((ok, index) => (
+          <span
+            key={index}
+            className={ok ? "tick" : "tick fail"}
+            style={{ ["--i" as string]: index }}
+          />
+        ))}
+      </div>
+      <p className="well-note">Suite checks on the saved answers. No AI is called.</p>
     </div>
   );
 }

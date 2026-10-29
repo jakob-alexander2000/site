@@ -1,64 +1,61 @@
 "use client";
 
-import { useState } from "react";
 import { Highlight } from "@/components/Highlight";
-import { Knob } from "@/components/Knob";
+import { QueryForm, useSubmittedQuery } from "@/components/QueryForm";
+import {
+  SEARCH_EMPTY,
+  SEARCH_HINT,
+  SEARCH_SHORT,
+  missSentence,
+  queryPhase,
+} from "@/lib/copy";
 import { search, tokenize } from "@/lib/desk-index";
-import { INDEX_DOCS, INDEX_STOPS } from "@/lib/samples";
-
-const SLOTS = [0, 1];
+import { INDEX_DOCS } from "@/lib/samples";
 
 export function IndexFace() {
-  const [index, setIndex] = useState(0);
-  const [gen, setGen] = useState(0);
-  const query = INDEX_STOPS[index] ?? INDEX_STOPS[0];
-  const hits = search(INDEX_DOCS, query, 4);
-  const tokens = tokenize(query);
-
-  function onChange(next: number) {
-    setIndex(next);
-    setGen((n) => n + 1);
-  }
-
-  function tryIt() {
-    onChange((index + 1) % INDEX_STOPS.length);
-  }
+  const { draft, setDraft, submitted, generation, onSubmit } = useSubmittedQuery();
+  const tokens = submitted ? tokenize(submitted) : [];
+  const hits = submitted && tokens.length > 0 ? search(INDEX_DOCS, submitted, 3) : [];
+  const phase = queryPhase(submitted, tokens.length, hits.length);
 
   return (
-    <div className="well index">
-      <button type="button" className="press" data-try="desk-index" onClick={tryIt}>
-        Try it
-      </button>
-      <Knob label="Search words" stops={INDEX_STOPS} index={index} onChange={onChange} />
-      <div className="stack" aria-live="polite">
-        {SLOTS.map((slot) => {
-          const hit = hits[slot];
-          if (!hit) {
-            return (
-              <div className="hit vacant" key={`empty-${slot}`}>
-                <span className="path">—</span>
-              </div>
-            );
-          }
-          return (
-            <div className={gen > 0 ? "hit show" : "hit"} key={`${hit.path}-${gen}`}>
+    <QueryForm
+      tryId="desk-index"
+      note="The score multiplies how often the word appears in the note by the number of notes, then divides by how many notes contain the word. No AI is called."
+      draft={draft}
+      setDraft={setDraft}
+      onSubmit={onSubmit}
+    >
+      {phase === "hit"
+        ? hits.map((hit, index) => (
+            <div
+              className="hit show"
+              key={`${hit.path}-${generation}`}
+              style={{ ["--i" as string]: index }}
+            >
               <div className="hit-top">
-                <span className="rank">{slot + 1}</span>
+                <span className="rank">{index + 1}</span>
                 <span className="path">{hit.path}</span>
-                <span className="score-sm">{hit.score.toFixed(2)}</span>
+                <span className="score-sm">
+                  <span className="sr-only">Score </span>
+                  {hit.score.toFixed(2)}
+                </span>
               </div>
               <p className="titleline">{hit.title}</p>
               <p className="excerpt">
                 <Highlight text={hit.snippet} tokens={tokens} />
               </p>
             </div>
-          );
-        })}
-      </div>
-      <p className="well-note">
-        Two sample notes, ops/oncall.md and remote-work.md, ranked with the Go server’s
-        term score.
-      </p>
-    </div>
+          ))
+        : null}
+      {phase === "miss" ? (
+        <p className="miss show" key={generation}>
+          {missSentence(submitted ?? "")}
+        </p>
+      ) : null}
+      {phase === "empty" ? <p className="hint">{SEARCH_EMPTY}</p> : null}
+      {phase === "short" ? <p className="hint">{SEARCH_SHORT}</p> : null}
+      {phase === "idle" ? <p className="hint">{SEARCH_HINT}</p> : null}
+    </QueryForm>
   );
 }

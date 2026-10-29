@@ -21,23 +21,6 @@ export function CiteBotFace() {
 
   return (
     <div className="well cite" ref={well} data-live="0">
-      <div className="quotes">
-        {PAGE_QUOTES.map((quote) => (
-          <p key={quote}>{quote}</p>
-        ))}
-      </div>
-      <ul className="claims" aria-label="Claims from one answer">
-        {CLAIMS.map((claim) => (
-          <li key={claim.text} className={claim.verdict === "Fail" ? "row fail" : "row"}>
-            <span className="bulb" aria-hidden="true" />
-            <div>
-              <p className="claim">{claim.text}</p>
-              <p className="src">{claim.source}</p>
-            </div>
-            <p className="v">{claim.verdict}</p>
-          </li>
-        ))}
-      </ul>
       <button
         type="button"
         className="press"
@@ -47,6 +30,23 @@ export function CiteBotFace() {
       >
         Try it
       </button>
+      <div className="quotes">
+        {PAGE_QUOTES.map((quote) => (
+          <p key={quote}>{quote}</p>
+        ))}
+      </div>
+      <ul className="claims" aria-label="Claims from one answer">
+        {CLAIMS.map((claim) => (
+          <li key={claim.text} className={claim.verdict === "Fail" ? "row fail" : "row"}>
+            <span className="bar" aria-hidden="true" />
+            <div>
+              <p className="claim">{claim.text}</p>
+              <p className="src">{claim.source}</p>
+            </div>
+            <p className="v">{claim.verdict}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
