@@ -46,8 +46,7 @@ export default function Home() {
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
             Grounding tools — tool-using Q&A with visible verify, score the
-            loop, run it on a local folder, index the Markdown underneath — and
-            a custody ledger for client cash.
+            loop, run it on a local folder, and index the Markdown underneath.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -104,19 +103,6 @@ export default function Home() {
               sourceHref="https://github.com/jakob-alexander2000/desk-index"
               sourceLabel="View source"
             />
-
-            <ProjectCard
-              title="Ledger API"
-              status="Shipped"
-              problem="Money movement without a durable settlement record is hard to audit. Floating point and a mutable balance invite silent corruption."
-              shipped="Kotlin Spring Boot custody ledger: open accounts, then settle a deposit, withdrawal, or transfer in one transaction. Append-only ledger rows and a position update under an account lock. Idempotent settle or reject with Idempotency-Key. Flyway, tests, CI, Docker Compose on Postgres."
-              tradeoff="One bounded context: client cash custody. Integer minor units. H2 for bootRun; Postgres in Compose."
-              stack={["Kotlin", "Spring Boot", "Flyway", "PostgreSQL", "Docker"]}
-              writeupHref="https://github.com/jakob-alexander2000/ledger-api#run-locally"
-              writeupLabel="Run locally →"
-              sourceHref="https://github.com/jakob-alexander2000/ledger-api"
-              sourceLabel="View source"
-            />
           </div>
         </section>
 
@@ -141,8 +127,7 @@ export default function Home() {
             </p>
             <p>
               Recent work: CiteBot, a scored eval suite, Desk on a local
-              folder, and a small Go search API underneath, plus Ledger API, a
-              custody ledger for client cash.
+              folder, and a small Go search API underneath.
             </p>
           </div>
         </section>
@@ -160,7 +145,7 @@ export default function Home() {
             Contact
           </h2>
           <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
-            GitHub is the best place to reach the work. Email and LinkedIn soon.
+            GitHub is the best place to reach the work.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
             <a
