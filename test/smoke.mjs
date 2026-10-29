@@ -32,6 +32,9 @@ function textOf(html) {
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;|&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ");
 }
 
@@ -124,6 +127,21 @@ test("home shows the check, the four projects, and no banned words", async () =>
   assert.equal(text.includes("Recorded run"), true);
   assert.equal(text.includes("18 of 18 example answers"), true);
   assert.equal(text.includes("18/18"), false);
+  assert.equal(
+    text.includes(
+      "Tools that answer from sources you can check: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without a model.",
+    ),
+    true,
+  );
+  assert.equal(
+    text.includes(
+      "Without fixed questions, a change to CiteBot can't be checked the same way twice.",
+    ),
+    true,
+  );
+  assert.equal(text.includes("does not score CiteBot's live answers"), true);
+  assert.equal(/score the loop|grounding/i.test(text), false);
+  assert.equal(/\bloop\b/i.test(text), false);
   assert.equal(/saved answers|saved replies/i.test(text), false);
   assert.equal(/\bPTO\b/.test(text), false);
   assert.equal(/\bUTC\b/.test(text), false);

@@ -77,13 +77,15 @@ export default function Home() {
                 </a>
               </p>
               <p className="sentence">
-                He builds AI software that shows its sources and checks itself.
+                Tools that answer from sources you can check: question answering
+                with a visible check, a fixed test set for it, answers from a
+                local folder, and Markdown search without a model.
                 <a className="mark tap" href="#note-work">
                   <span className="sr-only">Note </span>2
                 </a>
               </p>
               <p className="sentence">
-                A fixed test of that check scores 18 of 18 example answers.
+                A fixed test set scores 18 of 18 example answers.
                 <a className="mark tap" href="#note-proof">
                   <span className="sr-only">Note </span>3
                 </a>
@@ -139,7 +141,7 @@ export default function Home() {
                 <li>
                   <span className="work-copy">
                     <span className="work-name">citebot-evals</span>
-                    <span className="work-idea">Eighteen questions, scored offline.</span>
+                    <span className="work-idea">A fixed test set of example answers.</span>
                   </span>
                   <a className="try tap" href="#scorecard">
                     Try it
@@ -206,13 +208,13 @@ export default function Home() {
               24 commits. Commits on 26 Oct are authored by Jakob Alex and
               include the first version, the move to Gemini, and the claim
               check. From 27 Oct the commits are co-authored with Cursor,
-              including the loop that looks up the handbook at most three
+              including the part that looks up the handbook at most three
               times, writes a draft, then checks it. The program is Next.js and
               TypeScript.
               <span className="made-extra">
                 <span className="lab">AI built</span>
                 From 27 Oct the commits are co-authored with Cursor, including
-                the loop that looks up the handbook at most three times, writes
+                the part that looks up the handbook at most three times, writes
                 a draft, then checks it.
                 <Decision id="citebot" />
               </span>
@@ -230,14 +232,13 @@ export default function Home() {
           <div className="row">
             <div>
               <h2 id="score-title">
-                Eighteen fixed handbook questions score that check, offline, in
+                Hand-written example answers on a fixed test set are scored in
                 one command.
               </h2>
               <p className="problem">
                 <span className="lab">The problem</span>
-                A check you cannot run again is only a story. The person who
-                keeps the checker cannot show that a change held, so a wrong
-                answer can reach the reader.
+                Without fixed questions, a change to CiteBot can't be checked
+                the same way twice.
               </p>
               <Scorecard />
               <div className="links">

@@ -55,9 +55,10 @@ export function Scorecard() {
   return (
     <div className="tool">
       <p className="tool-lead">
-        These fifteen questions are hand-written examples. The button scores
-        them with the same checks as the suite. The full set is 18 of 18
-        example answers. Three examples stay in the repository.
+        These fifteen questions are hand-written examples on a fixed test set.
+        The button scores those examples. It does not score CiteBot's live
+        answers. The full set is 18 of 18 example answers. Three examples stay
+        in the repository.
       </p>
       <button type="button" className="ink tap" onClick={run}>
         {rows ? "Run the scorecard again" : "Run the scorecard"}
