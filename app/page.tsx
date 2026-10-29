@@ -163,7 +163,7 @@ export default function Home() {
                 <li>
                   <span className="work-copy">
                     <span className="work-name">desk-index</span>
-                    <span className="work-idea">Find the note, no model.</span>
+                    <span className="work-idea">Go search, no model.</span>
                   </span>
                   <a className="try tap" href="#index">
                     Try it
@@ -287,7 +287,7 @@ export default function Home() {
               <SearchDemo
                 kind="desk"
                 suggestions={["What are core hours?", "offsite", "parking"]}
-                lead="Live demo. This is Desk’s passage ranking, on three sample notes about core hours, paid time off, and a team offsite. The program that writes the answer stays in Desk."
+                lead="Live demo. This passage ranking is Desk’s own search, from src/retrieve.ts. Desk does not use desk-index. The page answers the question and names the files. It does not write a report."
               />
               <div className="links">
                 <a className="tap" href="https://github.com/jakob-alexander2000/desk">
@@ -323,8 +323,8 @@ export default function Home() {
           <div className="row">
             <div>
               <h2 id="index-title">
-                Find the matching note from the words in it, with no language
-                model and no database.
+                A small Go search service for Markdown notes that finds the
+                note from the words in it, with no language model.
               </h2>
               <p className="problem">
                 <span className="lab">The problem</span>
@@ -336,7 +336,7 @@ export default function Home() {
               <SearchDemo
                 kind="index"
                 suggestions={["What are core hours?", "expense", "parking"]}
-                lead="Live demo. The same ranking as the Go search server, on three sample notes about core hours, an expense policy, and a team offsite."
+                lead="Live demo. This is desk-index’s own search, on three sample notes about core hours, an expense policy, and a team offsite. It searches the notes without a model. It does not sit under Desk, and it does not power Desk."
               />
               <div className="links">
                 <a className="tap" href="https://github.com/jakob-alexander2000/desk-index">

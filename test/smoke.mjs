@@ -141,6 +141,17 @@ test("home shows the check, the four projects, and no banned words", async () =>
   assert.equal(text.includes("paid time off"), true);
   assert.equal(text.includes("Berlin time"), true);
   assert.equal(text.includes("books the wrong leave"), true);
+  assert.equal(text.includes("Desk does not use desk-index."), true);
+  assert.equal(text.includes("src/retrieve.ts"), true);
+  assert.equal(text.includes("does not write a report"), true);
+  assert.equal((text.match(/write a report/gi) || []).length, 1);
+  assert.equal(
+    text.includes("A small Go search service for Markdown notes"),
+    true,
+  );
+  assert.equal(text.includes("does not power Desk"), true);
+  assert.equal(text.includes("does not sit under Desk"), true);
+  assert.equal(/underneath/i.test(text), false);
   assert.equal(text.includes("github.com/jakob-alexander2000"), true);
   assert.equal(text.includes("Colophon"), false);
 
