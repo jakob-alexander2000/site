@@ -60,6 +60,17 @@ test("Desk ranking uses the sample notes", () => {
   const empty = searchDesk("");
   assert.equal(empty.length, 3);
   assert.equal(empty[0]?.score, 0);
+  for (const hit of empty) {
+    assert.equal(hit.excerpt.startsWith("#"), false, hit.path);
+    assert.doesNotMatch(
+      hit.excerpt,
+      new RegExp(`^${hit.title}\\s+${hit.title}`, "i"),
+      hit.path,
+    );
+  }
+  const hours = searchDesk("What are core hours?")[0];
+  assert.ok(hours);
+  assert.equal(hours.excerpt.startsWith("Core hours are"), true);
 });
 
 test("desk-index ranking uses the sample notes", () => {
@@ -73,4 +84,9 @@ test("desk-index ranking uses the sample notes", () => {
   assert.equal(searchIndex("core hours")[0]?.title, "Core hours");
   assert.equal(searchIndex("parking").length, 0);
   assert.equal(searchIndex("a").length, 0);
+  const hours = searchIndex("What are core hours?")[0];
+  assert.ok(hours);
+  assert.equal(hours.snippet.startsWith("#"), false);
+  assert.doesNotMatch(hours.snippet, /^Core hours\s+Core hours/i);
+  assert.equal(hours.snippet.startsWith("Core hours are"), true);
 });

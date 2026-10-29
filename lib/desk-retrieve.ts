@@ -93,8 +93,8 @@ export function searchDesk(query: string, k = 8): DeskHit[] {
     : CHUNKS.slice(0, k).map((chunk) => ({ chunk, score: 0 }));
 
   return ranked.map(({ chunk, score }) => {
-    const excerpt =
-      chunk.text.length > 280 ? `${chunk.text.slice(0, 277).trim()}…` : chunk.text;
+    const body = chunk.text.replace(/^\s*#{1,6}[ \t]*[^\n]*\n+/, "");
+    const excerpt = body.length > 280 ? `${body.slice(0, 277).trim()}…` : body;
     return {
       path: chunk.relPath,
       title: TITLES.get(chunk.relPath) ?? chunk.relPath,

@@ -104,9 +104,9 @@ export default function Home() {
               <aside className="note note-2" id="note-work" role="note">
                 <p className="note-kicker">CiteBot</p>
                 <p>
-                  CiteBot answers from one sample handbook, splits the answer
-                  into claims, and checks each claim against the passage it
-                  came from.
+                  CiteBot answers from its own sample handbook, not from files a
+                  visitor brings. It splits the answer into claims and checks
+                  each claim against the passage it came from.
                 </p>
                 <a className="tap" href="https://citebot-chi.vercel.app/ask">
                   Live
@@ -250,7 +250,7 @@ export default function Home() {
                 <span className="lab">How it was made</span>
                 26 Oct 2026, 17:24 Berlin time, to 27 Oct 2026, 15:06 Berlin
                 time. 3 commits. Jakob Alex authored the eighteen-question
-                suite and the scorecard. A later documentation commit is
+                set and the scorecard. A later documentation commit is
                 co-authored with Cursor.
                 <span className="made-extra">
                   <span className="lab">AI built</span>
@@ -276,8 +276,8 @@ export default function Home() {
           <div className="row">
             <div>
               <h2 id="desk-title">
-                Ask a folder of notes and get an answer that names the files it
-                used.
+                Ask a folder of notes. When a passage matches, the answer names
+                that file.
               </h2>
               <p className="problem">
                 <span className="lab">The problem</span>
@@ -288,7 +288,7 @@ export default function Home() {
               <SearchDemo
                 kind="desk"
                 suggestions={["What are core hours?", "offsite", "parking"]}
-                lead="Live demo. This passage ranking is Desk’s own search, from src/retrieve.ts. Desk does not use desk-index. The page answers the question and names the files. It does not write a report."
+                lead="Live demo. This passage ranking is Desk’s own search, from src/retrieve.ts. Desk does not use desk-index. A file is named only when a passage matches. Desk’s page answers a question. It does not write a report."
               />
               <div className="links">
                 <a className="tap" href="https://github.com/jakob-alexander2000/desk">
@@ -325,14 +325,14 @@ export default function Home() {
             <div>
               <h2 id="index-title">
                 A small Go search service for Markdown notes that finds the
-                note from the words in it, with no language model.
+                note from the words in it, with no model.
               </h2>
               <p className="problem">
                 <span className="lab">The problem</span>
                 Sometimes you do not want a written answer. You want the note.
                 Anyone searching a folder of notes opens the wrong file, or
-                waits on a model they did not ask for. A language model is the
-                program that writes an answer. This one only finds the note.
+                waits on a model they did not ask for. A model is the program
+                that writes an answer. This one only finds the note.
               </p>
               <SearchDemo
                 kind="index"

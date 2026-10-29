@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Jakob Alex",
   description:
-    "Berlin-based software builder. He studied comparative literature, taught himself to build software, and builds AI software that shows its sources and checks itself.",
+    "Berlin-based software builder. He studied comparative literature, taught himself to build software, and builds tools that show their sources and check their answers.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

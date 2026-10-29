@@ -142,6 +142,12 @@ test("home shows the check, the four projects, and no banned words", async () =>
   assert.equal(text.includes("does not score CiteBot's live answers"), true);
   assert.equal(/score the loop|grounding/i.test(text), false);
   assert.equal(/\bloop\b/i.test(text), false);
+  assert.equal(
+    /citation chips|agent loop|black-box|black box|\bharness\b|\bUI\b/i.test(text),
+    false,
+  );
+  assert.equal(text.includes("not from files a visitor brings"), true);
+  assert.equal(text.includes("only when a passage matches"), true);
   assert.equal(/saved answers|saved replies/i.test(text), false);
   assert.equal(/\bPTO\b/.test(text), false);
   assert.equal(/\bUTC\b/.test(text), false);
@@ -243,6 +249,14 @@ test("targets, type size, and the first Try it", async () => {
     assert.ok(
       narrow.scrollWidth <= narrow.clientWidth + 1,
       `horizontal scroll ${narrow.scrollWidth} > ${narrow.clientWidth}`,
+    );
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "20.8px";
+    });
+    const scaledTry = await box("#first-try");
+    assert.ok(
+      scaledTry.y + scaledTry.height <= 740,
+      `360x740 at 130% text Try it bottom ${scaledTry.y + scaledTry.height}`,
     );
 
     await openAt(1440, 900);

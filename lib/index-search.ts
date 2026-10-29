@@ -72,7 +72,8 @@ function collapseSpace(value: string): string {
 }
 
 function snippet(content: string, terms: string[]): string {
-  const lower = content.toLowerCase();
+  const body = content.replace(/^\s*#{1,6}[ \t]*[^\n]*\n+/, "");
+  const lower = body.toLowerCase();
   let pos = -1;
   for (const term of terms) {
     const at = lower.indexOf(term);
@@ -82,10 +83,10 @@ function snippet(content: string, terms: string[]): string {
   let start = pos - 40;
   if (start < 0) start = 0;
   let end = start + 160;
-  if (end > content.length) end = content.length;
-  let text = collapseSpace(content.slice(start, end).trim());
+  if (end > body.length) end = body.length;
+  let text = collapseSpace(body.slice(start, end).trim());
   if (start > 0) text = `…${text}`;
-  if (end < content.length) text = `${text}…`;
+  if (end < body.length) text = `${text}…`;
   return text;
 }
 
