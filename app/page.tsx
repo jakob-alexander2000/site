@@ -19,8 +19,8 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            Tools for asking questions of files you can open, with the source
-            named on every result. CiteBot also marks whether each claim holds.
+            Tools that answer questions from documents and show which file each
+            answer came from. CiteBot also marks whether each claim holds.
           </p>
           <div className="mt-8">
             <a
@@ -55,9 +55,9 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Confident answers can invent. Citation chips alone don’t prove the draft came from the handbook."
-              shipped="v2 agent loop: plan → handbook tools → draft → verify. The page shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
-              tradeoff="One handbook, bounded tools. Show the loop instead of a black-box answer."
+              problem="Confident answers can invent. Source links alone don’t prove the answer came from the handbook."
+              shipped="Version 2 works in four steps: plan, look things up in the handbook, draft, then check each claim. The page shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
+              tradeoff="One handbook, bounded tools. Show every step, not only the final answer."
               stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
               liveHref="https://citebot-chi.vercel.app/ask"
               liveLabel="Ask →"
@@ -82,7 +82,7 @@ export default function Home() {
             <ProjectCard
               title="Desk"
               status="Shipped"
-              problem="Grounding in the browser is one thing; notes on disk need the same idea locally."
+              problem="CiteBot checks answers in the browser; notes on your own computer need the same idea."
               shipped="Ask a folder of Markdown notes from the command line, or write a report back into the folder. A local web page answers questions too. Each answer lists its sources by file and line range."
               tradeoff="A command line and a local page; no desktop app."
               stack={["Node", "TypeScript", "Gemini"]}
