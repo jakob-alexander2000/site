@@ -67,9 +67,9 @@ export default function Home() {
 
             <ProjectCard
               title="citebot-evals"
-              status="18/18"
+              status="18 of 18 saved answers pass"
               problem="A verify loop without a score is hard to trust — or to re-run."
-              shipped="Eighteen fixed handbook cases (grounded and adversarial). One command: npm run eval → fixture Score: 18/18. No API keys."
+              shipped="Eighteen fixed handbook cases (grounded and adversarial). One command: npm run eval → fixture Score: 18 of 18 saved answers pass. No API keys."
               tradeoff="Product-bound suite, not a mega-benchmark. Fixture CI only; live path optional."
               stack={["TypeScript", "Node"]}
               writeupHref="https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture"
