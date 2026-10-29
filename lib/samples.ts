@@ -1,30 +1,31 @@
 import { makeDoc, type NoteDoc } from "./desk-index";
 import { chunkText, type DocChunk } from "./desk-retrieve";
 
-/** remote-work.md from the public desk-index sample folder. */
-export const REMOTE_WORK = `# Remote work
+/** Adapted example. Not a byte-for-byte copy of a repository sample. */
+export const CORE_HOURS = `# Core hours
 
 Core hours are 10:00–16:00 Berlin time.
-Async updates go in the shared notes folder.
+The overlap is for questions and handoffs.
 `;
 
-/** ops/oncall.md from the public desk-index sample folder, with the severity abbreviation written in words. */
-export const ON_CALL = `# On-call
+/** Adapted example. */
+export const PAID_TIME_OFF = `# Paid time off
 
-Primary on-call rotates weekly.
-Escalate a severe incident through the pager channel within 15 minutes.
+Full-time employees receive 30 days of paid time off per calendar year.
+Unused paid time off does not carry over past March 31.
 `;
 
-/** Workflow from the public Desk sample note, without the stack lines that use abbreviations. */
-export const DESK_BRIEF = `# Desk brief
+/** Adapted example. */
+export const OFFSITE = `# Team offsite
 
-Desk is a local-first folder agent. The workflow points at a folder of notes, asks a question grounded in those files, and can write a report back into the folder.
+The autumn offsite meets in Berlin.
+Travel and meals follow the expense policy.
 `;
 
 export const SAMPLE_NOTES = [
-  { path: "remote-work.md", content: REMOTE_WORK },
-  { path: "ops/oncall.md", content: ON_CALL },
-  { path: "desk-brief.md", content: DESK_BRIEF },
+  { path: "core-hours.md", content: CORE_HOURS },
+  { path: "paid-time-off.md", content: PAID_TIME_OFF },
+  { path: "offsite.md", content: OFFSITE },
 ] as const;
 
 export const DESK_CHUNKS: DocChunk[] = SAMPLE_NOTES.flatMap((note) =>

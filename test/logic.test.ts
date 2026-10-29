@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DECISIONS,
+  DEFAULT_QUESTION,
   missSentence,
   queryPhase,
   visibleDecision,
@@ -29,6 +30,8 @@ test("sample folder has three notes and can miss", () => {
   assert.equal(/\bCLI\b/.test(visible), false);
   assert.equal(/\bAPI\b/.test(visible), false);
   assert.equal(/\bPTO\b/.test(visible), false);
+  assert.equal(/hiring|hire|recruit|roles/i.test(visible), false);
+  assert.equal(DEFAULT_QUESTION, "What are core hours?");
 
   assert.equal(retrieve(DESK_CHUNKS, "invoice", 3).length, 0);
   assert.equal(search(INDEX_DOCS, "invoice", 4).length, 0);
@@ -37,31 +40,39 @@ test("sample folder has three notes and can miss", () => {
 });
 
 test("desk scores are not all 1.00", () => {
-  const work = retrieve(DESK_CHUNKS, "work", 3);
-  assert.ok(work.length >= 2);
-  assert.equal(work[0]?.relPath, "remote-work.md");
-  assert.equal(work[0]?.score, 1.5);
-  assert.notEqual(work[1]?.score, 1.5);
-  assert.ok(work.some((hit) => hit.score !== 1));
+  const hours = retrieve(DESK_CHUNKS, DEFAULT_QUESTION, 3);
+  assert.equal(hours.length, 1);
+  assert.equal(hours[0]?.relPath, "core-hours.md");
+  assert.equal(hours[0]?.score, 2);
 
-  const berlin = retrieve(DESK_CHUNKS, "berlin", 3);
-  assert.equal(berlin.length, 1);
-  assert.equal(berlin[0]?.relPath, "remote-work.md");
-  assert.equal(berlin[0]?.score, 1);
+  const berlin = retrieve(DESK_CHUNKS, "Berlin time", 3);
+  assert.equal(berlin.length, 3);
+  assert.deepEqual(
+    berlin.map((hit) => [hit.relPath, hit.score]),
+    [
+      ["core-hours.md", 1.41],
+      ["paid-time-off.md", 1.06],
+      ["offsite.md", 0.71],
+    ],
+  );
+  assert.ok(berlin.some((hit) => hit.score !== 1));
 });
 
 test("desk-index ranks with unequal scores", () => {
-  const folder = search(INDEX_DOCS, "folder", 4);
-  assert.equal(folder.length, 2);
-  assert.notEqual(folder[0]?.score, folder[1]?.score);
-  assert.ok(folder.every((hit) => hit.score !== 1));
-  assert.equal(folder[0]?.path, "desk-brief.md");
-  assert.equal(folder[1]?.path, "remote-work.md");
+  const time = search(INDEX_DOCS, "time", 4);
+  assert.equal(time.length, 2);
+  assert.notEqual(time[0]?.score, time[1]?.score);
+  assert.ok(time.every((hit) => hit.score !== 1));
+  assert.equal(time[0]?.path, "paid-time-off.md");
+  assert.equal(time[0]?.score, 6);
+  assert.equal(time[1]?.path, "core-hours.md");
+  assert.equal(time[1]?.score, 1.5);
 
-  const berlin = search(INDEX_DOCS, "berlin", 4);
-  assert.equal(berlin[0]?.path, "remote-work.md");
-  assert.equal(berlin[0]?.title, "Remote work");
-  assert.match(berlin[0]?.snippet ?? "", /Berlin/);
+  const hours = search(INDEX_DOCS, DEFAULT_QUESTION, 4);
+  assert.equal(hours[0]?.path, "core-hours.md");
+  assert.equal(hours[0]?.title, "Core hours");
+  assert.equal(hours[0]?.score, 15);
+  assert.match(hours[0]?.snippet ?? "", /Berlin/);
 });
 
 test("excerpts drop leading Markdown heading marks", () => {

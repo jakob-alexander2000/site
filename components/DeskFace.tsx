@@ -3,6 +3,7 @@
 import { Highlight } from "@/components/Highlight";
 import { QueryForm, useSubmittedQuery } from "@/components/QueryForm";
 import {
+  DEFAULT_QUESTION,
   SEARCH_EMPTY,
   SEARCH_HINT,
   SEARCH_SHORT,
@@ -14,7 +15,7 @@ import { plainExcerpt } from "@/lib/plain-excerpt";
 import { DESK_CHUNKS } from "@/lib/samples";
 
 export function DeskFace() {
-  const { draft, setDraft, submitted, generation, onSubmit } = useSubmittedQuery();
+  const { draft, setDraft, submitted, generation, onSubmit } = useSubmittedQuery(DEFAULT_QUESTION);
   const tokens = submitted ? tokenize(submitted) : [];
   const hits = submitted && tokens.length > 0 ? retrieve(DESK_CHUNKS, submitted, 3) : [];
   const phase = queryPhase(submitted, tokens.length, hits.length);

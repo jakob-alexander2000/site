@@ -2,8 +2,8 @@
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 
-export function useSubmittedQuery() {
-  const [draft, setDraft] = useState("");
+export function useSubmittedQuery(initial = "") {
+  const [draft, setDraft] = useState(initial);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [generation, setGeneration] = useState(0);
 
@@ -31,7 +31,7 @@ export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: 
   return (
     <form className="well" onSubmit={onSubmit}>
       <label className="field" htmlFor={inputId}>
-        <span className="kicker">Word</span>
+        <span className="kicker">Question</span>
         <input
           id={inputId}
           type="text"

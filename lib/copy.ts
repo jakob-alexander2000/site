@@ -63,6 +63,8 @@ export function queryPhase(submitted: string | null, tokens: number, hits: numbe
   return "hit";
 }
 
-export const SEARCH_HINT = "Type a word such as work, berlin, or invoice.";
+export const DEFAULT_QUESTION = "What are core hours?";
+
+export const SEARCH_HINT = "The question is filled in. Replace it with invoice to see a miss.";
 export const SEARCH_EMPTY = "Type a word to search the notes.";
 export const SEARCH_SHORT = "Type a longer word to search the notes.";
