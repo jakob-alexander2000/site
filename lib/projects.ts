@@ -31,11 +31,11 @@ export const CITEBOT = {
   mark: "Recorded run",
   name: "CiteBot",
   proof: `${citebotPass} pass, ${citebotFail} fail`,
-  idea: "It checks each sentence against its source.",
+  idea: "It checks each sentence of an answer from its own handbook against the page that sentence came from.",
   caption: "Try it. Each sentence lights up as pass or fail.",
   problem:
     "A person reading an answer cannot tell which sentences the handbook actually supports. The cost is acting on a rule the page does not state.",
-  made: "Cursor Agent co-authored 8 of 24 commits, from 27 Oct 2026 to 28 Oct 2026. The first commit is 26 Oct 2026 and the last is 28 Oct 2026. Those co-authored commits include the step that calls tools, a second model when the first is busy, and fixed questions used as a check.",
+  made: "Cursor Agent co-authored 8 of 24 commits, from 27 Oct 2026 to 28 Oct 2026. The first commit is 26 Oct 2026 and the last is 28 Oct 2026. Those co-authored commits include the step that calls tools, another AI when the first is busy, and fixed questions used as a check.",
   stack: "Next.js · TypeScript",
   links: [
     { label: "Live", href: "https://citebot-chi.vercel.app/ask" },
@@ -65,7 +65,7 @@ export const DESK = {
   mark: "Live demo",
   name: "Desk",
   proof: "Cited note",
-  idea: "It finds the note that matches a question and names the file.",
+  idea: "When a note matches a question, it names that file.",
   caption: "Try it. Type a word. The matching notes appear with their scores.",
   problem:
     "A person with notes on their own computer needs the file an answer came from. Without that file name, the cost is a sentence they cannot check.",
@@ -80,7 +80,7 @@ export const INDEX = {
   mark: "Live demo",
   name: "desk-index",
   proof: "Ranked notes",
-  idea: "A small Go search service for Markdown notes that searches notes without a model.",
+  idea: "A small Go search service for Markdown notes that searches notes without calling an AI.",
   caption: "Try it. Type a word. Matching notes stack in rank order.",
   problem:
     "A person who only wants the matching notes does not need a written answer. The cost is opening notes that do not contain the word.",

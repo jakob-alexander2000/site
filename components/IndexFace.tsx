@@ -23,7 +23,7 @@ export function IndexFace() {
   return (
     <QueryForm
       tryId="desk-index"
-      note="The sample notes are adapted examples. The score multiplies how often the word appears in the note by the number of notes, then divides by how many notes contain the word. No model is called."
+      note="The sample notes are adapted examples. The score multiplies how often the word appears in the note by the number of notes, then divides by how many notes contain the word. No AI is called."
       draft={draft}
       setDraft={setDraft}
       onSubmit={onSubmit}

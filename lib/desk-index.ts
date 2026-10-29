@@ -118,7 +118,7 @@ export function search(docs: NoteDoc[], query: string, limit = 10): Hit[] {
       path: doc.path,
       title: doc.title,
       score: r.s,
-      snippet: snippet(doc.content, terms),
+      snippet: snippet(doc.content.replace(/^#{1,6}[ \t]+[^\n]*\n+/, ""), terms),
     };
   });
 }

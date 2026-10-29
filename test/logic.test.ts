@@ -71,15 +71,39 @@ test("desk-index ranks with unequal scores", () => {
   const hours = search(INDEX_DOCS, DEFAULT_QUESTION, 4);
   assert.equal(hours[0]?.path, "core-hours.md");
   assert.equal(hours[0]?.title, "Core hours");
-  assert.equal(hours[0]?.score, 15);
+  assert.equal(hours[0]?.score, 12);
   assert.match(hours[0]?.snippet ?? "", /Berlin/);
 });
 
 test("excerpts drop leading Markdown heading marks", () => {
-  assert.equal(plainExcerpt("# Remote work\n\nCore hours"), "Remote work\n\nCore hours");
-  assert.equal(plainExcerpt("## Workflow\n1. Point at a folder"), "Workflow\n1. Point at a folder");
+  assert.equal(plainExcerpt("# Remote work\n\nCore hours"), "Core hours");
+  assert.equal(plainExcerpt("## Workflow\n1. Point at a folder"), "1. Point at a folder");
   assert.equal(plainExcerpt("…# Desk brief Desk is a folder agent."), "…Desk brief Desk is a folder agent.");
   assert.equal(plainExcerpt("# Desk brief Desk is"), "Desk brief Desk is");
+});
+
+test("no result excerpt starts with its own title", () => {
+  const queries = [DEFAULT_QUESTION, "Berlin time", "time", "invoice"];
+  for (const query of queries) {
+    for (const hit of search(INDEX_DOCS, query, 4)) {
+      const text = plainExcerpt(hit.snippet).trim();
+      assert.equal(
+        text.toLowerCase().startsWith(hit.title.toLowerCase()),
+        false,
+        `${hit.path} excerpt starts with ${hit.title}: ${text.slice(0, 80)}`,
+      );
+    }
+    for (const hit of retrieve(DESK_CHUNKS, query, 3)) {
+      const text = plainExcerpt(hit.excerpt).trim();
+      const title = hit.excerpt.match(/^#{1,6}[ \t]+([^\n]+)/)?.[1]?.trim() ?? "";
+      if (!title) continue;
+      assert.equal(
+        text.toLowerCase().startsWith(title.toLowerCase()),
+        false,
+        `${hit.relPath} excerpt starts with ${title}: ${text.slice(0, 80)}`,
+      );
+    }
+  }
 });
 
 test("decision lines stay hidden until filled, and only CiteBot is Live", () => {

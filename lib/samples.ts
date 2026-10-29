@@ -4,7 +4,7 @@ import { chunkText, type DocChunk } from "./desk-retrieve";
 /** Adapted example. Not a byte-for-byte copy of a repository sample. */
 export const CORE_HOURS = `# Core hours
 
-Core hours are 10:00–16:00 Berlin time.
+The hours are 10:00–16:00 Berlin time.
 The overlap is for questions and handoffs.
 `;
 

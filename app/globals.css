@@ -512,11 +512,12 @@ mark {
   }
 
   main {
-    padding-top: 4px;
+    padding-top: 0;
   }
 
   h1 {
-    margin-top: 4px;
+    margin-top: 2px;
+    font-size: 32px;
   }
 
   .lead,
@@ -542,6 +543,42 @@ mark {
     order: 1;
   }
 
+  #citebot > .plate-top {
+    order: 1;
+  }
+
+  #citebot > h3 {
+    order: 2;
+  }
+
+  #citebot > .well {
+    order: 3;
+  }
+
+  #citebot > .idea {
+    order: 4;
+  }
+
+  #citebot > .caption {
+    order: 5;
+  }
+
+  #citebot > .problem {
+    order: 6;
+  }
+
+  #citebot > .made {
+    order: 7;
+  }
+
+  #citebot > .meta {
+    order: 8;
+  }
+
+  #citebot > .links {
+    order: 9;
+  }
+
   .catalogue > .scope {
     order: 2;
     margin: 16px 0 0;
@@ -561,13 +598,13 @@ mark {
   }
 
   .instrument {
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 6px;
+    padding: 4px 12px 8px;
   }
 
   .well {
     gap: 8px;
-    padding: 8px;
+    padding: 6px;
   }
 }
 
