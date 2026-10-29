@@ -328,10 +328,6 @@ h1.name {
   line-height: 1.33;
 }
 
-.stack p + p {
-  margin-top: var(--s2);
-}
-
 footer.grid {
   padding: var(--s4) 0 var(--s6);
 }

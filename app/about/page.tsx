@@ -1,6 +1,5 @@
 import { TextLine } from "@/components/TextLine";
 import { Shell } from "@/components/Shell";
-import { CONTACT_EMAIL } from "@/lib/contact";
 import { ABOUT, GITHUB_PROFILE } from "@/lib/copy";
 
 export default function AboutPage() {
@@ -18,12 +17,7 @@ export default function AboutPage() {
         <h2 id="contact-label" className="lab">
           Contact
         </h2>
-        <div className="main stack">
-          <p>
-            <a href={`mailto:${CONTACT_EMAIL}`}>
-              <TextLine text={CONTACT_EMAIL} />
-            </a>
-          </p>
+        <div className="main">
           <p>
             <a href={GITHUB_PROFILE}>
               <TextLine text="github.com/jakob-alexander2000" />

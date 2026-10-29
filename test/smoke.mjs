@@ -29,6 +29,8 @@ function textOf(html) {
     .replace(/\s+/g, " ");
 }
 
+const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+
 function assertClean(html, where) {
   for (const banned of BANNED) {
     assert.equal(
@@ -37,6 +39,16 @@ function assertClean(html, where) {
       `${where} contains banned word: ${banned.name}`,
     );
   }
+  assert.equal(
+    html.includes("example-address"),
+    false,
+    `${where} still contains example-address`,
+  );
+  assert.equal(
+    EMAIL.test(html),
+    false,
+    `${where} contains an email address`,
+  );
 }
 
 let server;
@@ -109,7 +121,10 @@ test("about and a missing page stay free of banned words", async () => {
   const about = await fetch(`${BASE}/about`);
   assert.equal(about.status, 200);
   const aboutHtml = await about.text();
-  assert.equal(textOf(aboutHtml).includes("jakob@example-address"), true);
+  assert.equal(
+    textOf(aboutHtml).includes("github.com/jakob-alexander2000"),
+    true,
+  );
   assert.equal(
     textOf(aboutHtml).includes(
       "Set in Inter. Made in Berlin, with a guitar within reach.",
