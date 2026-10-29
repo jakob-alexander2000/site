@@ -46,7 +46,7 @@ export default function Home() {
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
             Grounding tools — question answering with a visible check, score the
-            loop, run it on a local folder, and index the Markdown underneath.
+            loop, run it on a local folder, and search Markdown notes without a model.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -126,8 +126,8 @@ export default function Home() {
               tradeoff.
             </p>
             <p>
-              Recent work: CiteBot, a scored eval suite, Desk on a local
-              folder, and a small Go search service underneath.
+              Recent work: CiteBot, a scored test set for it, Desk on a local
+              folder, and a small Go search service for Markdown notes.
             </p>
           </div>
         </section>
