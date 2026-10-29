@@ -1,0 +1,5 @@
+/* Exact sample notes from the project repositories. */
+export const DESK_BRIEF = "# Desk brief\n\nDesk is a local-first folder agent.\n\n## Workflow\n1. Point at a folder of notes or docs\n2. Ask a question grounded in those files\n3. Optionally write a markdown report back into the folder\n\n## Stack\n- Node 20+\n- Gemini API via `GEMINI_API_KEY`\n- CLI primary; optional localhost UI (`desk ui`)\n\n## Non-goals (v0.1)\n- Electron / Tauri packaging\n- Ollama (documented as future)\n- Cloud sync\n";
+export const DESK_MEETING = "# Sync — 20 Oct 2026\n\nAttendees: Jakob, Career Coach bot notes\n\nDecisions:\n- Ship CiteBot + verify harness first (done)\n- Then narrow eval suite (citebot-evals)\n- Then Desk as the local folder agent\n\nOpen questions:\n- Whether Desk stays CLI-only for v1 or adds a tray later\n- Whether to demo on a personal notes folder or keep sample-notes for strangers\n";
+export const INDEX_ONCALL = "# On-call\n\nPrimary on-call rotates weekly.\nEscalate sev-1 via the pager channel within 15 minutes.\n";
+export const INDEX_REMOTE = "# Remote work\n\nCore hours are 10:00–16:00 Berlin time.\nAsync updates go in the shared notes folder.\n";
