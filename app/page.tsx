@@ -52,13 +52,13 @@ export default function Home() {
           <div className="fold">
             <h1 id="hero-heading">Software that cites its sources.</h1>
             <p className="fold-line">
-              Berlin. Comparative literature, and software he taught himself.
+              Berlin. Comparative literature, then software.
             </p>
             <div className="ledes">
               <p className="sentence">
                 Jakob Alex is a Berlin-based software builder. He studied
-                comparative literature, taught himself to build software, and
-                reads every claim against its source.
+                comparative literature, builds software, and reads every claim
+                against its source.
                 <a className="mark tap" href="#note-who">
                   <span className="sr-only">Note </span>1
                 </a>
@@ -82,10 +82,10 @@ export default function Home() {
               <aside className="note note-1" id="note-who" role="note">
                 <p className="note-kicker">Note</p>
                 <p>
-                  Comparative literature is the training. The software is
-                  self-taught. People who have stayed inside one kind of work
-                  stop seeing a missing source. He still sees it. Computer
-                  science by distance learning, finishing early next year.
+                  Comparative literature is the training. He is studying
+                  computer science by distance learning. People who have stayed
+                  inside one kind of work stop seeing a missing source. He
+                  still sees it.
                 </p>
               </aside>
               <aside className="note note-2" id="note-work" role="note">
@@ -128,7 +128,7 @@ export default function Home() {
                 <li>
                   <span className="work-copy">
                     <span className="work-name">citebot-evals</span>
-                    <span className="work-idea">A fixed test set of example answers.</span>
+                    <span className="work-idea">Fixed questions, scored answers.</span>
                   </span>
                   <a className="try tap" href="#scorecard">
                     Try it
@@ -345,8 +345,8 @@ export default function Home() {
 
         <footer className="chapter close">
           <p>
-            He studied comparative literature and taught himself to build
-            software. A claim on this page keeps its source because he still
+            He studied comparative literature and builds software. A claim
+            on this page keeps its source because he still
             notices what a smooth sentence is leaning on.
           </p>
           <p className="sign">

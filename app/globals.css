@@ -781,8 +781,6 @@ blockquote,
     line-height: 1.15;
   }
   .work-idea {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
   }
 }
