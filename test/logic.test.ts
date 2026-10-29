@@ -100,7 +100,12 @@ test("decision lines stay hidden until filled, and only CiteBot is Live", () => 
   for (const project of PROJECTS) {
     assert.equal(project.made.includes("TODO"), false);
     assert.equal(project.made.includes("Jakob:"), false);
-    assert.match(project.problem, /cost/i);
+    if (project.id === "citebot-evals") {
+      assert.match(project.problem, /fixed questions/);
+      assert.equal(/live loop|grounding tools|score the loop/i.test(project.idea + project.problem), false);
+    } else {
+      assert.match(project.problem, /cost/i);
+    }
     assert.equal(project.proof.includes("18/18"), false);
     for (const link of project.links) {
       if (link.label === "Live") live.push(link);

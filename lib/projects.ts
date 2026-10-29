@@ -35,7 +35,7 @@ export const CITEBOT = {
   caption: "Try it. Each sentence lights up as pass or fail.",
   problem:
     "A person reading an answer cannot tell which sentences the handbook actually supports. The cost is acting on a rule the page does not state.",
-  made: "Cursor Agent co-authored 8 of 24 commits, from 27 Oct 2026 to 28 Oct 2026. The first commit is 26 Oct 2026 and the last is 28 Oct 2026. Those co-authored commits include the tool-using loop, the model fallback, and the fixed-question harness.",
+  made: "Cursor Agent co-authored 8 of 24 commits, from 27 Oct 2026 to 28 Oct 2026. The first commit is 26 Oct 2026 and the last is 28 Oct 2026. Those co-authored commits include the step that calls tools, a second model when the first is busy, and fixed questions used as a check.",
   stack: "Next.js · TypeScript",
   links: [
     { label: "Live", href: "https://citebot-chi.vercel.app/ask" },
@@ -50,10 +50,10 @@ export const EVALS = {
   mark: "Recorded run",
   name: "citebot-evals",
   proof: `${evalPassed} of ${evalMarks.length} example answers`,
-  idea: "It scores eighteen fixed handbook questions offline, without calling an AI.",
+  idea: "It scores eighteen hand-written example answers on a fixed test set, without calling an AI.",
   caption: `Try it. ${evalMarks.length} example answers score ${evalPassed} of ${evalMarks.length}.`,
   problem:
-    "One checked answer does not show that the same check holds across a fixed set of questions. The cost is a missed failure that the next answer repeats.",
+    "Without fixed questions, a change to CiteBot can't be checked the same way twice.",
   made: "3 commits, from 26 Oct 2026 to 27 Oct 2026. Cursor Agent co-authored the 27 Oct 2026 commit that rewrote the public scorecard notes.",
   stack: "TypeScript · Node",
   links: [{ label: "Source", href: "https://github.com/jakob-alexander2000/citebot-evals" }],

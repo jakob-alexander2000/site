@@ -6,7 +6,7 @@ import { IndexFace } from "@/components/IndexFace";
 import { Instrument } from "@/components/Instrument";
 import { SelectedIndex } from "@/components/SelectedIndex";
 import { Shell } from "@/components/Shell";
-import { EYE, HERO } from "@/lib/copy";
+import { EYE, HERO, SCOPE } from "@/lib/copy";
 import { scoreSavedFixture } from "@/lib/eval-run";
 import { PROJECTS, type ProjectId } from "@/lib/projects";
 
@@ -32,6 +32,7 @@ export default function Home() {
         <h2 id="catalogue-label" className="kicker">
           Selected work
         </h2>
+        <p className="scope">{SCOPE}</p>
         <SelectedIndex />
         <div className="grid">
           {PROJECTS.map((project) => (

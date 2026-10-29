@@ -3,6 +3,9 @@ export const GITHUB_PROFILE = "https://github.com/jakob-alexander2000";
 export const HERO =
   "Jakob Alex builds software in Berlin that shows its sources and checks its own answers.";
 
+export const SCOPE =
+  "Tools that answer from sources you can check: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without a model.";
+
 export const EYE =
   "He studied comparative literature and taught himself software, so he checks a sentence against the passage it came from.";
 
