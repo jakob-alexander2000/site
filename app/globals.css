@@ -473,14 +473,12 @@ blockquote,
   text-wrap: pretty;
 }
 
-.made-extra,
-.decision {
+.made-extra {
   display: block;
   margin-top: 0.75rem;
 }
 
-.made-extra .lab,
-.decision .lab { margin-top: 0.55rem; }
+.made-extra .lab { margin-top: 0.55rem; }
 
 .ink,
 .dialog-bar button,

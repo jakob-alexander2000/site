@@ -3,20 +3,7 @@ import { OpeningProof } from "@/components/OpeningProof";
 import { RunningHead } from "@/components/RunningHead";
 import { Scorecard } from "@/components/Scorecard";
 import { SearchDemo } from "@/components/SearchDemo";
-import { decisionFor, type DecisionId } from "@/lib/copy";
-
 const GITHUB = "https://github.com/jakob-alexander2000";
-
-function Decision({ id }: { id: DecisionId }) {
-  const text = decisionFor(id);
-  if (!text) return null;
-  return (
-    <span className="decision">
-      <span className="lab">Jakob decided</span>
-      {text}
-    </span>
-  );
-}
 
 export default function Home() {
   return (
@@ -216,7 +203,6 @@ export default function Home() {
                 From 27 Oct the commits are co-authored with Cursor, including
                 the part that looks up the handbook at most three times, writes
                 a draft, then checks it.
-                <Decision id="citebot" />
               </span>
             </div>
           </div>
@@ -255,7 +241,6 @@ export default function Home() {
                 <span className="made-extra">
                   <span className="lab">AI built</span>
                   A documentation commit on 27 Oct is co-authored with Cursor.
-                  <Decision id="evals" />
                 </span>
               </div>
             </div>
@@ -307,7 +292,6 @@ export default function Home() {
                 <span className="made-extra">
                   <span className="lab">AI built</span>
                   A documentation commit on 27 Oct is co-authored with Cursor.
-                  <Decision id="desk" />
                 </span>
               </div>
             </div>
@@ -353,7 +337,6 @@ export default function Home() {
                 <span className="made-extra">
                   <span className="lab">AI built</span>
                   The single commit does not name an assistant.
-                  <Decision id="index" />
                 </span>
               </div>
             </div>

@@ -1,18 +1,3 @@
-/** Empty until Jakob writes each sentence. The page renders a field only when it is filled. */
-export const jakobDecided = {
-  citebot: "",
-  evals: "",
-  desk: "",
-  index: "",
-} as const;
-
-export type DecisionId = keyof typeof jakobDecided;
-
-export function decisionFor(id: DecisionId): string | null {
-  const value = jakobDecided[id].trim();
-  return value.length > 0 ? value : null;
-}
-
 /** Visitor-facing spelling. The source notes stay unchanged for the checker. */
 export function forReaders(value: string): string {
   return value

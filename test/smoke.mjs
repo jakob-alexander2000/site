@@ -154,7 +154,7 @@ test("home shows the check, the four projects, and no banned words", async () =>
   assert.equal(/localhost/i.test(text), false);
   assert.equal(/adv-pto|pto-days/i.test(text), false);
   assert.equal(text.includes("TODO"), false);
-  assert.equal(text.includes("Jakob decided"), false);
+  assert.equal(/jakob decided|what I decided|I decided/i.test(text), false);
   assert.equal(text.includes("Retrieval Autopsy"), false);
   assert.equal(text.includes("Style Distance"), false);
   assert.equal(text.includes("Left open"), false);
