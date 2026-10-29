@@ -19,8 +19,8 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            Berlin. Question answering and search over documents, showing which
-            file each result came from. CiteBot also marks whether each claim holds.
+            Question answering and search over documents, showing which file
+            each result came from. CiteBot also marks whether each claim holds.
           </p>
           <div className="mt-8">
             <a
