@@ -1,36 +1,32 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import type { ReactNode } from "react";
+import { Geist, Newsreader } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sans = Geist({
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const serif = Newsreader({
   subsets: ["latin"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument",
-  subsets: ["latin"],
-  weight: "400",
+  display: "swap",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
   title: "Jakob Alex",
   description:
-    "Selected work: CiteBot, citebot-evals, Desk, desk-index, and Ledger API — grounding tools and a custody ledger.",
+    "Berlin-based software builder. He studied comparative literature, taught himself to build software, and builds AI software that shows its sources and checks itself.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+    <html lang="en" className={`${sans.variable} ${serif.variable} h-full antialiased`}>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
