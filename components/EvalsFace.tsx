@@ -31,7 +31,7 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
         Try it
       </button>
       <p className="score-phrase">
-        {passed} of {marks.length} saved answers
+        {passed} of {marks.length} example answers
       </p>
       <div className="ticks" aria-hidden="true">
         {marks.map((ok, index) => (
@@ -42,7 +42,7 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
           />
         ))}
       </div>
-      <p className="well-note">Suite checks on the saved answers. No AI is called.</p>
+      <p className="well-note">Suite checks on the example answers. No AI is called.</p>
     </div>
   );
 }

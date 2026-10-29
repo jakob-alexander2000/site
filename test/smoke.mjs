@@ -131,8 +131,10 @@ test("home renders four instruments and hides unfinished decisions", async () =>
   assert.equal(text.includes("Style Distance"), false);
   assert.equal(text.includes("Room for a later tool"), false);
   assert.equal(text.includes("The cost"), true);
-  assert.equal(text.includes("18 of 18 saved answers"), true);
+  assert.equal(text.includes("18 of 18 example answers"), true);
   assert.equal(text.includes("18/18"), false);
+  assert.equal(/saved answers/i.test(text), false);
+  assert.equal(/saved replies/i.test(text), false);
   assert.equal(text.includes("The sample notes are adapted examples."), true);
   assert.equal(
     text.includes("Set in Inter. Made in Berlin, with a guitar within reach."),
@@ -214,4 +216,34 @@ test("about and a missing page stay free of banned words", async () => {
   assert.equal(textOf(missingHtml).includes("This page is not on the site."), true);
   assert.equal(/ledger/i.test(missingHtml), false, "404 mentions Ledger");
   assertClean(missingHtml, "404");
+});
+
+test("the first Try it fits above the phone browser chrome", async () => {
+  const { chromium } = await import("playwright-core");
+  const browser = await chromium.launch({
+    channel: "chrome",
+    args: ["--no-sandbox", "--disable-dev-shm-usage"],
+  });
+  const viewports = [
+    { width: 390, height: 844, maxBottom: 640 },
+    { width: 360, height: 740, maxBottom: 560 },
+  ];
+  try {
+    for (const viewport of viewports) {
+      const page = await browser.newPage({
+        viewport: { width: viewport.width, height: viewport.height },
+      });
+      await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
+      const box = await page.locator("#citebot [data-try='citebot']").boundingBox();
+      assert.ok(box, `${viewport.width}x${viewport.height} has no Try it box`);
+      const bottom = box.y + box.height;
+      assert.ok(
+        bottom <= viewport.maxBottom,
+        `${viewport.width}x${viewport.height} Try it bottom ${bottom}px exceeds ${viewport.maxBottom}px`,
+      );
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+  }
 });

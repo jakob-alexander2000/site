@@ -31,7 +31,7 @@ export const CITEBOT = {
   mark: "Recorded run",
   name: "CiteBot",
   proof: `${citebotPass} pass, ${citebotFail} fail`,
-  idea: "It checks each sentence of an answer against the handbook page that sentence came from.",
+  idea: "It checks each sentence against its source.",
   caption: "Try it. Each sentence lights up as pass or fail.",
   problem:
     "A person reading an answer cannot tell which sentences the handbook actually supports. The cost is acting on a rule the page does not state.",
@@ -49,9 +49,9 @@ export const EVALS = {
   model: "JA-02",
   mark: "Recorded run",
   name: "citebot-evals",
-  proof: `${evalPassed} of ${evalMarks.length} saved answers`,
+  proof: `${evalPassed} of ${evalMarks.length} example answers`,
   idea: "It scores eighteen fixed handbook questions offline, without calling an AI.",
-  caption: `Try it. ${evalMarks.length} saved answers score ${evalPassed} of ${evalMarks.length}.`,
+  caption: `Try it. ${evalMarks.length} example answers score ${evalPassed} of ${evalMarks.length}.`,
   problem:
     "One checked answer does not show that the same check holds across a fixed set of questions. The cost is a missed failure that the next answer repeats.",
   made: "3 commits, from 26 Oct 2026 to 27 Oct 2026. Cursor Agent co-authored the 27 Oct 2026 commit that rewrote the public scorecard notes.",
