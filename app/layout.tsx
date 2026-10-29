@@ -1,36 +1,47 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { PAGE_TITLE } from "@/lib/copy";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument",
-  subsets: ["latin"],
-  weight: "400",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Jakob Alex",
-  description:
-    "Selected work: CiteBot, citebot-evals, Desk, desk-index, and Ledger API — grounding tools and a custody ledger.",
+  metadataBase: new URL("https://jakobalex.vercel.app"),
+  title: PAGE_TITLE,
+  description: PAGE_TITLE,
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_TITLE,
+    url: "https://jakobalex.vercel.app",
+    siteName: "Jakob Alex",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: PAGE_TITLE,
+    description: PAGE_TITLE,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F7F7F5",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+    <html lang="en" className={inter.className}>
+      <body>
+        <a className="skip" href="#content">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

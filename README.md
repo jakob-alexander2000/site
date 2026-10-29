@@ -1,17 +1,8 @@
-# Jakob Alex — personal site
+# Jakob Alex
 
-Quiet English portfolio. Selected work: **CiteBot** · **citebot-evals** · **Desk** · **desk-index** · **Ledger API**.
+Source for [jakobalex.vercel.app](https://jakobalex.vercel.app).
 
-- **Live:** [site-eight-ruddy-19.vercel.app](https://site-eight-ruddy-19.vercel.app)
-- **CiteBot:** [live](https://citebot-chi.vercel.app) · [verify writeup](https://citebot-chi.vercel.app/harness) · [source](https://github.com/jakob-alexander2000/citebot)
-- **citebot-evals:** [scorecard](https://github.com/jakob-alexander2000/citebot-evals#scorecard-fixture) (18/18 fixture)
-- **Desk:** [60-second run](https://github.com/jakob-alexander2000/desk#60-second-run)
-- **desk-index:** [demo](https://github.com/jakob-alexander2000/desk-index#demo)
-- **Ledger API:** [run locally](https://github.com/jakob-alexander2000/ledger-api#run-locally) · [source](https://github.com/jakob-alexander2000/ledger-api)
-
-## Stack
-
-Next.js (App Router) · TypeScript · Tailwind · Vercel
+Live: https://jakobalex.vercel.app
 
 ## Local
 
@@ -20,6 +11,13 @@ npm install
 npm run dev
 ```
 
-## Deploy
+## Check
 
-Pushed to `main`; Vercel auto-deploys.
+```bash
+npm run build
+npm run typecheck
+npm run lint
+npm test
+```
+
+`npm test` serves the production build and checks the home page.
