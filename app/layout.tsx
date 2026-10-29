@@ -21,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Jakob Alex",
   description:
-    "Jakob Alex, Berlin. Tools that answer from sources you can check.",
+    "Jakob Alex, Berlin. Question answering and search over documents, showing which file each result came from.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

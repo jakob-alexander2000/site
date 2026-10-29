@@ -19,8 +19,8 @@ export default function Home() {
             Jakob Alex
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            Tools that answer questions from documents and show which file each
-            answer came from. CiteBot also marks whether each claim holds.
+            Berlin. Question answering and search over documents, showing which
+            file each result came from. CiteBot also marks whether each claim holds.
           </p>
           <div className="mt-8">
             <a
@@ -45,9 +45,9 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Tools that answer from sources you can check: question answering
-            with a visible check, a fixed test set for it, answers from a local
-            folder, and Markdown search without a model.
+            Four projects: question answering with a visible check, a fixed test
+            set for it, answers from a local folder, and Markdown search without
+            a model.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -55,7 +55,7 @@ export default function Home() {
               title="CiteBot"
               status="Live"
               featured
-              problem="Confident answers can invent. Source links alone don’t prove the answer came from the handbook."
+              problem="Confident answers can invent. A list of sources alone doesn’t prove the answer came from the handbook."
               shipped="Version 2 works in four steps: plan, look things up in the handbook, draft, then check each claim. The page shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
               tradeoff="One handbook, bounded tools. Show every step, not only the final answer."
               stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
@@ -82,7 +82,7 @@ export default function Home() {
             <ProjectCard
               title="Desk"
               status="Shipped"
-              problem="CiteBot checks answers in the browser; notes on your own computer need the same idea."
+              problem="CiteBot answers from one handbook on the web. Notes on your own computer need answers that name their files too."
               shipped="Ask a folder of Markdown notes from the command line, or write a report back into the folder. A local web page answers questions too. Each answer lists its sources by file and line range."
               tradeoff="A command line and a local page; no desktop app."
               stack={["Node", "TypeScript", "Gemini"]}
