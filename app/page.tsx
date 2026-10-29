@@ -55,7 +55,7 @@ export default function Home() {
               status="Live"
               featured
               problem="Confident answers can invent. Citation chips alone don’t prove the draft came from the handbook."
-              shipped="v2 agent loop: plan → handbook tools → draft → verify. UI shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
+              shipped="v2 agent loop: plan → handbook tools → draft → verify. The page shows Steps and Evidence — each claim marked pass, fail or unsupported against its sources. Live at /ask; scored harness at /harness."
               tradeoff="One handbook, bounded tools. Show the loop instead of a black-box answer."
               stack={["Next.js", "TypeScript", "Gemini", "Vercel"]}
               liveHref="https://citebot-chi.vercel.app/ask"
@@ -82,7 +82,7 @@ export default function Home() {
               title="Desk"
               status="Shipped"
               problem="Grounding in the browser is one thing; notes on disk need the same idea locally."
-              shipped="Ask a folder of Markdown notes from the command line, or write a report back into the folder. A local web page does the same. Each answer lists its sources by file and line range."
+              shipped="Ask a folder of Markdown notes from the command line, or write a report back into the folder. A local web page answers questions too. Each answer lists its sources by file and line range."
               tradeoff="A command line and a local page; no desktop app."
               stack={["Node", "TypeScript", "Gemini"]}
               writeupHref="https://github.com/jakob-alexander2000/desk#60-second-run"
@@ -127,7 +127,7 @@ export default function Home() {
             </p>
             <p>
               Recent work: CiteBot, a scored eval suite, Desk on a local
-              folder, and a small Go search API underneath.
+              folder, and a small Go search service underneath.
             </p>
           </div>
         </section>
