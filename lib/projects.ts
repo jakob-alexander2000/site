@@ -31,7 +31,7 @@ export const CITEBOT = {
   mark: "Recorded run",
   name: "CiteBot",
   proof: `${citebotPass} pass, ${citebotFail} fail`,
-  idea: "It checks each sentence of an answer from its own handbook against the page that sentence came from.",
+  idea: "It checks each sentence of an answer against the handbook passages it looked up.",
   caption: "Try it. Each sentence lights up as pass or fail.",
   problem:
     "A person reading an answer cannot tell which sentences the handbook actually supports. The cost is acting on a rule the page does not state.",

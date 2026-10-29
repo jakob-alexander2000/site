@@ -100,7 +100,7 @@ test.after(() => {
   }
 });
 
-test("home renders four instruments and hides unfinished decisions", async () => {
+test("home renders four instruments", async () => {
   const response = await fetch(`${BASE}/`);
   assert.equal(response.status, 200);
   const html = await response.text();

@@ -191,7 +191,6 @@ h3 {
 .problem,
 .caption,
 .made,
-.decision,
 .claim,
 .excerpt,
 .hint,
@@ -551,7 +550,7 @@ mark {
     order: 2;
   }
 
-  #citebot > .well {
+  #citebot > .press {
     order: 3;
   }
 
@@ -559,24 +558,28 @@ mark {
     order: 4;
   }
 
-  #citebot > .caption {
+  #citebot > .well {
     order: 5;
   }
 
-  #citebot > .problem {
+  #citebot > .caption {
     order: 6;
   }
 
-  #citebot > .made {
+  #citebot > .problem {
     order: 7;
   }
 
-  #citebot > .meta {
+  #citebot > .made {
     order: 8;
   }
 
-  #citebot > .links {
+  #citebot > .meta {
     order: 9;
+  }
+
+  #citebot > .links {
+    order: 10;
   }
 
   .catalogue > .scope {

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { DECISIONS, visibleDecision } from "@/lib/copy";
 import type { ProjectLink } from "@/lib/projects";
 
 type Props = {
@@ -31,7 +30,6 @@ export function Instrument({
 }: Props) {
   const titleId = `${id}-title`;
   const captionId = `${id}-caption`;
-  const decision = visibleDecision(DECISIONS[id]);
 
   return (
     <article className="instrument" id={id} aria-labelledby={titleId}>
@@ -47,7 +45,6 @@ export function Instrument({
       </p>
       <p className="problem">{problem}</p>
       <p className="made">{made}</p>
-      {decision ? <p className="decision">{decision}</p> : null}
       <p className="meta">{stack}</p>
       <ul className="links">
         {links.map((link) => (

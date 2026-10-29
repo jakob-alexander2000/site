@@ -1,12 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  DECISIONS,
-  DEFAULT_QUESTION,
-  missSentence,
-  queryPhase,
-  visibleDecision,
-} from "../lib/copy";
+import { DEFAULT_QUESTION, missSentence, queryPhase } from "../lib/copy";
 import { search } from "../lib/desk-index";
 import { retrieve } from "../lib/desk-retrieve";
 import { scoreSavedFixture } from "../lib/eval-run";
@@ -106,14 +100,7 @@ test("no result excerpt starts with its own title", () => {
   }
 });
 
-test("decision lines stay hidden until filled, and only CiteBot is Live", () => {
-  for (const line of Object.values(DECISIONS)) {
-    assert.equal(line, "");
-    assert.equal(visibleDecision(line), null);
-  }
-  assert.equal(visibleDecision("   "), null);
-  assert.equal(visibleDecision("  I chose the scope. "), "I chose the scope.");
-
+test("only CiteBot is Live", () => {
   assert.equal(queryPhase(null, 0, 0), "idle");
   assert.equal(queryPhase("", 0, 0), "empty");
   assert.equal(queryPhase("a", 0, 0), "short");

@@ -4,7 +4,7 @@ export const HERO =
   "Jakob Alex builds software in Berlin that shows its sources and checks its own answers.";
 
 export const SCOPE =
-  "Tools that answer from sources you can check: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without calling an AI.";
+  "Four projects: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without calling an AI.";
 
 export const EYE =
   "He studied comparative literature and taught himself software, so he checks a sentence against the passage it came from.";
@@ -33,23 +33,6 @@ export const PAGE_QUOTES = [
   "Full-time employees receive 30 days of paid vacation per calendar year, plus German public holidays observed in Berlin.",
   "Unused paid time off does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
 ] as const;
-
-/**
- * Jakob's own sentence for each project: what he chose, designed, or cut.
- * Leave the string empty until he writes it. Empty strings are not rendered,
- * so a filled line appears in the existing paragraph style.
- */
-export const DECISIONS: Record<string, string> = {
-  citebot: "",
-  "citebot-evals": "",
-  desk: "",
-  "desk-index": "",
-};
-
-export function visibleDecision(line: string | undefined): string | null {
-  const trimmed = line?.trim() ?? "";
-  return trimmed.length > 0 ? trimmed : null;
-}
 
 export function missSentence(query: string): string {
   const word = query.trim().replace(/[.?!]+$/g, "");
