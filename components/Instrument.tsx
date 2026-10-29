@@ -30,7 +30,7 @@ export function Instrument({
 }: Props) {
   const titleId = `${id}-title`;
   const captionId = `${id}-caption`;
-  const todoAt = made.indexOf("TODO:");
+  const todoAt = made.indexOf("TODO(Jakob)");
   const madeBody = todoAt >= 0 ? made.slice(0, todoAt) : made;
   const todo = todoAt >= 0 ? made.slice(todoAt) : null;
 

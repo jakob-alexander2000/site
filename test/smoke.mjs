@@ -94,7 +94,11 @@ test("home renders the three claims, four instruments, and no banned words", asy
   for (const name of ["CiteBot", "citebot-evals", "Desk", "desk-index"]) {
     assert.equal(text.includes(name), true, `missing project: ${name}`);
   }
-  assert.equal(text.includes("Open bay"), true);
+  assert.equal(text.includes("Selected work"), true);
+  assert.equal(text.includes("Try it"), true);
+  assert.equal(text.includes("TODO(Jakob)"), true);
+  assert.equal(text.includes("Retrieval Autopsy"), true);
+  assert.equal(text.includes("Style Distance"), true);
   assert.equal(/ledger/i.test(html), false, "home mentions Ledger");
 
   assertClean(html, "/");

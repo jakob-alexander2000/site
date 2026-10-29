@@ -20,7 +20,7 @@ export function CiteBotFace() {
   }
 
   return (
-    <div className="well cite" ref={well} data-live="1">
+    <div className="well cite" ref={well} data-live="0">
       <div className="quotes">
         {PAGE_QUOTES.map((quote) => (
           <p key={quote}>{quote}</p>
@@ -38,8 +38,14 @@ export function CiteBotFace() {
           </li>
         ))}
       </ul>
-      <button type="button" className="press" onClick={replay} aria-describedby="citebot-caption">
-        Check
+      <button
+        type="button"
+        className="press"
+        data-try="citebot"
+        onClick={replay}
+        aria-describedby="citebot-caption"
+      >
+        Try it
       </button>
     </div>
   );

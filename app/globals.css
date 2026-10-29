@@ -49,6 +49,7 @@ body {
 a {
   color: inherit;
   text-underline-offset: 3px;
+  transition: opacity 200ms ease-out;
 }
 
 a:hover {
@@ -308,6 +309,7 @@ h1 {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.28) inset,
     0 2px 0 #8a2e09;
+  transition: transform 200ms ease-out;
 }
 
 .press:active {
@@ -385,7 +387,7 @@ h1 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  transition: transform 140ms ease-out;
+  transition: transform 200ms ease-out;
 }
 
 .needle {
@@ -456,7 +458,13 @@ h1 {
 .stack {
   display: grid;
   gap: 8px;
-  min-height: 188px;
+  min-height: 248px;
+}
+
+.index .hit,
+.index .hit.vacant {
+  height: 120px;
+  overflow: hidden;
 }
 
 .hit {
@@ -625,34 +633,74 @@ mark {
   border: 0;
 }
 
+.try-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.try-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.try-name {
+  font-weight: 520;
+  min-width: 0;
+}
+
+.try-proof {
+  margin-left: auto;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.try-list .press {
+  width: auto;
+  min-width: 5.75rem;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+}
+
+.try-list a {
+  font-size: 14px;
+}
+
+.instrument {
+  scroll-margin-top: 12px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .cite[data-live="1"] .bulb {
-    animation: ignite 460ms ease-out both;
-  }
-
-  .cite[data-live="1"] .row:nth-child(1) .bulb {
-    animation-delay: 80ms;
+    animation: ignite 220ms ease-out both;
+    animation-iteration-count: 1;
   }
 
   .cite[data-live="1"] .row:nth-child(2) .bulb {
-    animation-delay: 340ms;
+    animation-delay: 180ms;
   }
 
   .cite[data-live="1"] .row:nth-child(3) .bulb {
-    animation-delay: 600ms;
+    animation-delay: 360ms;
   }
 
   .evals[data-live="1"] .tick {
-    animation: rise 240ms ease-out both;
-    animation-delay: calc(980ms + var(--i) * 46ms);
-  }
-
-  .evals[data-replay="1"][data-live="1"] .tick {
-    animation-delay: calc(var(--i) * 46ms);
+    animation: rise 200ms ease-out both;
+    animation-iteration-count: 1;
+    animation-delay: calc(var(--i) * 60ms);
   }
 
   .hit.show {
-    animation: stack-in 280ms ease-out both;
+    animation: stack-in 220ms ease-out both;
+    animation-iteration-count: 1;
   }
 }
 
@@ -755,7 +803,7 @@ mark {
     padding: 5px 0;
   }
 
-  .press {
+  .well .press {
     margin-top: 8px;
   }
 

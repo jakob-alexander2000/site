@@ -18,8 +18,15 @@ export function DeskFace() {
     setGen((n) => n + 1);
   }
 
+  function tryIt() {
+    onChange((index + 1) % DESK_STOPS.length);
+  }
+
   return (
     <div className="well desk">
+      <button type="button" className="press" data-try="desk" onClick={tryIt}>
+        Try it
+      </button>
       <Knob label="Question words" stops={DESK_STOPS} index={index} onChange={onChange} />
       {hit ? (
         <div className={gen > 0 ? "hit show" : "hit"} key={`${hit.relPath}-${gen}`}>

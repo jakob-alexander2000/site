@@ -12,7 +12,6 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.dataset.live = "0";
     if (reduce) return;
-    el.dataset.replay = "1";
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (well.current) well.current.dataset.live = "1";
@@ -21,7 +20,7 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
   }
 
   return (
-    <div className="well evals" ref={well} data-live="1" data-replay="0">
+    <div className="well evals" ref={well} data-live="0">
       <p className="score">
         <span className="score-num">
           {passed}/{marks.length}
@@ -41,10 +40,11 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
       <button
         type="button"
         className="press"
+        data-try="citebot-evals"
         onClick={replay}
         aria-describedby="citebot-evals-caption"
       >
-        Run
+        Try it
       </button>
     </div>
   );

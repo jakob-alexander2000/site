@@ -11,10 +11,10 @@ export const CITEBOT = {
   mark: "Recorded run",
   name: "CiteBot",
   idea: "It checks each sentence of an answer against the handbook page that sentence came from.",
-  caption: "Press check. Each sentence lights up as pass or fail.",
+  caption: "Try it. Each sentence lights up as pass or fail.",
   problem:
     "A person reading an answer cannot tell which sentences the handbook actually supports.",
-  made: "26 Oct 2026 to 28 Oct 2026, 24 commits. Eight commits, starting 27 Oct 2026, list Cursor Agent as a co-author. TODO: Jakob to confirm what he decided himself.",
+  made: "AI built the tool-using loop, the model fallback, and the fixed-question harness: Cursor Agent co-authored eight commits from 27 Oct 2026. Jakob: TODO(Jakob).",
   stack: "Next.js · TypeScript",
   links: [
     { label: "Ask a question", href: "https://citebot-chi.vercel.app/ask" },
@@ -31,7 +31,7 @@ export const EVALS = {
   idea: "It scores eighteen fixed handbook questions offline, without calling an AI.",
   problem:
     "One checked answer does not show that the same check holds across a fixed set of questions.",
-  made: "26 Oct 2026 to 27 Oct 2026, 3 commits. The last commit lists Cursor Agent as a co-author. TODO: Jakob to confirm what he decided himself.",
+  made: "AI co-authored the 27 Oct 2026 commit that rewrote the public scorecard notes. Jakob: TODO(Jakob).",
   stack: "TypeScript · Node",
   links: [
     {
@@ -48,9 +48,9 @@ export const DESK = {
   mark: "Live demo",
   name: "Desk",
   idea: "It finds the note that matches a question and names the file.",
-  caption: "Turn the dial. The matching note appears, with its file name.",
+  caption: "Try it. The matching note appears, with its file name.",
   problem: "A person with notes on their own computer needs the file an answer came from.",
-  made: "26 Oct 2026 to 27 Oct 2026, 2 commits. The last lists Cursor Agent as a co-author. The feature map keeps this search and drops a packaged desktop app. TODO: Jakob to confirm what he decided himself.",
+  made: "AI co-authored the 27 Oct 2026 commit that rewrote the public notes. The feature map keeps keyword search and drops a packaged app. Jakob: TODO(Jakob).",
   stack: "TypeScript · Node",
   links: [
     { label: "Run in 60 seconds", href: "https://github.com/jakob-alexander2000/desk#60-second-run" },
@@ -64,9 +64,9 @@ export const INDEX = {
   mark: "Live demo",
   name: "desk-index",
   idea: "It ranks notes in a folder, with no AI and no database.",
-  caption: "Turn the dial. Matching notes stack in rank order.",
+  caption: "Try it. Matching notes stack in rank order.",
   problem: "A person who only wants the matching notes does not need a written answer.",
-  made: "26 Oct 2026, 1 commit, with no co-author line. TODO: Jakob to confirm what he decided himself.",
+  made: "No commit lists an AI co-author. One commit, 26 Oct 2026. Jakob: TODO(Jakob).",
   stack: "Go",
   links: [
     { label: "Demo", href: "https://github.com/jakob-alexander2000/desk-index#demo" },

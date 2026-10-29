@@ -20,8 +20,15 @@ export function IndexFace() {
     setGen((n) => n + 1);
   }
 
+  function tryIt() {
+    onChange((index + 1) % INDEX_STOPS.length);
+  }
+
   return (
     <div className="well index">
+      <button type="button" className="press" data-try="desk-index" onClick={tryIt}>
+        Try it
+      </button>
       <Knob label="Search words" stops={INDEX_STOPS} index={index} onChange={onChange} />
       <div className="stack" aria-live="polite">
         {SLOTS.map((slot) => {
