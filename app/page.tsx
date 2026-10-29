@@ -45,8 +45,9 @@ export default function Home() {
             Selected work
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Grounding tools — question answering with a visible check, score the
-            loop, run it on a local folder, and search Markdown notes without a model.
+            Tools that answer from sources you can check: question answering
+            with a visible check, a fixed test set for it, answers from a local
+            folder, and Markdown search without a model.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -68,7 +69,7 @@ export default function Home() {
             <ProjectCard
               title="citebot-evals"
               status="18 of 18 example answers pass"
-              problem="A verify loop without a score is hard to trust — or to re-run."
+              problem="Without fixed questions, a change to CiteBot can't be checked the same way twice."
               shipped="Eighteen fixed handbook questions: twelve where the answer must state a fact and cite the right file, six where it must refuse or correct a false premise. One command, npm run eval, scores example answers written for the test. No model, no key."
               tradeoff="Scores example answers, not live model output. A live call to CiteBot is optional and is not the gate."
               stack={["TypeScript", "Node"]}
