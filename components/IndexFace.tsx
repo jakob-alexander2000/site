@@ -10,6 +10,7 @@ import {
   queryPhase,
 } from "@/lib/copy";
 import { search, tokenize } from "@/lib/desk-index";
+import { plainExcerpt } from "@/lib/plain-excerpt";
 import { INDEX_DOCS } from "@/lib/samples";
 
 export function IndexFace() {
@@ -21,7 +22,7 @@ export function IndexFace() {
   return (
     <QueryForm
       tryId="desk-index"
-      note="The score multiplies how often the word appears in the note by the number of notes, then divides by how many notes contain the word. No AI is called."
+      note="The sample notes are adapted examples. The score multiplies how often the word appears in the note by the number of notes, then divides by how many notes contain the word. No AI is called."
       draft={draft}
       setDraft={setDraft}
       onSubmit={onSubmit}
@@ -43,7 +44,7 @@ export function IndexFace() {
               </div>
               <p className="titleline">{hit.title}</p>
               <p className="excerpt">
-                <Highlight text={hit.snippet} tokens={tokens} />
+                <Highlight text={plainExcerpt(hit.snippet)} tokens={tokens} />
               </p>
             </div>
           ))

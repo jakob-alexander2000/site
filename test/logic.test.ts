@@ -9,6 +9,7 @@ import {
 import { search } from "../lib/desk-index";
 import { retrieve } from "../lib/desk-retrieve";
 import { scoreSavedFixture } from "../lib/eval-run";
+import { plainExcerpt } from "../lib/plain-excerpt";
 import { PROJECTS, type ProjectLink } from "../lib/projects";
 import { DESK_CHUNKS, INDEX_DOCS, SAMPLE_NOTES } from "../lib/samples";
 
@@ -63,6 +64,13 @@ test("desk-index ranks with unequal scores", () => {
   assert.match(berlin[0]?.snippet ?? "", /Berlin/);
 });
 
+test("excerpts drop leading Markdown heading marks", () => {
+  assert.equal(plainExcerpt("# Remote work\n\nCore hours"), "Remote work\n\nCore hours");
+  assert.equal(plainExcerpt("## Workflow\n1. Point at a folder"), "Workflow\n1. Point at a folder");
+  assert.equal(plainExcerpt("…# Desk brief Desk is a folder agent."), "…Desk brief Desk is a folder agent.");
+  assert.equal(plainExcerpt("# Desk brief Desk is"), "Desk brief Desk is");
+});
+
 test("decision lines stay hidden until filled, and only CiteBot is Live", () => {
   for (const line of Object.values(DECISIONS)) {
     assert.equal(line, "");
@@ -82,6 +90,7 @@ test("decision lines stay hidden until filled, and only CiteBot is Live", () => 
     assert.equal(project.made.includes("TODO"), false);
     assert.equal(project.made.includes("Jakob:"), false);
     assert.match(project.problem, /cost/i);
+    assert.equal(project.proof.includes("18/18"), false);
     for (const link of project.links) {
       if (link.label === "Live") live.push(link);
       if (link.href.includes("github.com")) assert.equal(link.label, "Source");

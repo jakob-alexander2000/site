@@ -41,11 +41,11 @@ export function Instrument({
       </p>
       <h3 id={titleId}>{name}</h3>
       <p className="idea">{idea}</p>
-      <p className="problem">{problem}</p>
+      {children}
       <p id={captionId} className="caption">
         {caption}
       </p>
-      {children}
+      <p className="problem">{problem}</p>
       <p className="made">{made}</p>
       {decision ? <p className="decision">{decision}</p> : null}
       <p className="meta">{stack}</p>

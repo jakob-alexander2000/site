@@ -239,9 +239,12 @@ h3 {
 
 .try-list a {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 0 12px;
+  padding-left: 0;
+  padding-right: 0;
   text-decoration: none;
 }
 
@@ -368,21 +371,11 @@ h3 {
   opacity: 0.72;
 }
 
-.score {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+.score-phrase {
   margin: 0;
-}
-
-.score-num {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 32px;
+  font-size: 16px;
   font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
 }
 
 .ticks {
@@ -445,7 +438,7 @@ h3 {
 
 .miss {
   padding-left: 10px;
-  border-left: 3px solid var(--fail);
+  border-left: 3px solid var(--muted);
 }
 
 mark {
@@ -504,6 +497,28 @@ mark {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (max-width: 799px) {
+  main {
+    padding-top: 8px;
+  }
+
+  .lead {
+    margin-top: 8px;
+  }
+
+  .catalogue {
+    margin-top: 8px;
+  }
+
+  .try-list {
+    margin-bottom: 8px;
+  }
+
+  .instrument {
+    padding: 16px;
+  }
 }
 
 @media (min-width: 800px) {

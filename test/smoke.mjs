@@ -131,6 +131,9 @@ test("home renders four instruments and hides unfinished decisions", async () =>
   assert.equal(text.includes("Style Distance"), false);
   assert.equal(text.includes("Room for a later tool"), false);
   assert.equal(text.includes("The cost"), true);
+  assert.equal(text.includes("18 of 18 saved answers"), true);
+  assert.equal(text.includes("18/18"), false);
+  assert.equal(text.includes("The sample notes are adapted examples."), true);
   assert.equal(
     text.includes("Set in Inter. Made in Berlin, with a guitar within reach."),
     true,

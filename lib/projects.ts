@@ -49,7 +49,7 @@ export const EVALS = {
   model: "JA-02",
   mark: "Recorded run",
   name: "citebot-evals",
-  proof: `${evalPassed}/${evalMarks.length}`,
+  proof: `${evalPassed} of ${evalMarks.length} saved answers`,
   idea: "It scores eighteen fixed handbook questions offline, without calling an AI.",
   caption: `Try it. ${evalMarks.length} saved answers score ${evalPassed} of ${evalMarks.length}.`,
   problem:

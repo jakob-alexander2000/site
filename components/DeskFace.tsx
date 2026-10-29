@@ -10,6 +10,7 @@ import {
   queryPhase,
 } from "@/lib/copy";
 import { retrieve, tokenize } from "@/lib/desk-retrieve";
+import { plainExcerpt } from "@/lib/plain-excerpt";
 import { DESK_CHUNKS } from "@/lib/samples";
 
 export function DeskFace() {
@@ -21,7 +22,7 @@ export function DeskFace() {
   return (
     <QueryForm
       tryId="desk"
-      note="One query word scores 1.00 when it is in the note, or 1.50 when it is also in the file name. Writing an answer calls an AI, and that step is not run here."
+      note="The sample notes are adapted examples. One query word scores 1.00 when it is in the note, or 1.50 when it is also in the file name. Writing an answer calls an AI, and that step is not run here."
       draft={draft}
       setDraft={setDraft}
       onSubmit={onSubmit}
@@ -42,7 +43,7 @@ export function DeskFace() {
                 </span>
               </div>
               <p className="excerpt">
-                <Highlight text={hit.excerpt} tokens={tokens} />
+                <Highlight text={plainExcerpt(hit.excerpt)} tokens={tokens} />
               </p>
             </div>
           ))

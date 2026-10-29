@@ -30,11 +30,8 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
       >
         Try it
       </button>
-      <p className="score">
-        <span className="score-num">
-          {passed}/{marks.length}
-        </span>
-        <span className="kicker">saved answers</span>
+      <p className="score-phrase">
+        {passed} of {marks.length} saved answers
       </p>
       <div className="ticks" aria-hidden="true">
         {marks.map((ok, index) => (
