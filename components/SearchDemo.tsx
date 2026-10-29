@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { forReaders } from "@/lib/copy";
 import { searchDesk } from "@/lib/desk-retrieve";
 import { searchIndex } from "@/lib/index-search";
 
@@ -88,14 +89,14 @@ export function SearchDemo({ kind, suggestions, lead }: Props) {
             autoComplete="off"
             spellCheck={false}
           />
-          <button type="submit" className="ink">
+          <button type="submit" className="ink tap">
             Search
           </button>
         </div>
       </form>
       <div className="suggestions">
         {suggestions.map((suggestion) => (
-          <button key={suggestion} type="button" onClick={() => run(suggestion)}>
+          <button key={suggestion} type="button" className="tap" onClick={() => run(suggestion)}>
             {suggestion}
           </button>
         ))}
@@ -113,7 +114,7 @@ export function SearchDemo({ kind, suggestions, lead }: Props) {
               </p>
               <p className="hit-title">{hit.title}</p>
               {hit.lines ? <p className="hit-lines">Lines {hit.lines}</p> : null}
-              <p className="hit-snip">{hit.snippet}</p>
+              <p className="hit-snip">{forReaders(hit.snippet)}</p>
             </li>
           ))}
         </ol>

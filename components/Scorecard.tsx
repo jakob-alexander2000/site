@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { forReaders } from "@/lib/copy";
 import { RECORDED_CASES } from "@/lib/recorded-cases";
 import { casePassed, scoreCase, type CheckResult } from "@/lib/score-case";
 
@@ -54,16 +55,16 @@ export function Scorecard() {
   return (
     <div className="tool">
       <p className="tool-lead">
-        Recorded run. These fifteen replies are the saved fixture. The button
-        scores them with the same checks as the suite. The repository’s full
-        fixture is 18 of 18. Three cases stay in the repository.
+        These fifteen questions are hand-written examples. The button scores
+        them with the same checks as the suite. The full set is 18 of 18
+        example answers. Three examples stay in the repository.
       </p>
-      <button type="button" className="ink" onClick={run}>
+      <button type="button" className="ink tap" onClick={run}>
         {rows ? "Run the scorecard again" : "Run the scorecard"}
       </button>
       <p className="score-line" aria-live="polite">
         {rows
-          ? `${passed} of ${rows.length} on this page.`
+          ? `${passed} of the examples on this page pass. The full set is 18 of 18 example answers.`
           : "Not run yet."}
       </p>
       <ol className={rows ? "score-list ran" : "score-list"} key={runId}>
@@ -72,21 +73,21 @@ export function Scorecard() {
           return (
             <li key={item.id}>
               <div className="score-q">
-                <span className="qid">{item.id}</span>
-                <span>{item.question}</span>
+                <span>{forReaders(item.question)}</span>
               </div>
               <p className={row ? (row.ok ? "result pass" : "result fail") : "result"}>
                 {row ? (row.ok ? "Pass" : "Fail") : "Not run"}
               </p>
               {row ? (
                 <div className="recorded">
-                  <p>{row.answer}</p>
+                  <p>{forReaders(row.answer)}</p>
                   <ul>
                     {row.checks.map((check) => (
                       <li key={check.name}>
-                        {PLAIN[check.name] ?? check.name}
-                        <span className="check-name">{check.name}</span>
-                        {check.ok ? null : <span className="check-detail">{check.detail}</span>}
+                        {PLAIN[check.name] ?? forReaders(check.name)}
+                        {check.ok ? null : (
+                          <span className="check-detail">{forReaders(check.detail)}</span>
+                        )}
                       </li>
                     ))}
                   </ul>

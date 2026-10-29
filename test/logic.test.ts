@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readdirSync, statSync } from "node:fs";
 import test from "node:test";
 import { DESK_NOTES } from "../lib/desk-notes.ts";
 import { searchDesk } from "../lib/desk-retrieve.ts";
@@ -6,6 +7,19 @@ import { INDEX_NOTES } from "../lib/index-notes.ts";
 import { searchIndex } from "../lib/index-search.ts";
 import { RECORDED_CASES } from "../lib/recorded-cases.ts";
 import { casePassed, scoreCase } from "../lib/score-case.ts";
+
+test("serif fonts are latin files under 40KB", () => {
+  const files = readdirSync("public/fonts").filter((name) => name.endsWith(".woff2"));
+  assert.deepEqual(files.sort(), [
+    "newsreader-latin-400-italic.woff2",
+    "newsreader-latin-400-normal.woff2",
+  ]);
+  for (const name of files) {
+    const size = statSync(`public/fonts/${name}`).size;
+    assert.ok(size < 40 * 1024, `${name} is ${size} bytes`);
+    assert.ok(size > 8 * 1024, `${name} looks empty`);
+  }
+});
 
 test("recorded fixture cases pass the real checker", () => {
   assert.equal(RECORDED_CASES.length, 15);

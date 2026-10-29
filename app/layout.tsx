@@ -1,21 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Newsreader } from "next/font/google";
 import "./globals.css";
-
-const sans = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const serif = Newsreader({
-  subsets: ["latin"],
-  display: "swap",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  axes: ["opsz"],
-});
 
 export const metadata: Metadata = {
   title: "Jakob Alex",
@@ -25,7 +10,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/newsreader-latin-400-normal.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

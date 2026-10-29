@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <>
-      <a className="skip" href="#missing">
+      <a className="skip tap" href="#missing">
         Skip to content
       </a>
       <RunningHead />
@@ -12,7 +12,9 @@ export default function NotFound() {
         <section className="opening">
           <h1>This page is not on the site.</h1>
           <p className="sentence follow">
-            <Link href="/">Back to the first page.</Link>
+            <Link className="tap" href="/">
+              Back to the first page.
+            </Link>
           </p>
         </section>
       </main>

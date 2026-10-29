@@ -28,7 +28,7 @@ export function LiveDemo() {
 
   return (
     <>
-      <button type="button" className="ink" onClick={() => setOpen(true)}>
+      <button type="button" className="ink tap" onClick={() => setOpen(true)}>
         Live demo
       </button>
       {open ? (
@@ -46,8 +46,10 @@ export function LiveDemo() {
           >
             <div className="dialog-bar">
               <h3 id={titleId}>CiteBot</h3>
-              <a href={ASK}>Open in a new tab</a>
-              <button ref={closeRef} type="button" onClick={() => setOpen(false)}>
+              <a className="tap" href={ASK}>
+                Open in a new tab
+              </a>
+              <button ref={closeRef} className="tap" type="button" onClick={() => setOpen(false)}>
                 Close
               </button>
             </div>
