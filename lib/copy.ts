@@ -38,7 +38,7 @@ export const PAGE_QUOTES = [
   "Unused paid time off does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
 ] as const;
 
-/** CiteBot's demo question (citebot lib/demo-questions.ts). The third claim is a planted draft from a separate test case. */
+/** CiteBot's demo question (citebot lib/demo-questions.ts:12). The claims are separate examples: two from lib/harness-copy.ts, one planted draft from evals/golden.json. */
 export const CITEBOT_QUESTION =
   "How many paid vacation days do full-time employees get, and when does unused paid time off expire?";
 

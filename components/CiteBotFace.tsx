@@ -39,7 +39,7 @@ export function CiteBotFace() {
             <p key={quote}>{quote}</p>
           ))}
         </div>
-        <ul className="claims" aria-label="Claims from one answer">
+        <ul className="claims" aria-label="Example claims from CiteBot">
           {CLAIMS.map((claim) => (
             <li key={claim.text} className={claim.verdict === "Fail" ? "row fail" : "row"}>
               <span className="bar" aria-hidden="true" />
