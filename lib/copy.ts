@@ -13,17 +13,21 @@ export const COLOPHON = "Set in Inter. Made in Berlin, with a guitar within reac
 
 export const CLAIMS = [
   {
+    // citebot/lib/harness-copy.ts:84, verdict pass at line 85.
+    // Same sentence: citebot/tests/fixtures/agent-turns.json:60.
     text: "Full-time employees receive 30 days of paid vacation per calendar year.",
     source: "pto-and-leave.md",
     verdict: "Pass",
   },
   {
-    text: "Unused vacation carries over until March 31 of the following year.",
-    source: "pto-and-leave.md",
-    verdict: "Pass",
+    // citebot/lib/harness-copy.ts:107, verdict fail at line 108.
+    text: "Unused days can carry past June.",
+    source: "The page says unused paid time off does not carry over past March 31.",
+    verdict: "Fail",
   },
   {
-    text: "Full-time employees receive 25 days of paid vacation.",
+    // citebot/evals/golden.json:102, verdict fail at citebot/tests/eval-harness.test.ts:69.
+    text: "Full-time employees receive 25 days of paid vacation per calendar year.",
     source: "Planted wrong draft. The page says 30.",
     verdict: "Fail",
   },
@@ -34,9 +38,9 @@ export const PAGE_QUOTES = [
   "Unused paid time off does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
 ] as const;
 
-/** Recorded question for the three claims above. Paid time off is spelled out. */
+/** CiteBot's demo question (citebot lib/demo-questions.ts). The third claim is a planted draft from a separate test case. */
 export const CITEBOT_QUESTION =
-  "How many days of paid vacation do full-time employees get, and when does unused paid time off expire?";
+  "How many paid vacation days do full-time employees get, and when does unused paid time off expire?";
 
 export function missSentence(query: string): string {
   const word = query.trim().replace(/[.?!]+$/g, "");

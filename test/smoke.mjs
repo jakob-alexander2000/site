@@ -20,8 +20,8 @@ const BANNED = [
 
 const CLAIMS = [
   "Full-time employees receive 30 days of paid vacation per calendar year.",
-  "Unused vacation carries over until March 31 of the following year.",
-  "Full-time employees receive 25 days of paid vacation.",
+  "Unused days can carry past June.",
+  "Full-time employees receive 25 days of paid vacation per calendar year.",
 ];
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
@@ -115,8 +115,8 @@ test("home renders four instruments", async () => {
   assert.equal(/\bCLI\b/.test(text), false);
   assert.equal(/\bAPI\b/.test(text), false);
   assert.equal(text.includes("sev-1"), false);
-  assert.equal((html.match(/>Pass</g) || []).length, 2);
-  assert.equal((html.match(/>Fail</g) || []).length, 1);
+  assert.equal((html.match(/>Pass</g) || []).length, 1);
+  assert.equal((html.match(/>Fail</g) || []).length, 2);
   assert.match(html, /class="row fail"/);
 
   for (const name of ["CiteBot", "citebot-evals", "Desk", "desk-index"]) {

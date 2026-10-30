@@ -41,7 +41,6 @@ export function IndexFace() {
             ))}
           </p>
           <span className="flow-rule" aria-hidden="true" />
-          <p className="flow-file">{hits.map((hit) => hit.path).join(", ")}</p>
         </div>
       ) : null}
       {phase === "hit"
