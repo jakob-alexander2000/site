@@ -1,36 +1,54 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import { DM_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmMono = DM_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  variable: "--font-mono",
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument",
-  subsets: ["latin"],
-  weight: "400",
-});
+const title = "Jakob Alex";
+const description =
+  "Jakob Alex builds software in Berlin that shows its sources and checks its own answers.";
 
 export const metadata: Metadata = {
-  title: "Jakob Alex",
-  description:
-    "Selected work: CiteBot, citebot-evals, Desk, desk-index, and Ledger API — grounding tools and a custody ledger.",
+  metadataBase: new URL("https://jakobalex.vercel.app"),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "https://jakobalex.vercel.app",
+    siteName: "Jakob Alex",
+    type: "website",
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export const viewport: Viewport = {
+  themeColor: "#e8e0d2",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+    <html lang="en" className={`${inter.variable} ${dmMono.variable}`}>
+      <body>
+        <a className="skip" href="#content">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
