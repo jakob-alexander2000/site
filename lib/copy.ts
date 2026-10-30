@@ -7,7 +7,7 @@ export const SCOPE =
   "Four projects: question answering with a visible check, a fixed test set for it, answers from a local folder, and Markdown search without calling an AI.";
 
 export const EYE =
-  "He studied comparative literature and taught himself software, so he checks a sentence against the passage it came from.";
+  "He studied comparative literature, so he checks a sentence against the passage it came from. He came to software through a coding bootcamp and is finishing a distance-learning computer science degree, graduating early next year.";
 
 export const COLOPHON = "Set in Inter. Made in Berlin, with a guitar within reach.";
 
