@@ -28,7 +28,7 @@ const evalPassed = evalMarks.filter(Boolean).length;
 export const CITEBOT = {
   id: "citebot",
   model: "JA-01",
-  mark: "Recorded run",
+  mark: "Examples from CiteBot",
   name: "CiteBot",
   proof: `${citebotPass} pass, ${citebotFail} fail`,
   idea: "It checks each sentence of an answer against the handbook passages it looked up.",

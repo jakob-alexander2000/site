@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useInView } from "@/components/useInView";
 
-export function useSubmittedQuery(initial = "") {
+export function useSubmittedQuery(initial = "", showInitial = false) {
   const [draft, setDraft] = useState(initial);
-  const [submitted, setSubmitted] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState<string | null>(showInitial ? initial : null);
   const [generation, setGeneration] = useState(0);
 
   function onSubmit(event: FormEvent) {
@@ -27,9 +28,11 @@ type Props = {
 
 export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: Props) {
   const inputId = useId();
+  const form = useRef<HTMLFormElement>(null);
+  const arrived = useInView(form);
 
   return (
-    <form className="well" onSubmit={onSubmit}>
+    <form className="well" ref={form} onSubmit={onSubmit}>
       <label className="field" htmlFor={inputId}>
         <span className="kicker">Question</span>
         <input
@@ -46,7 +49,7 @@ export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: 
       <button type="submit" className="press" data-try={tryId}>
         Try it
       </button>
-      <div className="results" aria-live="polite">
+      <div className="results" data-arrived={arrived ? "1" : "0"} aria-live="polite">
         {children}
       </div>
       <p className="well-note">{note}</p>
