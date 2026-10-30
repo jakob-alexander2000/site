@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import { AutopsyFace } from "@/components/AutopsyFace";
 import { CiteBotFace } from "@/components/CiteBotFace";
 import { DeskFace } from "@/components/DeskFace";
 import { EvalsFace } from "@/components/EvalsFace";
 import { IndexFace } from "@/components/IndexFace";
+import { StyleFace } from "@/components/StyleFace";
 import { Instrument } from "@/components/Instrument";
 import { SelectedIndex } from "@/components/SelectedIndex";
 import { Shell } from "@/components/Shell";
@@ -15,6 +17,8 @@ export default function Home() {
   const demos: Record<ProjectId, ReactNode> = {
     citebot: <CiteBotFace />,
     "citebot-evals": <EvalsFace marks={marks} />,
+    "retrieval-autopsy": <AutopsyFace />,
+    "style-distance": <StyleFace />,
     desk: <DeskFace />,
     "desk-index": <IndexFace />,
   };

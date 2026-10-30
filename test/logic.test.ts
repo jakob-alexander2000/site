@@ -100,7 +100,7 @@ test("no result excerpt starts with its own title", () => {
   }
 });
 
-test("only CiteBot is Live", () => {
+test("live apps are CiteBot, Retrieval Autopsy, and Style Distance", () => {
   assert.equal(queryPhase(null, 0, 0), "idle");
   assert.equal(queryPhase("", 0, 0), "empty");
   assert.equal(queryPhase("a", 0, 0), "short");
@@ -125,6 +125,19 @@ test("only CiteBot is Live", () => {
   }
   assert.deepEqual(
     live.map((link) => link.href),
-    ["https://citebot-chi.vercel.app/ask"],
+    [
+      "https://citebot-chi.vercel.app/ask",
+      "https://retrieval-autopsy.vercel.app",
+      "https://style-distance.vercel.app",
+    ],
+  );
+
+  const autopsy = PROJECTS.find((project) => project.id === "retrieval-autopsy");
+  const style = PROJECTS.find((project) => project.id === "style-distance");
+  assert.equal(autopsy?.proof, "3 pass, 1 fail");
+  assert.equal(style?.proof, "1.33 off-voice");
+  assert.deepEqual(
+    PROJECTS.map((project) => project.id),
+    ["citebot", "citebot-evals", "retrieval-autopsy", "style-distance", "desk", "desk-index"],
   );
 });

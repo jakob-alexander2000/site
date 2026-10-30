@@ -323,6 +323,54 @@ h3 {
   line-height: 1.5;
 }
 
+.face-label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.delta-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.delta-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.delta-line {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  gap: 8px;
+  align-items: center;
+  min-height: 24px;
+}
+
+.delta-word,
+.delta-dir {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.delta-track {
+  display: block;
+  height: 16px;
+  background: var(--line);
+}
+
+.delta-fill {
+  display: block;
+  height: 16px;
+  width: var(--share);
+  background: var(--ink);
+  transform-origin: left center;
+}
+
 .quotes p + p {
   margin-top: 8px;
 }
@@ -640,6 +688,8 @@ mark {
   }
 
   #citebot-evals,
+  #retrieval-autopsy,
+  #style-distance,
   #desk,
   #desk-index {
     order: 3;
@@ -690,6 +740,23 @@ mark {
   .cite[data-live="1"] .row:nth-child(3) .v,
   .cite[data-live="1"] .row:nth-child(3) .bar {
     animation-delay: 360ms;
+  }
+
+  .autopsy[data-live="1"] .row:nth-child(4) .v,
+  .autopsy[data-live="1"] .row:nth-child(4) .bar {
+    animation-delay: 540ms;
+  }
+
+  .style[data-live="1"] .v {
+    animation: fade 220ms ease-out both;
+    animation-iteration-count: 1;
+    animation-delay: calc(var(--i) * 180ms);
+  }
+
+  .style[data-live="1"] .delta-fill {
+    animation: draw 220ms ease-out both;
+    animation-iteration-count: 1;
+    animation-delay: calc(var(--i) * 60ms);
   }
 
   .evals[data-live="1"] .tick {
@@ -773,7 +840,9 @@ mark {
   .cite .bar,
   .evals .tick,
   .hit.show,
-  .miss.show {
+  .miss.show,
+  .style .v,
+  .delta-fill {
     animation: none;
     transition: none;
   }

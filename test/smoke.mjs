@@ -100,7 +100,7 @@ test.after(() => {
   }
 });
 
-test("home renders four instruments", async () => {
+test("home renders six instruments", async () => {
   const response = await fetch(`${BASE}/`);
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -115,11 +115,18 @@ test("home renders four instruments", async () => {
   assert.equal(/\bCLI\b/.test(text), false);
   assert.equal(/\bAPI\b/.test(text), false);
   assert.equal(text.includes("sev-1"), false);
-  assert.equal((html.match(/>Pass</g) || []).length, 1);
-  assert.equal((html.match(/>Fail</g) || []).length, 2);
+  assert.equal((html.match(/>Pass</g) || []).length, 4);
+  assert.equal((html.match(/>Fail</g) || []).length, 3);
   assert.match(html, /class="row fail"/);
 
-  for (const name of ["CiteBot", "citebot-evals", "Desk", "desk-index"]) {
+  for (const name of [
+    "CiteBot",
+    "citebot-evals",
+    "Retrieval Autopsy",
+    "Style Distance",
+    "Desk",
+    "desk-index",
+  ]) {
     assert.equal(text.includes(name), true, `missing project: ${name}`);
   }
   assert.equal(text.includes("Selected work"), true);
@@ -127,8 +134,27 @@ test("home renders four instruments", async () => {
   assert.equal(/\bMy work\b/.test(text), false);
   assert.equal(text.includes("TODO"), false);
   assert.equal(text.includes("Jakob:"), false);
-  assert.equal(text.includes("Retrieval Autopsy"), false);
-  assert.equal(text.includes("Style Distance"), false);
+  assert.equal(text.includes("How many days of annual leave do employees get?"), true);
+  assert.equal(text.includes("In practice, employees receive 30 days of paid annual leave."), true);
+  assert.equal(text.includes("full-time employees only"), true);
+  assert.equal(text.includes("Conditions were stripped on purpose."), true);
+  assert.equal(text.includes("Synthetic sample. Not a real policy."), true);
+  assert.equal(text.includes("You tie the boots before the kettle boils."), true);
+  assert.equal(
+    text.includes(
+      "The securing of footwear is ordinarily completed before the heating of water has begun.",
+    ),
+    true,
+  );
+  assert.equal(text.includes("1.33"), true);
+  assert.equal(text.includes("0.64"), true);
+  assert.equal(text.includes("off-voice"), true);
+  assert.equal(text.includes("over-used"), true);
+  assert.equal(text.includes("under-used"), true);
+  assert.equal(
+    text.includes("Close is at or under 0.79. Off-voice is at or over 1.27."),
+    true,
+  );
   assert.equal(text.includes("Room for a later tool"), false);
   assert.equal(text.includes("The cost"), true);
   assert.equal(text.includes("18 of 18 example answers"), true);
@@ -144,13 +170,17 @@ test("home renders four instruments", async () => {
   const buttons = [...html.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/gi)].map((match) =>
     textOf(match[1]),
   );
-  assert.equal(buttons.filter((label) => label === "Try it").length, 4);
+  assert.equal(buttons.filter((label) => label === "Try it").length, 6);
 
   const anchors = anchorsOf(html);
   const live = anchors.filter((anchor) => anchor.label === "Live");
   assert.deepEqual(
     live.map((anchor) => anchor.href),
-    ["https://citebot-chi.vercel.app/ask"],
+    [
+      "https://citebot-chi.vercel.app/ask",
+      "https://retrieval-autopsy.vercel.app",
+      "https://style-distance.vercel.app",
+    ],
   );
   for (const anchor of anchors) {
     if (anchor.href.includes("github.com")) assert.notEqual(anchor.label, "Live");
