@@ -34,6 +34,10 @@ export const PAGE_QUOTES = [
   "Unused paid time off does not carry over past March 31 of the following year unless a manager approves an exception in writing.",
 ] as const;
 
+/** Recorded question for the three claims above. Paid time off is spelled out. */
+export const CITEBOT_QUESTION =
+  "How many days of paid vacation do full-time employees get, and when does unused paid time off expire?";
+
 export function missSentence(query: string): string {
   const word = query.trim().replace(/[.?!]+$/g, "");
   return `No note mentions ${word}.`;

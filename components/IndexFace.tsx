@@ -15,7 +15,10 @@ import { plainExcerpt } from "@/lib/plain-excerpt";
 import { INDEX_DOCS } from "@/lib/samples";
 
 export function IndexFace() {
-  const { draft, setDraft, submitted, generation, onSubmit } = useSubmittedQuery(DEFAULT_QUESTION);
+  const { draft, setDraft, submitted, generation, onSubmit } = useSubmittedQuery(
+    DEFAULT_QUESTION,
+    true,
+  );
   const tokens = submitted ? tokenize(submitted) : [];
   const hits = submitted && tokens.length > 0 ? search(INDEX_DOCS, submitted, 3) : [];
   const phase = queryPhase(submitted, tokens.length, hits.length);
@@ -28,6 +31,19 @@ export function IndexFace() {
       setDraft={setDraft}
       onSubmit={onSubmit}
     >
+      {phase === "hit" ? (
+        <div className="flow">
+          <p className="flow-words">
+            {tokens.map((token, index) => (
+              <span className="flow-word" key={token} style={{ ["--i" as string]: index }}>
+                {token}
+              </span>
+            ))}
+          </p>
+          <span className="flow-rule" aria-hidden="true" />
+          <p className="flow-file">{hits.map((hit) => hit.path).join(", ")}</p>
+        </div>
+      ) : null}
       {phase === "hit"
         ? hits.map((hit, index) => (
             <div

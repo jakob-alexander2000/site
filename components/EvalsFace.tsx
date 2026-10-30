@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef } from "react";
+import { useInView } from "@/components/useInView";
 
 export function EvalsFace({ marks }: { marks: boolean[] }) {
   const well = useRef<HTMLDivElement>(null);
+  const seen = useInView(well);
   const passed = marks.filter(Boolean).length;
 
   function replay() {
@@ -20,7 +22,7 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
   }
 
   return (
-    <div className="well evals" ref={well} data-live="0">
+    <div className="well evals" ref={well} data-live={seen ? "1" : "0"}>
       <button
         type="button"
         className="press"

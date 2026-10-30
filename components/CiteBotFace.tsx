@@ -1,10 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import { CLAIMS, PAGE_QUOTES } from "@/lib/copy";
+import { CITEBOT_QUESTION, CLAIMS, PAGE_QUOTES } from "@/lib/copy";
+import { useInView } from "@/components/useInView";
 
 export function CiteBotFace() {
   const well = useRef<HTMLDivElement>(null);
+  const seen = useInView(well);
 
   function replay() {
     const el = well.current;
@@ -30,7 +32,8 @@ export function CiteBotFace() {
       >
         Try it
       </button>
-      <div className="well cite" ref={well} data-live="0">
+      <div className="well cite" ref={well} data-live={seen ? "1" : "0"}>
+        <p className="ask">{CITEBOT_QUESTION}</p>
         <div className="quotes">
           {PAGE_QUOTES.map((quote) => (
             <p key={quote}>{quote}</p>
