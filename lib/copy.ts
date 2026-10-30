@@ -129,11 +129,11 @@ export const STYLE_WORDS = [
 ] as const;
 
 /**
- * The page's scale, with the medians rounded the way src/App.tsx:318 does
+ * Plain reading of the medians the page rounds at src/App.tsx:318
  * (data/thresholds.json:3 closeMax 0.7854093168299701, :4 offVoiceMin 1.2723510703123002).
  */
 export const STYLE_SCALE =
-  "Close is at or under 0.79. Off-voice is at or over 1.27. Drifting is the open interval between those medians.";
+  "Close is 0.79 or less, the middle score of a chapter measured against its own novelist. Off-voice is 1.27 or more, the middle score against the other novelist. Anything between reads as drifting.";
 
 /** Opening of public/samples/brand.json:4. */
 export const STYLE_SAMPLE = "Synthetic. A made-up house voice and drafts written to leave it.";

@@ -152,7 +152,9 @@ test("home renders six instruments", async () => {
   assert.equal(text.includes("over-used"), true);
   assert.equal(text.includes("under-used"), true);
   assert.equal(
-    text.includes("Close is at or under 0.79. Off-voice is at or over 1.27."),
+    text.includes(
+      "Close is 0.79 or less, the middle score of a chapter measured against its own novelist. Off-voice is 1.27 or more, the middle score against the other novelist. Anything between reads as drifting.",
+    ),
     true,
   );
   assert.equal(text.includes("Room for a later tool"), false);

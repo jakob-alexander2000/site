@@ -71,7 +71,7 @@ export const AUTOPSY = {
   caption: "Try it. The sample answer drops a limit, and that check fails.",
   problem:
     "A person reading the sample answer cannot see the limit the page kept. The cost is acting on a rule the passage narrowed.",
-  made: "5 commits, from 29 Oct 2026 to 30 Oct 2026. Cursor Agent wrote 2 of 5 commits, both on 29 Oct 2026, and Jakob Alexander is named as co-author on those two. The first commit is 29 Oct 2026 and the last is 30 Oct 2026.",
+  made: "5 commits, from 29 Oct 2026 to 30 Oct 2026. Cursor Agent wrote 2 of 5 commits, both on 29 Oct 2026, and Jakob Alexander is named as co-author on those two.",
   stack: "React · TypeScript",
   links: [
     { label: "Live", href: "https://retrieval-autopsy.vercel.app" },
@@ -82,14 +82,14 @@ export const AUTOPSY = {
 export const STYLE = {
   id: "style-distance",
   model: "JA-06",
-  mark: "Sample example",
+  mark: "Sample",
   name: "Style Distance",
   proof: `${STYLE_RESULTS[0].distance} ${STYLE_RESULTS[0].reading}`,
   idea: "It scores how far a draft sits from a house voice. Burrows Delta stylometry does that by comparing how often the most common words appear.",
   caption: "Try it. The sample's rewritten drafts read off-voice. Pages held out of that voice read close.",
   problem:
     "A person can miss that a draft has left the house voice it is measured against. The cost is keeping a draft whose common words have already moved.",
-  made: "7 commits, from 29 Oct 2026 to 30 Oct 2026. Cursor Agent wrote 4 of 7 commits, all on 29 Oct 2026, and Jakob Alexander is named as co-author on those four. The first commit is 29 Oct 2026 and the last is 30 Oct 2026.",
+  made: "7 commits, from 29 Oct 2026 to 30 Oct 2026. Cursor Agent wrote 4 of 7 commits, all on 29 Oct 2026, and Jakob Alexander is named as co-author on those four.",
   stack: "React · TypeScript",
   links: [
     { label: "Live", href: "https://style-distance.vercel.app" },

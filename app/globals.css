@@ -340,13 +340,15 @@ h3 {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 8px;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  column-gap: 8px;
+  row-gap: 8px;
 }
 
 .delta-line {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) max-content;
-  gap: 8px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
   min-height: 24px;
 }
