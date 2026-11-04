@@ -48,7 +48,7 @@ test("approved copy stays clean", () => {
     "I build AI tools whose answers you can check, sentence by sentence.",
     "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.",
     "No account and no key. It shows where an answer drops a condition, sentence by sentence.",
-    "Recording · development build, no AI model · 4 Nov 2026",
+    "Recording · development build · no AI model · 4 Nov 2026",
     "18 of 18",
   ]) {
     assert.deepEqual(findHits(text), [], text);

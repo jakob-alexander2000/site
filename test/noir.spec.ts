@@ -97,13 +97,12 @@ async function readPage(page: Page) {
 }
 
 async function expectPlayed(stage: Locator) {
-  await expect(stage).toHaveAttribute("data-state", "played", { timeout: 10000 });
+  await expect(stage).toHaveAttribute("data-state", "played", { timeout: 20000 });
   const elapsed = Number(await stage.getAttribute("data-elapsed"));
-  expect(elapsed).toBeGreaterThanOrEqual(600);
-  expect(elapsed).toBeLessThanOrEqual(900);
+  expect(elapsed).toBeGreaterThanOrEqual(4000);
+  expect(elapsed).toBeLessThanOrEqual(20000);
   const duration = Number(await stage.getAttribute("data-duration"));
-  expect(duration).toBeGreaterThanOrEqual(600);
-  expect(duration).toBeLessThanOrEqual(900);
+  expect(duration).toBeGreaterThanOrEqual(4000);
   await stage.page().waitForTimeout(400);
   await expect(stage).toHaveAttribute("data-state", "played");
 }
@@ -125,7 +124,7 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("In progress", { exact: true })).toBeVisible();
       await expect(page.getByText("Free answer checker", { exact: true })).toBeVisible();
       await expect(page.getByText("Style Distance", { exact: true })).toBeVisible();
-      await expect(page.getByText("Recording · development build, no AI model · 4 Nov 2026")).toHaveCount(1);
+      await expect(page.getByText("Recording · development build · no AI model · 4 Nov 2026")).toHaveCount(1);
       await expect(page.getByText("Recording · 4 Nov 2026")).toHaveCount(2);
       await expect(page.getByText(BACKGROUND)).toBeVisible();
       await expect(page.locator("#citebot").getByRole("link", { name: "Live" })).toHaveCount(0);
@@ -224,7 +223,7 @@ test.describe("hover", () => {
     await page.getByRole("button", { name: "Play CiteBot recording" }).click();
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
     await expect(
-      page.getByText("The recording did not play. The still is from the development build without an AI model, 4 Nov 2026."),
+      page.getByText("The recording did not play. The still is from the development build, no AI model, 4 Nov 2026."),
     ).toBeVisible();
     await expect(page.locator("#citebot img")).toBeVisible();
   });
@@ -242,7 +241,7 @@ test.describe("hover", () => {
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
     await expect(page.locator("#citebot img")).toBeVisible();
     await expect(
-      page.getByText("The recording did not play. The still is from the development build without an AI model, 4 Nov 2026.").first(),
+      page.getByText("The recording did not play. The still is from the development build, no AI model, 4 Nov 2026.").first(),
     ).toBeVisible();
   });
 });

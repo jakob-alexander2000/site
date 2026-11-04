@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { BACKGROUND, LOOKS, OPENING, lookCopy, rawProofUrl, showCiteBotLive, visibleLive } from "../lib/looks";
-import { REVEAL_MS } from "../lib/reveal";
+import { MIN_CLIP_MS } from "../lib/reveal";
 import { SHELF } from "../lib/shelf";
 
 test("opening line and reveal length are fixed", () => {
@@ -15,7 +15,7 @@ test("opening line and reveal length are fixed", () => {
   assert.equal(visibleLive(LOOKS[0]), null);
   assert.equal(visibleLive(LOOKS[1]), LOOKS[1].live);
   assert.equal(visibleLive(LOOKS[2]), LOOKS[2].live);
-  assert.ok(REVEAL_MS >= 600 && REVEAL_MS <= 900);
+  assert.equal(MIN_CLIP_MS, 4000);
 });
 
 test("each shown sentence is backed by a proof excerpt", () => {

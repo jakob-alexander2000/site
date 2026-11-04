@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { REVEAL_MS } from "@/lib/reveal";
+import { MIN_CLIP_MS } from "@/lib/reveal";
 
 const BAYER = [
   [0, 8, 2, 10],
@@ -137,10 +137,15 @@ export function DitherStage({
         return;
       }
       video.currentTime = 0;
-      video.playbackRate = Math.min(16, duration / (REVEAL_MS / 1000));
+      video.playbackRate = 1;
+      const clipMs = Math.round(duration * 1000);
+      if (clipMs < MIN_CLIP_MS) {
+        fail();
+        return;
+      }
       const t0 = performance.now();
       const tick = (now: number) => {
-        if (now - t0 >= REVEAL_MS) {
+        if (now - t0 >= clipMs) {
           video.pause();
           paint(video);
           setElapsed(Math.round(now - t0));
@@ -179,7 +184,7 @@ export function DitherStage({
     <figure
       className="stage"
       data-state={state}
-      data-duration={REVEAL_MS}
+      data-duration={elapsed ?? undefined}
       data-elapsed={elapsed ?? undefined}
       onPointerEnter={(event) => {
         if (
