@@ -7,7 +7,7 @@ const sizes = {
   desktop: { width: 1280, height: 800 },
 } as const;
 
-const opening = "I build tools that check what AI writes.";
+const opening = "I build AI tools whose answers you can check, sentence by sentence.";
 
 async function readPage(page: Page) {
   return page.evaluate(() => {
