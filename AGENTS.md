@@ -7,3 +7,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Jakob Alex site
+
+Noir lookbook. Read DESIGN.md before changing type, color, or motion.
+
+The home page is the opening line plus the looks in `lib/looks.ts`. Each look needs a recording, a poster, a live URL, and a proof whose excerpt is on the page. `lib/shelf.ts` lists names that are not rendered. Move one into `lib/looks.ts` only after the recording and the proof exist.
+
+`lib/contact.ts` is the only contact config. `phone: null` omits the phone row. An email is a `mailto:` link. GitHub is the profile link.
+
+Write about Jakob Alex in the first person. Run `npm run build` and then `node --import tsx scripts/scan-copy.ts`.
+
+Recordings dither in the browser and play once. `REVEAL_MS` in `lib/reveal.ts` is the length. Reduced motion shows the poster. If the clip or the canvas fails, the still stays.
+
+```bash
+npm run build
+npm run typecheck
+npm run lint
+npm test
+```
