@@ -18,7 +18,7 @@ The home page is the opening line plus the looks in `lib/looks.ts`. Each look ne
 
 Write about Jakob Alex in the first person. Run `npm run build` and then `node --import tsx scripts/scan-copy.ts`.
 
-Recordings dither in the browser and play once. `REVEAL_MS` in `lib/reveal.ts` is the length. Reduced motion shows the poster. If the clip or the canvas fails, the still stays.
+The still is dithered. Play shows the clip in greyscale, once. `REVEAL_MS` in `lib/reveal.ts` is the length. Reduced motion keeps the still. If the clip or the canvas fails, the still stays. `showCiteBotLive` in `lib/looks.ts` is false until the public CiteBot deployment answers again.
 
 ```bash
 npm run build

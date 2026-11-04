@@ -1,5 +1,11 @@
 export const CAPTURED = "4 Nov 2026";
 
+/** The public CiteBot app is moving to a new model provider. Keep this false until that deployment answers again. */
+export const showCiteBotLive = false;
+
+export const BACKGROUND =
+  "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.";
+
 export const OPENING_BEFORE = "I build AI tools whose answers you can ";
 export const OPENING_WORD = "check";
 export const OPENING_AFTER = ", sentence by sentence.";
@@ -25,8 +31,16 @@ export type Look = {
   proofs: readonly Proof[];
   clip: string;
   poster: string;
+  frame: { width: number; height: number };
+  caption: string;
+  stillFrom: string;
   alt: string;
 };
+
+export function visibleLive(look: Look): string | null {
+  if (look.id === "citebot" && !showCiteBotLive) return null;
+  return look.live;
+}
 
 export const LOOKS: readonly Look[] = [
   {
@@ -58,7 +72,10 @@ export const LOOKS: readonly Look[] = [
     ],
     clip: "/recordings/citebot.mp4",
     poster: "/recordings/citebot.jpg",
-    alt: "Still from the CiteBot recording, 4 Nov 2026. The ask screen shows a handbook question, and the page reads the handbook.",
+    frame: { width: 900, height: 858 },
+    caption: `Recording · development build · ${CAPTURED}`,
+    stillFrom: `the development build, ${CAPTURED}`,
+    alt: "Still from the CiteBot development build, 4 Nov 2026. The answer is marked supported, a dropped unless is flagged, and the passage is pto-and-leave.md.",
   },
   {
     id: "autopsy",
@@ -93,7 +110,10 @@ export const LOOKS: readonly Look[] = [
     ],
     clip: "/recordings/autopsy.mp4",
     poster: "/recordings/autopsy.jpg",
-    alt: "Still from the Retrieval Autopsy recording, 4 Nov 2026. The scorecard shows a dropped condition, and Qualifier fails.",
+    frame: { width: 900, height: 1350 },
+    caption: `Recording · ${CAPTURED}`,
+    stillFrom: CAPTURED,
+    alt: "Still from the Retrieval Autopsy recording, 4 Nov 2026. Qualifier fails because the answer drops a condition.",
   },
   {
     id: "voice",
@@ -121,7 +141,10 @@ export const LOOKS: readonly Look[] = [
     ],
     clip: "/recordings/style.mp4",
     poster: "/recordings/style.jpg",
-    alt: "Still from the Style Distance recording, 4 Nov 2026. The brand-voice demo is on screen.",
+    frame: { width: 900, height: 1350 },
+    caption: `Recording · ${CAPTURED}`,
+    stillFrom: CAPTURED,
+    alt: "Still from the Style Distance recording, 4 Nov 2026. The brand-voice demo reads off-voice.",
   },
 ];
 

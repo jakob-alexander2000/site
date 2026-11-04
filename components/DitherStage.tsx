@@ -16,13 +16,19 @@ export function DitherStage({
   name,
   src,
   poster,
-  captured,
+  width,
+  height,
+  caption,
+  stillFrom,
   alt,
 }: {
   name: string;
   src: string;
   poster: string;
-  captured: string;
+  width: number;
+  height: number;
+  caption: string;
+  stillFrom: string;
   alt: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -33,7 +39,6 @@ export function DitherStage({
   const [state, setState] = useState<StageState>("still");
   const [posterOk, setPosterOk] = useState(true);
   const [elapsed, setElapsed] = useState<number | null>(null);
-  const label = `Recording · ${captured}`;
 
   useEffect(() => {
     const poster = posterRef.current;
@@ -59,8 +64,21 @@ export function DitherStage({
     if (!canvas) return false;
     const ctx = canvas.getContext("2d");
     if (!ctx) return false;
-    const cols = 320;
-    const rows = 200;
+    const sourceWidth =
+      source instanceof HTMLVideoElement
+        ? source.videoWidth
+        : source instanceof HTMLImageElement
+          ? source.naturalWidth
+          : width;
+    const sourceHeight =
+      source instanceof HTMLVideoElement
+        ? source.videoHeight
+        : source instanceof HTMLImageElement
+          ? source.naturalHeight
+          : height;
+    if (!sourceWidth || !sourceHeight) return false;
+    const cols = Math.min(900, sourceWidth);
+    const rows = Math.max(1, Math.round((cols * sourceHeight) / sourceWidth));
     if (!workRef.current) workRef.current = document.createElement("canvas");
     const work = workRef.current;
     work.width = cols;
@@ -88,12 +106,6 @@ export function DitherStage({
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(work, 0, 0);
     return true;
-  }
-
-  function draw() {
-    const video = videoRef.current;
-    if (!video || video.readyState < 2) return;
-    paint(video);
   }
 
   function fail() {
@@ -125,11 +137,11 @@ export function DitherStage({
       const tick = (now: number) => {
         if (now - t0 >= REVEAL_MS) {
           video.pause();
+          paint(video);
           setElapsed(Math.round(now - t0));
           setState("played");
           return;
         }
-        draw();
         requestAnimationFrame(tick);
       };
       video.play().then(
@@ -179,8 +191,8 @@ export function DitherStage({
           <img
             src={poster}
             alt={alt}
-            width={720}
-            height={450}
+            width={width}
+            height={height}
             className="poster"
             ref={posterRef}
             onLoad={(event) => {
@@ -194,7 +206,7 @@ export function DitherStage({
         ) : (
           <p className="fallback">The still did not load.</p>
         )}
-        <canvas ref={setCanvas} className="dither" width={320} height={200} aria-hidden="true" />
+        <canvas ref={setCanvas} className="dither" width={width} height={height} aria-hidden="true" />
         {state === "fallback" ? null : (
           <button
             type="button"
@@ -206,20 +218,20 @@ export function DitherStage({
             <span className="tag play-label">Play</span>
           </button>
         )}
+        <video
+          ref={setVideo}
+          className={state === "playing" ? "clip is-live" : "clip"}
+          src={src}
+          muted
+          playsInline
+          preload="none"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
       </div>
-      <video
-        ref={setVideo}
-        className="clip"
-        src={src}
-        muted
-        playsInline
-        preload="none"
-        aria-hidden="true"
-        tabIndex={-1}
-      />
-      <figcaption className="tag">{label}</figcaption>
+      <figcaption className="tag">{caption}</figcaption>
       {state === "fallback" && posterOk ? (
-        <p className="fallback">The recording did not play. The still is from {captured}.</p>
+        <p className="fallback">The recording did not play. The still is from {stillFrom}.</p>
       ) : null}
     </figure>
   );

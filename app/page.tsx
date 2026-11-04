@@ -1,7 +1,7 @@
 import { ContactBlock } from "@/components/ContactBlock";
 import { LookView } from "@/components/LookView";
 import { Pen } from "@/components/Pen";
-import { LOOKS, OPENING_AFTER, OPENING_BEFORE, OPENING_WORD } from "@/lib/looks";
+import { BACKGROUND, LOOKS, OPENING_AFTER, OPENING_BEFORE, OPENING_WORD } from "@/lib/looks";
 
 export default function Home() {
   return (
@@ -13,6 +13,7 @@ export default function Home() {
           <Pen italic>{OPENING_WORD}</Pen>
           {OPENING_AFTER}
         </p>
+        <p className="quiet">{BACKGROUND}</p>
         <ContactBlock />
         <nav className="index" aria-label="Looks">
           <a href="#citebot">01 CiteBot</a>

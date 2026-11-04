@@ -19,7 +19,7 @@ Nothing is set below 16px.
 
 ## Motion
 
-Grain is a generated turbulence tile behind the type. Each look plays a screen recording through a Bayer dither on a canvas. Hover, tap, and keyboard start it. It runs once, for `750ms`. `prefers-reduced-motion` shows the poster still. If the clip or the canvas fails, the still stays and a line says so.
+Grain is a generated turbulence tile behind the type. Each still is a close crop, dithered on a canvas at the frame's own resolution. Hover, tap, and keyboard play the clip once, in greyscale, for `750ms`. `prefers-reduced-motion` keeps the dithered still. If the clip or the canvas fails, the still stays and a line says so.
 
 ## Adding a look
 

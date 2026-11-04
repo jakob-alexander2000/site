@@ -13,7 +13,7 @@ export default defineConfig({
   webServer: {
     command: "npx next start -H 127.0.0.1 -p 3456",
     url: "http://127.0.0.1:3456",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   projects: [

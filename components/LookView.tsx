@@ -1,6 +1,6 @@
 import { DitherStage } from "@/components/DitherStage";
 import { Pen } from "@/components/Pen";
-import { CAPTURED, proofHref, type Look } from "@/lib/looks";
+import { proofHref, visibleLive, type Look } from "@/lib/looks";
 
 function withPen(text: string, word?: string) {
   if (!word) return text;
@@ -39,13 +39,18 @@ export function LookView({ look }: { look: Look }) {
         name={look.name}
         src={look.clip}
         poster={look.poster}
-        captured={CAPTURED}
+        width={look.frame.width}
+        height={look.frame.height}
+        caption={look.caption}
+        stillFrom={look.stillFrom}
         alt={look.alt}
       />
       <ul className="links">
-        <li>
-          <a href={look.live}>Live</a>
-        </li>
+        {visibleLive(look) ? (
+          <li>
+            <a href={look.live}>Live</a>
+          </li>
+        ) : null}
         <li>
           <a href={look.source}>Source</a>
         </li>

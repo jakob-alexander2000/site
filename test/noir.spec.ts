@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { BACKGROUND } from "../lib/looks";
 
 const sizes = {
   iphone: { width: 390, height: 844 },
@@ -124,7 +125,18 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("In progress", { exact: true })).toBeVisible();
       await expect(page.getByText("Free answer checker", { exact: true })).toBeVisible();
       await expect(page.getByText("Style Distance", { exact: true })).toBeVisible();
-      await expect(page.getByText("Recording · 4 Nov 2026")).toHaveCount(3);
+      await expect(page.getByText("Recording · development build · 4 Nov 2026")).toHaveCount(1);
+      await expect(page.getByText("Recording · 4 Nov 2026")).toHaveCount(2);
+      await expect(page.getByText(BACKGROUND)).toBeVisible();
+      await expect(page.locator("#citebot").getByRole("link", { name: "Live" })).toHaveCount(0);
+      await expect(page.locator("#autopsy").getByRole("link", { name: "Live" })).toHaveAttribute(
+        "href",
+        "https://retrieval-autopsy.vercel.app/",
+      );
+      await expect(page.locator("#voice").getByRole("link", { name: "Live" })).toHaveAttribute(
+        "href",
+        "https://style-distance.vercel.app/",
+      );
       await expect(page.getByRole("link", { name: "Email: jdevacc2000@gmail.com" })).toHaveAttribute(
         "href",
         "mailto:jdevacc2000@gmail.com",
@@ -212,7 +224,9 @@ test.describe("hover", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Play CiteBot recording" }).click();
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
-    await expect(page.getByText("The recording did not play. The still is from 4 Nov 2026.")).toBeVisible();
+    await expect(
+      page.getByText("The recording did not play. The still is from the development build, 4 Nov 2026."),
+    ).toBeVisible();
     await expect(page.locator("#citebot img")).toBeVisible();
   });
 
@@ -228,8 +242,23 @@ test.describe("hover", () => {
     await page.goto("/");
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
     await expect(page.locator("#citebot img")).toBeVisible();
-    await expect(page.getByText("The recording did not play. The still is from 4 Nov 2026.").first()).toBeVisible();
+    await expect(
+      page.getByText("The recording did not play. The still is from the development build, 4 Nov 2026.").first(),
+    ).toBeVisible();
   });
+});
+
+test("review stills at 390", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "One Chromium capture is the review set.");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  for (const id of ["citebot", "autopsy", "voice"]) {
+    const plate = page.locator(`#${id} .plate`);
+    await plate.scrollIntoViewIfNeeded();
+    const path = testInfo.outputPath(`${id}-390.png`);
+    await plate.screenshot({ path });
+    await testInfo.attach(`${id}-390.png`, { path, contentType: "image/png" });
+  }
 });
 
 test("about returns home", async ({ page }) => {

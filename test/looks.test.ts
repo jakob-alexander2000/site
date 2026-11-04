@@ -1,12 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { LOOKS, OPENING, lookCopy, rawProofUrl } from "../lib/looks";
+import { BACKGROUND, LOOKS, OPENING, lookCopy, rawProofUrl, showCiteBotLive, visibleLive } from "../lib/looks";
 import { REVEAL_MS } from "../lib/reveal";
 import { SHELF } from "../lib/shelf";
 
 test("opening line and reveal length are fixed", () => {
   assert.equal(OPENING, "I build AI tools whose answers you can check, sentence by sentence.");
+  assert.equal(
+    BACKGROUND,
+    "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.",
+  );
+  assert.equal(showCiteBotLive, false);
+  assert.equal(visibleLive(LOOKS[0]), null);
+  assert.equal(visibleLive(LOOKS[1]), LOOKS[1].live);
+  assert.equal(visibleLive(LOOKS[2]), LOOKS[2].live);
   assert.ok(REVEAL_MS >= 600 && REVEAL_MS <= 900);
 });
 
@@ -38,18 +46,16 @@ test("noir css keeps black, white, and one grey", () => {
 });
 
 test("proof lines still match the repositories", { timeout: 30000 }, async () => {
-  const seen = new Set<string>();
   for (const look of LOOKS) {
-    seen.add(look.live);
     for (const proof of look.proofs) {
       const response = await fetch(rawProofUrl(proof));
       assert.equal(response.status, 200, rawProofUrl(proof));
       const line = (await response.text()).split(/\r?\n/)[proof.line - 1] ?? "";
       assert.equal(line.includes(proof.excerpt), true, `${proof.file}:${proof.line} was ${line}`);
     }
-  }
-  for (const url of seen) {
-    const response = await fetch(url, { redirect: "follow" });
-    assert.equal(response.status, 200, url);
+    const live = visibleLive(look);
+    if (!live) continue;
+    const response = await fetch(live, { redirect: "follow" });
+    assert.equal(response.status, 200, live);
   }
 });
