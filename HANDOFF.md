@@ -4,15 +4,15 @@
 
 | | |
 | --- | --- |
-| Head commit | `599fc68183a650275e54df02f1bb690c4eb8a253` |
+| Head commit | `8d5037eae6662d3afb2d0bb137c210308e24f3eb` |
 | Pull request | https://github.com/jakob-alexander2000/site/pull/10 |
-| Vercel deployment | `dpl_BrPe3g3mFpzoC2f4BMVhK7atZPph` |
-| Preview | https://jakobalex-2d0yy94d5-jakobalexander2000s-projects.vercel.app |
+| Vercel deployment | `dpl_AZA6q1iT3VmcCyf49E4kFNQc8GRv` |
+| Preview | https://jakobalex-ltmkcmmch-jakobalexander2000s-projects.vercel.app |
 | Branch alias | https://jakobalex-git-cursor-noir-l-4b949e-jakobalexander2000s-projects.vercel.app |
-| Deployment state | READY. The preview returned HTTP 200 and the bootcamp sentence. |
-| CI | https://github.com/jakob-alexander2000/site/actions/runs/41911291062 success (Chromium and WebKit) |
+| Deployment state | READY. The preview returned HTTP 200. |
+| CI | https://github.com/jakob-alexander2000/site/actions/runs/41913834937 success, and https://github.com/jakob-alexander2000/site/actions/runs/41913826883 success |
 
-This file is committed after that SHA. The preview above is the deployment of `599fc68183a650275e54df02f1bb690c4eb8a253`.
+This file is committed after that SHA. The preview above is the deployment of `8d5037eae6662d3afb2d0bb137c210308e24f3eb`.
 
 ## Acceptance
 
@@ -22,7 +22,7 @@ This file is committed after that SHA. The preview above is the deployment of `5
 | R2 | LOOK 01 CiteBot, marked In progress | pass | Same test. |
 | R3 | LOOK 02 Retrieval Autopsy, free answer checker | pass | Same test. Live link kept. `node --import tsx --test test/looks.test.ts` requires HTTP 200. |
 | R4 | LOOK 03 Voice check (Style Distance) | pass | Same test. Live link kept. |
-| R5 | CiteBot recording shows a finished answer and a claim check | pass | Local development build, branch `cursor/answer-core-56ce`, mock provider. The still shows SUPPORTED, a dropped unless, and `pto-and-leave.md`. Label: `Recording · development build · 4 Nov 2026`. |
+| R5 | CiteBot recording shows a finished answer and a claim check, with the passage as plain text | pass | Local development build, branch `cursor/answer-core-56ce`, mock provider. Display-only markdown stripping was not committed to that repo. The still shows SUPPORTED, a dropped unless, and `pto-and-leave.md`, without `##` or `**`. Label: `Recording · development build · 4 Nov 2026`. |
 | R6 | Dithered stills, readable at 390 | pass | `test-results/noir-review-stills-at-390-chromium/*-390.png` from `npx playwright test test/noir.spec.ts -g "review stills"`. Play shows the clip in greyscale. |
 | R7 | Recording label with date | pass | CiteBot uses the development-build label. The other two use `Recording · 4 Nov 2026`. |
 | R8 | No live iframes | pass | Playwright iframe count is 0. |
@@ -41,7 +41,7 @@ This file is committed after that SHA. The preview above is the deployment of `5
 | R21 | Email mailto, GitHub profile | pass | Playwright href checks. |
 | R22 | CiteBot Live link hidden behind one flag, default off | pass | `showCiteBotLive` is false in `lib/looks.ts`. Playwright finds no Live link in `#citebot`. |
 | R23 | Autopsy and Voice check Live links, HTTP 200 | pass | `node --import tsx --test test/looks.test.ts` |
-| R24 | Lighthouse on the preview | pass | `npx lighthouse https://jakobalex-2d0yy94d5-jakobalexander2000s-projects.vercel.app --only-categories=performance --form-factor=mobile --screenEmulation.mobile=true --chrome-flags="--headless=new --no-sandbox"`. Performance 99. The preview responded without a login wall. |
+| R24 | Lighthouse on this preview | not checked | This deployment only replaces the CiteBot recording. Lighthouse was not run again. |
 
 ## Playwright
 
@@ -55,7 +55,7 @@ This file is committed after that SHA. The preview above is the deployment of `5
 ## Found, not fixed
 
 - The CiteBot clip is the local development build with the mock provider, not the public deployment. The label says so. `showCiteBotLive` stays false.
-- The mock answer prints the passage with markdown marks still visible (`##`, `**`). That is what the development screen shows.
+- Markdown was stripped only in the local display used to record. That edit is not in the CiteBot repository.
 - No physical iPhone or iPad. WebKit is Playwright’s Linux build.
 - Installer phone agent, voice test bench, and agent cockpit stay in `lib/shelf.ts` and are not on the page.
 - `/about` redirects home.
