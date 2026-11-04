@@ -2,38 +2,54 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { contact } from "../lib/contact";
-import { allowedEmailFromSource, findHits } from "../scripts/scan-copy";
+import { findHits, normalise } from "../scripts/scan-copy";
 
-test("the scanner allows only the configured email", () => {
-  const source = readFileSync("lib/contact.ts", "utf8");
-  assert.equal(allowedEmailFromSource(source), contact.email);
-  assert.equal(findHits(contact.email ?? "", { allowedEmail: contact.email }).length, 0);
-  const fake = readFileSync("test/fixtures/bad-copy.txt", "utf8");
-  const hits = findHits(fake, { allowedEmail: contact.email });
-  const rules = new Set(hits.map((hit) => hit.rule));
+const rules = (text: string) => new Set(findHits(text).map((hit) => hit.rule));
+
+test("the site carries no email address", () => {
+  assert.equal(contact.email, null);
+  assert.equal(rules("name@example.com").has("email"), true);
+});
+
+test("every banned rule fires on the fixture", () => {
+  const found = rules(readFileSync("test/fixtures/bad-copy.txt", "utf8"));
   for (const rule of [
-    "made-in-berlin",
-    "guitar",
-    "cost",
-    "commit-count",
-    "self-taught",
-    "taught-himself",
-    "taught-myself",
-    "third-person",
-    "ledger",
-    "grounded-docs",
-    "mittelstand",
-    "white-label",
-    "vierspur",
-    "open-to-work",
-    "email",
+    "made-in-berlin", "guitar", "cost", "commit-count", "self-taught", "taught-himself", "taught-myself",
+    "third-person", "ledger", "grounded-docs", "mittelstand", "white-label", "vierspur", "open-to-work",
+    "hiring", "income", "salary", "euro", "tape-brand", "slash-count", "email",
   ]) {
-    assert.equal(rules.has(rule), true, rule);
+    assert.equal(found.has(rule), true, rule);
   }
 });
 
-test("a null email allows no address", () => {
-  const fake = readFileSync("test/fixtures/bad-copy.txt", "utf8");
-  const hits = findHits(fake, { allowedEmail: null });
-  assert.equal(hits.some((hit) => hit.rule === "email"), true);
+test("case, lookalike, invisible and spacing tricks are folded", () => {
+  const cases: Array<[string, string]> = [
+    ["HIRING", "hiring"],
+    ["We are hir\u200Bing", "hiring"],
+    ["s\u0430lary", "salary"],
+    ["Grounded\u00A0Docs", "grounded-docs"],
+    ["Grounded\nDocs", "grounded-docs"],
+    ["L\u0435dger API", "ledger"],
+    ["Self taught", "self-taught"],
+    ["Selbst beigebracht", "self-taught"],
+    ["autodidakt", "self-taught"],
+    ["Made in\u202FBerlin", "made-in-berlin"],
+    ["TASC\u00ADAM", "tape-brand"],
+    ["Einkommen", "income"],
+    ["name\uFF20example.com", "email"],
+  ];
+  for (const [text, rule] of cases) assert.equal(rules(text).has(rule), true, `${JSON.stringify(text)} -> ${rule}`);
+});
+
+test("approved copy stays clean", () => {
+  for (const text of [
+    "I build tools that check what AI writes.",
+    "I came into software through a coding bootcamp, plus a distance-learning computer science degree, expected early 2027.",
+    "No account and no key. It shows where an answer drops a condition, sentence by sentence.",
+    "Recording · development build, no AI model · 4 Nov 2026",
+    "18 of 18",
+  ]) {
+    assert.deepEqual(findHits(text), [], text);
+  }
+  assert.equal(normalise("a\u00A0\u00A0b"), "a b");
 });

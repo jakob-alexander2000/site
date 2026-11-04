@@ -4,11 +4,11 @@ export const CAPTURED = "4 Nov 2026";
 export const showCiteBotLive = false;
 
 export const BACKGROUND =
-  "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.";
+  "I came into software through a coding bootcamp, plus a distance-learning computer science degree, expected early 2027.";
 
-export const OPENING_BEFORE = "I build AI tools whose answers you can ";
+export const OPENING_BEFORE = "I build tools that ";
 export const OPENING_WORD = "check";
-export const OPENING_AFTER = ", sentence by sentence.";
+export const OPENING_AFTER = " what AI writes.";
 export const OPENING = `${OPENING_BEFORE}${OPENING_WORD}${OPENING_AFTER}`;
 
 export type Proof = {
@@ -73,9 +73,9 @@ export const LOOKS: readonly Look[] = [
     clip: "/recordings/citebot.mp4",
     poster: "/recordings/citebot.jpg",
     frame: { width: 900, height: 750 },
-    caption: `Recording · development build · ${CAPTURED}`,
-    stillFrom: `the development build, ${CAPTURED}`,
-    alt: "Still from the CiteBot development build, 4 Nov 2026. The answer is marked supported, a dropped unless is flagged, and the passage is pto-and-leave.md.",
+    caption: `Recording · development build, no AI model · ${CAPTURED}`,
+    stillFrom: `the development build without an AI model, ${CAPTURED}`,
+    alt: "Still from the CiteBot development build without an AI model, 4 Nov 2026. A stand-in quotes the passage; the check marks it supported and flags a dropped unless. The passage is pto-and-leave.md.",
   },
   {
     id: "autopsy",

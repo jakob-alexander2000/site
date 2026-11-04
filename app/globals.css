@@ -295,3 +295,42 @@ a {
     display: none;
   }
 }
+
+/* Phones held sideways: keep each look's main action inside the first screen. */
+@media (max-height: 500px) {
+  .screen {
+    gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+  }
+
+  .lede,
+  .copy {
+    font-size: 18px;
+  }
+
+  .index a,
+  .run a,
+  .links a,
+  .contact a {
+    min-height: 44px;
+  }
+}
+
+@media (max-height: 360px) {
+  .screen {
+    gap: 4px;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+}

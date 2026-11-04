@@ -4,6 +4,8 @@ Personal site. An opening line and three looks: CiteBot, Retrieval Autopsy, and 
 
 ## Local
 
+Node.js 22 or newer (`engines` in package.json; GitHub Actions uses 22).
+
 ```bash
 npm install
 npm run dev

@@ -35,16 +35,6 @@ export function LookView({ look }: { look: Look }) {
           {withPen(paragraph, look.pen)}
         </p>
       ))}
-      <DitherStage
-        name={look.name}
-        src={look.clip}
-        poster={look.poster}
-        width={look.frame.width}
-        height={look.frame.height}
-        caption={look.caption}
-        stillFrom={look.stillFrom}
-        alt={look.alt}
-      />
       <ul className="links">
         {visibleLive(look) ? (
           <li>
@@ -60,6 +50,16 @@ export function LookView({ look }: { look: Look }) {
           </li>
         ) : null}
       </ul>
+      <DitherStage
+        name={look.name}
+        src={look.clip}
+        poster={look.poster}
+        width={look.frame.width}
+        height={look.frame.height}
+        caption={look.caption}
+        stillFrom={look.stillFrom}
+        alt={look.alt}
+      />
     </section>
   );
 }

@@ -10,7 +10,7 @@ const RULES: ReadonlyArray<readonly [string, RegExp]> = [
   ["guitar", /guitar/i],
   ["cost", /the cost is/i],
   ["commit-count", /\bcommit counts?\b|\b\d+\s+commits?\b/i],
-  ["self-taught", /self-taught/i],
+  ["self-taught", /self[- ]?taught|autodidakt|selbst beigebracht/i],
   ["taught-himself", /taught himself/i],
   ["taught-myself", /taught myself/i],
   [
@@ -23,29 +23,42 @@ const RULES: ReadonlyArray<readonly [string, RegExp]> = [
   ["white-label", /white-label/i],
   ["vierspur", /vierspur/i],
   ["open-to-work", /open to work/i],
+  ["hiring", /\b(hire|hires|hired|hiring|recruit\w*)\b/i],
+  ["income", /\bincome\b|\beinkommen\b/i],
+  ["salary", /salary|salaries|\bgehalt\b/i],
+  ["euro", /€|\beur\b|\beuro\b/i],
+  ["tape-brand", /tascam|portastudio/i],
+  ["slash-count", /\b\d+\/\d+\b(?! ?(?:px|s|ms|%))/],
 ];
+
+const LOOKALIKE: Record<string, string> = {
+  "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "і": "i", "ј": "j", "ѕ": "s",
+  "А": "A", "Е": "E", "О": "O", "Р": "P", "С": "C", "Т": "T", "Н": "H", "К": "K", "М": "M", "В": "B", "Х": "X", "І": "I",
+  "α": "a", "ο": "o", "ρ": "p", "ε": "e", "ι": "i", "Ι": "I", "Ο": "O", "Α": "A", "Ε": "E",
+};
+
+/** Fold case tricks, lookalike letters, invisible characters and odd spaces before any rule runs. */
+export function normalise(text: string): string {
+  return text
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\u2060\uFEFF\u00AD]/g, "")
+    .replace(/[\u0391-\u03C9\u0400-\u04FF]/g, (ch) => LOOKALIKE[ch] ?? ch)
+    .replace(/[\s\u00A0\u202F]+/g, " ");
+}
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
-export function allowedEmailFromSource(source: string): string | null {
-  const match = source.match(/email:\s*(null|"([^"]*)")/);
-  if (!match) throw new Error("lib/contact.ts has no email field");
-  if (match[1] === "null") return null;
-  return match[2] ?? null;
-}
-
-export function findHits(text: string, options: { allowedEmail: string | null; file?: string }): Hit[] {
+/** No address is allowed anywhere on the site: the public contact is the GitHub profile. */
+export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
   const file = options.file ?? "text";
+  const text = normalise(raw);
   const hits: Hit[] = [];
   for (const [rule, pattern] of RULES) {
     pattern.lastIndex = 0;
     if (pattern.test(text)) hits.push({ rule, file });
   }
   EMAIL.lastIndex = 0;
-  const emails = text.match(EMAIL) ?? [];
-  for (const email of emails) {
-    if (email !== options.allowedEmail) hits.push({ rule: "email", file, email });
-  }
+  for (const email of text.match(EMAIL) ?? []) hits.push({ rule: "email", file, email });
   return hits;
 }
 
@@ -97,7 +110,6 @@ function main() {
     console.error("Run npm run build before the copy scan.");
     process.exit(1);
   }
-  const allowedEmail = allowedEmailFromSource(readFileSync("lib/contact.ts", "utf8"));
   const files = [
     ...walk("app"),
     ...walk("components"),
@@ -123,7 +135,7 @@ function main() {
       text.includes("Jakob Alex") ||
       text.includes("CiteBot");
     if (!siteChunk) continue;
-    hits.push(...findHits(text, { allowedEmail, file }));
+    hits.push(...findHits(text, { file }));
   }
   if (hits.length) {
     for (const hit of hits) {
@@ -131,7 +143,7 @@ function main() {
     }
     process.exit(1);
   }
-  console.log(`copy scan ok (${files.length} files, allowed email ${allowedEmail ?? "none"})`);
+  console.log(`copy scan ok (${files.length} files, no email allowed)`);
 }
 
 if (process.argv[1]?.includes("scan-copy")) main();

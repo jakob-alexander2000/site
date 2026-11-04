@@ -11,10 +11,10 @@ export type ContactEntry = {
   href: string | null;
 };
 
-/** Phone stays null: the row is omitted. Email and GitHub are the rendered contact. */
+/** Phone and email stay null: no row is rendered for them. GitHub is the only public contact. */
 export const contact: Contact = {
   phone: null,
-  email: "jdevacc2000@gmail.com",
+  email: null,
   github: "https://github.com/jakob-alexander2000",
 };
 
@@ -35,8 +35,6 @@ export function contactEntries(value: Contact): ContactEntry[] {
       text: value.email,
       href: `mailto:${value.email}`,
     });
-  } else {
-    entries.push({ kind: "email", label: "Email", text: "to follow", href: null });
   }
   entries.push({
     kind: "github",

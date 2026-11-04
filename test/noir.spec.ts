@@ -7,7 +7,7 @@ const sizes = {
   desktop: { width: 1280, height: 800 },
 } as const;
 
-const opening = "I build AI tools whose answers you can check, sentence by sentence.";
+const opening = "I build tools that check what AI writes.";
 
 async function readPage(page: Page) {
   return page.evaluate(() => {
@@ -125,7 +125,7 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("In progress", { exact: true })).toBeVisible();
       await expect(page.getByText("Free answer checker", { exact: true })).toBeVisible();
       await expect(page.getByText("Style Distance", { exact: true })).toBeVisible();
-      await expect(page.getByText("Recording · development build · 4 Nov 2026")).toHaveCount(1);
+      await expect(page.getByText("Recording · development build, no AI model · 4 Nov 2026")).toHaveCount(1);
       await expect(page.getByText("Recording · 4 Nov 2026")).toHaveCount(2);
       await expect(page.getByText(BACKGROUND)).toBeVisible();
       await expect(page.locator("#citebot").getByRole("link", { name: "Live" })).toHaveCount(0);
@@ -137,16 +137,15 @@ for (const [name, viewport] of Object.entries(sizes)) {
         "href",
         "https://style-distance.vercel.app/",
       );
-      await expect(page.getByRole("link", { name: "Email: jdevacc2000@gmail.com" })).toHaveAttribute(
-        "href",
-        "mailto:jdevacc2000@gmail.com",
-      );
+      await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
       await expect(page.getByRole("link", { name: "GitHub: https://github.com/jakob-alexander2000" })).toHaveAttribute(
         "href",
         "https://github.com/jakob-alexander2000",
       );
       const text = await page.locator("body").innerText();
       expect(text).not.toContain("Phone");
+      expect(text).not.toContain("Email");
+      expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
       expect(text).not.toContain("to follow");
       expect(text).not.toContain("desk-index");
       expect(text).not.toContain("citebot-evals");
@@ -225,7 +224,7 @@ test.describe("hover", () => {
     await page.getByRole("button", { name: "Play CiteBot recording" }).click();
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
     await expect(
-      page.getByText("The recording did not play. The still is from the development build, 4 Nov 2026."),
+      page.getByText("The recording did not play. The still is from the development build without an AI model, 4 Nov 2026."),
     ).toBeVisible();
     await expect(page.locator("#citebot img")).toBeVisible();
   });
@@ -243,7 +242,7 @@ test.describe("hover", () => {
     await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
     await expect(page.locator("#citebot img")).toBeVisible();
     await expect(
-      page.getByText("The recording did not play. The still is from the development build, 4 Nov 2026.").first(),
+      page.getByText("The recording did not play. The still is from the development build without an AI model, 4 Nov 2026.").first(),
     ).toBeVisible();
   });
 });
@@ -258,6 +257,66 @@ test("review stills at 390", async ({ page }, testInfo) => {
     const path = testInfo.outputPath(`${id}-390.png`);
     await plate.screenshot({ path });
     await testInfo.attach(`${id}-390.png`, { path, contentType: "image/png" });
+  }
+});
+
+for (const viewport of [
+  { width: 390, height: 664 },
+  { width: 844, height: 390 },
+  { width: 844, height: 340 },
+  { width: 744, height: 1133 },
+  { width: 1280, height: 800 },
+]) {
+  test(`each look shows its main action without scrolling at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    for (const id of ["citebot", "autopsy", "voice"]) {
+      await page.evaluate((target) => document.getElementById(target)?.scrollIntoView({ block: "start" }), id);
+      const box = await page.locator(`#${id} .links a`).first().boundingBox();
+      expect(box, id).not.toBeNull();
+      expect(box!.y + box!.height, id).toBeLessThanOrEqual(viewport.height);
+    }
+  });
+}
+
+for (const viewport of [
+  { width: 390, height: 664 },
+  { width: 375, height: 587 },
+  { width: 844, height: 390 },
+  { width: 844, height: 340 },
+  { width: 1133, height: 610 },
+]) {
+  test(`the first screen shows the opening and LOOK 01 at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    for (const target of [page.locator("#opening"), page.getByRole("link", { name: "01 CiteBot" })]) {
+      const box = await target.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+    }
+  });
+}
+
+test.describe("replay", () => {
+  test.use({ viewport: sizes.iphone, hasTouch: true });
+
+  test("a second tap replays the recording", async ({ page }) => {
+    await page.goto("/");
+    const stage = page.locator("#citebot figure.stage");
+    await page.getByRole("button", { name: "Play CiteBot recording" }).tap();
+    await expectPlayed(stage);
+    await page.getByRole("button", { name: "Replay CiteBot recording" }).tap();
+    await expect(stage).toHaveAttribute("data-state", "playing");
+    await expectPlayed(stage);
+  });
+});
+
+test("no page shows an email address", async ({ page }) => {
+  for (const path of ["/", "/not-a-real-page"]) {
+    await page.goto(path);
+    const html = await page.content();
+    expect(html, path).not.toContain("mailto:");
+    expect(html, path).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
   }
 });
 

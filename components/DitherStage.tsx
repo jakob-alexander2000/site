@@ -36,6 +36,7 @@ export function DitherStage({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const workRef = useRef<HTMLCanvasElement | null>(null);
   const played = useRef(false);
+  const playing = useRef(false);
   const [state, setState] = useState<StageState>("still");
   const [posterOk, setPosterOk] = useState(true);
   const [elapsed, setElapsed] = useState<number | null>(null);
@@ -109,12 +110,14 @@ export function DitherStage({
   }
 
   function fail() {
+    playing.current = false;
     videoRef.current?.pause();
     setState("fallback");
   }
 
-  function play() {
-    if (played.current) return;
+  function play(again = false) {
+    if (playing.current) return;
+    if (played.current && !again) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -124,6 +127,7 @@ export function DitherStage({
       return;
     }
     played.current = true;
+    playing.current = true;
     setState("playing");
 
     const start = () => {
@@ -132,6 +136,7 @@ export function DitherStage({
         fail();
         return;
       }
+      video.currentTime = 0;
       video.playbackRate = Math.min(16, duration / (REVEAL_MS / 1000));
       const t0 = performance.now();
       const tick = (now: number) => {
@@ -139,6 +144,7 @@ export function DitherStage({
           video.pause();
           paint(video);
           setElapsed(Math.round(now - t0));
+          playing.current = false;
           setState("played");
           return;
         }
@@ -211,11 +217,11 @@ export function DitherStage({
           <button
             type="button"
             className="hit"
-            aria-label={`Play ${name} recording`}
-            onClick={play}
-            onFocus={play}
+            aria-label={`${state === "played" ? "Replay" : "Play"} ${name} recording`}
+            onClick={() => play(true)}
+            onFocus={() => play()}
           >
-            <span className="tag play-label">Play</span>
+            <span className="tag play-label">{state === "played" ? "Replay" : "Play"}</span>
           </button>
         )}
         <video
