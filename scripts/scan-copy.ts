@@ -1,3 +1,4 @@
+import { ALLOWED_EMAIL } from "../lib/contact";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 
@@ -48,7 +49,7 @@ export function normalise(text: string): string {
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
-/** No address is allowed anywhere on the site: the public contact is the GitHub profile. */
+/** Only the contact address in lib/contact.ts is allowed; any other address is a hit. */
 export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
   const file = options.file ?? "text";
   const text = normalise(raw);
@@ -58,7 +59,7 @@ export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
     if (pattern.test(text)) hits.push({ rule, file });
   }
   EMAIL.lastIndex = 0;
-  for (const email of text.match(EMAIL) ?? []) hits.push({ rule: "email", file, email });
+  for (const email of text.match(EMAIL) ?? []) if (email !== ALLOWED_EMAIL) hits.push({ rule: "email", file, email });
   return hits;
 }
 
@@ -143,7 +144,7 @@ function main() {
     }
     process.exit(1);
   }
-  console.log(`copy scan ok (${files.length} files, no email allowed)`);
+  console.log(`copy scan ok (${files.length} files, only the contact address allowed)`);
 }
 
 if (process.argv[1]?.includes("scan-copy")) main();

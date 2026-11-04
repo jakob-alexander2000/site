@@ -137,15 +137,15 @@ for (const [name, viewport] of Object.entries(sizes)) {
         "href",
         "https://style-distance.vercel.app/",
       );
-      await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
+      await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
+      await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute("href", "mailto:jdevacc2000@gmail.com");
       await expect(page.getByRole("link", { name: "GitHub: https://github.com/jakob-alexander2000" })).toHaveAttribute(
         "href",
         "https://github.com/jakob-alexander2000",
       );
       const text = await page.locator("body").innerText();
       expect(text).not.toContain("Phone");
-      expect(text).not.toContain("Email");
-      expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+      for (const address of text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) ?? []) expect(address).toBe("jdevacc2000@gmail.com");
       expect(text).not.toContain("to follow");
       expect(text).not.toContain("desk-index");
       expect(text).not.toContain("citebot-evals");
@@ -311,12 +311,11 @@ test.describe("replay", () => {
   });
 });
 
-test("no page shows an email address", async ({ page }) => {
+test("no page shows an email address other than the contact address", async ({ page }) => {
   for (const path of ["/", "/not-a-real-page"]) {
     await page.goto(path);
     const html = await page.content();
-    expect(html, path).not.toContain("mailto:");
-    expect(html, path).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+    for (const address of html.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) ?? []) expect(address, path).toBe("jdevacc2000@gmail.com");
   }
 });
 

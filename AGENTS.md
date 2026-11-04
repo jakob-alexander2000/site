@@ -14,7 +14,7 @@ Noir lookbook. Read DESIGN.md before changing type, color, or motion.
 
 The home page is the opening line plus the looks in `lib/looks.ts`. Each look needs a recording, a poster, a live URL, and a proof whose excerpt is on the page. `lib/shelf.ts` lists names that are not rendered. Move one into `lib/looks.ts` only after the recording and the proof exist.
 
-`lib/contact.ts` is the only contact config. `phone` and `email` stay `null`, so neither row renders: no email address may appear on the site. GitHub is the only public contact. The end-to-end test "no page shows an email address" checks the rendered pages.
+`lib/contact.ts` is the only contact config. `phone` stays `null`, so no phone row renders. `email` is the one allowed address (`ALLOWED_EMAIL`), a `mailto:` link next to GitHub. The copy scan and the end-to-end test "no page shows an email address other than the contact address" fail on any other address.
 
 Write about Jakob Alex in the first person. Run `npm run build` and then `node --import tsx scripts/scan-copy.ts`.
 

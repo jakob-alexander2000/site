@@ -6,8 +6,10 @@ import { findHits, normalise } from "../scripts/scan-copy";
 
 const rules = (text: string) => new Set(findHits(text).map((hit) => hit.rule));
 
-test("the site carries no email address", () => {
-  assert.equal(contact.email, null);
+test("the site carries only the contact address", () => {
+  assert.equal(contact.email, "jdevacc2000@gmail.com");
+  assert.equal(rules("jdevacc2000@gmail.com").has("email"), false);
+  assert.equal(rules("xjdevacc2000@gmail.com").has("email"), true);
   assert.equal(rules("name@example.com").has("email"), true);
 });
 

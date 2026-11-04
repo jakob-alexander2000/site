@@ -1,3 +1,5 @@
+export const ALLOWED_EMAIL = "jdevacc2000@gmail.com";
+
 export type Contact = {
   phone: string | null;
   email: string | null;
@@ -11,10 +13,10 @@ export type ContactEntry = {
   href: string | null;
 };
 
-/** Phone and email stay null: no row is rendered for them. GitHub is the only public contact. */
+/** The one public address plus GitHub. Phone stays null: no row is rendered for it. */
 export const contact: Contact = {
   phone: null,
-  email: null,
+  email: ALLOWED_EMAIL,
   github: "https://github.com/jakob-alexander2000",
 };
 
