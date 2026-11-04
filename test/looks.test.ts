@@ -6,10 +6,10 @@ import { REVEAL_MS } from "../lib/reveal";
 import { SHELF } from "../lib/shelf";
 
 test("opening line and reveal length are fixed", () => {
-  assert.equal(OPENING, "I build tools that check what AI writes.");
+  assert.equal(OPENING, "I build AI tools whose answers you can check, sentence by sentence.");
   assert.equal(
     BACKGROUND,
-    "I came into software through a coding bootcamp, plus a distance-learning computer science degree, expected early 2027.",
+    "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.",
   );
   assert.equal(showCiteBotLive, false);
   assert.equal(visibleLive(LOOKS[0]), null);

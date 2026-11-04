@@ -4,11 +4,11 @@ export const CAPTURED = "4 Nov 2026";
 export const showCiteBotLive = false;
 
 export const BACKGROUND =
-  "I came into software through a coding bootcamp, plus a distance-learning computer science degree, expected early 2027.";
+  "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.";
 
-export const OPENING_BEFORE = "I build tools that ";
+export const OPENING_BEFORE = "I build AI tools whose answers you can ";
 export const OPENING_WORD = "check";
-export const OPENING_AFTER = " what AI writes.";
+export const OPENING_AFTER = ", sentence by sentence.";
 export const OPENING = `${OPENING_BEFORE}${OPENING_WORD}${OPENING_AFTER}`;
 
 export type Proof = {
