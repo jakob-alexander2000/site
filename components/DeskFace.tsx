@@ -26,6 +26,7 @@ export function DeskFace() {
   return (
     <QueryForm
       tryId="desk"
+      instrument="Desk"
       note="The sample notes are adapted examples. One query word scores 1.00 when it is in the note, or 1.50 when it is also in the file name. Writing an answer calls an AI, and that step is not run here."
       draft={draft}
       setDraft={setDraft}
