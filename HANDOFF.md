@@ -4,14 +4,17 @@
 
 | | |
 | --- | --- |
-| Head commit | filled after this commit is pushed |
+| Head commit | `1a008e0cc11bad371b1cb552ea9ababd634f7b87` |
 | Pull request | https://github.com/jakob-alexander2000/site/pull/10 |
-| Vercel deployment | filled when the preview for this commit is ready |
-| Preview | filled when the preview for this commit is ready |
+| Vercel deployment | `dpl_77W4W4tHaVYJ595JaW4ZTwh3yNAM` |
+| Preview | https://jakobalex-n1kq75wr0-jakobalexander2000s-projects.vercel.app |
 | Branch alias | https://jakobalex-git-cursor-noir-l-4b949e-jakobalexander2000s-projects.vercel.app |
-| CI | filled after the Actions run for this commit |
+| Deployment state | READY. The preview and the branch alias both returned HTTP 200. The page has no video element. |
+| CI | https://github.com/jakob-alexander2000/site/actions/runs/41929691100 success (pull request), and https://github.com/jakob-alexander2000/site/actions/runs/41929683870 success (push) |
 
-Clips are gone. Each look is one screenshot. The identity rows above are updated in the follow-up commit once the run and the preview exist.
+This file is committed after that SHA. The preview above is the deployment of `1a008e0cc11bad371b1cb552ea9ababd634f7b87`.
+
+On that CI, Playwright reported 45 passed and 1 skipped. Chromium passed 23. WebKit passed 22 and skipped the review-still capture.
 
 ## Acceptance
 
@@ -60,7 +63,7 @@ Clips are gone. Each look is one screenshot. The identity rows above are updated
 
 ## Playwright
 
-Local `npx playwright test` after `npm run build`: 45 passed, 1 skipped. The skip is the WebKit copy of the review-still capture. Chromium ran 23 and passed 23. WebKit ran 23, passed 22, skipped 1.
+Local `npx playwright test` after `npm run build`, and the same command on CI runs 41929691100 and 41929683870: 45 passed, 1 skipped. The skip is the WebKit copy of the review-still capture. Chromium ran 23 and passed 23. WebKit ran 23, passed 22, skipped 1.
 
 | Browser | 390×844 | 744×1133 | 1280×800 |
 | --- | --- | --- | --- |
