@@ -304,6 +304,16 @@ test("no page shows an email address other than the contact address", async ({ p
   }
 });
 
+test("a still that fails to load says so in words", async ({ page }) => {
+  await page.route("**/recordings/*.jpg", (route) => route.abort());
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  for (const id of ["citebot", "autopsy", "voice"]) {
+    await expect(page.locator(`#${id} .still`)).toContainText("The still did not load.");
+    await expect(page.locator(`#${id} .still img`)).toHaveCount(0);
+  }
+});
+
 test("about returns home", async ({ page }) => {
   await page.goto("/about");
   await expect(page).toHaveURL(/\/$/);

@@ -61,6 +61,16 @@ On that CI, Playwright reported 45 passed and 1 skipped. Chromium passed 23. Web
 | R39 | Both engines at 1280×800 | pass | Content, type, contrast, tap targets, reduced motion, settle, main link, and the short-height loops. |
 | R40 | Real iOS | not checked | No physical iPhone or iPad. WebKit here is Playwright’s Linux build. |
 
+## Removed tests
+
+| File | What it covered | Where that is covered now |
+| --- | --- | --- |
+| `test/smoke.mjs` "home renders six instruments" | The six-project layout, its claims and the "Selected work" label | Dropped with the layout. `test/noir.spec.ts` "looks, contact, type, and contrast" checks the three looks. |
+| `test/smoke.mjs` "about and a missing page stay free of banned words" | Banned words (hire, hiring, Mittelstand, Grounded Docs, income, euro sign, salary, Ledger), any email address and `mailto:` on `/about` and a missing page | `scripts/scan-copy.ts` over source and every built page, including the not-found page; `test/scan.test.ts`; `test/noir.spec.ts` "no page shows an email address other than the contact address". The one contact address is now allowed. |
+| `test/smoke.mjs` "the first Try it fits above the phone browser chrome" | The first main action above the Chrome on iOS toolbar | `test/noir.spec.ts` "the main link is on the first screen" and "each look shows its main action without scrolling" at the short sizes. |
+| `test/logic.test.ts` (six tests on evals fixtures, desk scores, the desk index and excerpts) | Logic of the removed desk, index and evals faces | Dropped with those components. |
+| `test/logic.test.ts` "live apps are CiteBot, Retrieval Autopsy, and Style Distance" | The list of live apps | `test/noir.spec.ts` "looks, contact, type, and contrast" and `test/looks.test.ts` "proof lines still match the repositories". |
+
 ## Playwright
 
 Local `npx playwright test` after `npm run build`, and the same command on CI runs 41929691100 and 41929683870: 45 passed, 1 skipped. The skip is the WebKit copy of the review-still capture. Chromium ran 23 and passed 23. WebKit ran 23, passed 22, skipped 1.

@@ -43,6 +43,11 @@ test("case, lookalike, invisible and spacing tricks are folded", () => {
   for (const [text, rule] of cases) assert.equal(rules(text).has(rule), true, `${JSON.stringify(text)} -> ${rule}`);
 });
 
+test("the public scan names no private figure", () => {
+  const source = readFileSync("scripts/scan-copy.ts", "utf8") + readFileSync("test/fixtures/bad-copy.txt", "utf8");
+  assert.equal(/\d{3}\s?k\b|\d{3}[ .,]000/i.test(source), false);
+});
+
 test("approved copy stays clean", () => {
   for (const text of [
     "I build AI tools whose answers you can check, sentence by sentence.",

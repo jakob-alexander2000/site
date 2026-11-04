@@ -14,7 +14,15 @@ export function ProductStill({
   alt: string;
 }) {
   const frame = useRef<HTMLDivElement | null>(null);
+  const image = useRef<HTMLImageElement | null>(null);
   const [settled, setSettled] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    // An error before hydration fires no onError; a finished image with no width has failed.
+    const node = image.current;
+    if (node && node.complete && node.naturalWidth === 0) setFailed(true);
+  }, []);
 
   useEffect(() => {
     const node = frame.current;
@@ -35,8 +43,14 @@ export function ProductStill({
   return (
     <div ref={frame} className={settled ? "still is-colour" : "still"} data-settled={settled ? "1" : "0"}>
       {/* The still is the captured screenshot, kept at its own size. Colour is a CSS filter. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} width={width} height={height} />
+      {failed ? (
+        <p className="tag" role="status">
+          The still did not load. The links above still work.
+        </p>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img ref={image} src={src} alt={alt} width={width} height={height} onError={() => setFailed(true)} />
+      )}
     </div>
   );
 }
