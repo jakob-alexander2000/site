@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { BACKGROUND, LOOKS, OPENING, lookCopy, rawProofUrl, showCiteBotLive, visibleLive } from "../lib/looks";
-import { MIN_CLIP_MS } from "../lib/reveal";
+import { readdirSync } from "node:fs";
+import { BACKGROUND, LOOKS, OPENING, PRODUCT_PAGE_COMING, lookCopy, rawProofUrl, showCiteBotLive, visibleLive } from "../lib/looks";
+import { SETTLE_MS } from "../lib/reveal";
 import { SHELF } from "../lib/shelf";
 
 test("opening line and reveal length are fixed", () => {
@@ -15,7 +16,13 @@ test("opening line and reveal length are fixed", () => {
   assert.equal(visibleLive(LOOKS[0]), null);
   assert.equal(visibleLive(LOOKS[1]), LOOKS[1].live);
   assert.equal(visibleLive(LOOKS[2]), LOOKS[2].live);
-  assert.equal(MIN_CLIP_MS, 4000);
+  assert.equal(SETTLE_MS, 1200);
+  assert.equal(PRODUCT_PAGE_COMING, "The product page is coming.");
+  assert.equal(LOOKS[0].caption, "Checks each claim against the handbook passage. Development build, no AI model.");
+  assert.deepEqual(
+    readdirSync("public/recordings").filter((name) => name.endsWith(".mp4") || name.endsWith(".webm")),
+    [],
+  );
 });
 
 test("each shown sentence is backed by a proof excerpt", () => {
@@ -43,6 +50,13 @@ test("noir css keeps black, white, and one grey", () => {
   }
   assert.match(css, /--grey:\s*#8c8c8c/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
+  assert.match(css, /grayscale\(1\)/);
+  assert.match(css, /filter 1\.2s ease/);
+  assert.match(css, /feTurbulence/);
+  assert.match(css, /hover:\s*hover\) and \(pointer:\s*fine\)/);
+  assert.equal(css.includes("<video"), false);
+  assert.equal(readFileSync("components/ProductStill.tsx", "utf8").includes("<video"), false);
+  assert.equal(readFileSync("components/LookView.tsx", "utf8").includes("<video"), false);
 });
 
 test("proof lines still match the repositories", { timeout: 30000 }, async () => {

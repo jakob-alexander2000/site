@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { BACKGROUND } from "../lib/looks";
 
 const sizes = {
@@ -96,15 +96,45 @@ async function readPage(page: Page) {
   });
 }
 
-async function expectPlayed(stage: Locator) {
-  await expect(stage).toHaveAttribute("data-state", "played", { timeout: 20000 });
-  const elapsed = Number(await stage.getAttribute("data-elapsed"));
-  expect(elapsed).toBeGreaterThanOrEqual(4000);
-  expect(elapsed).toBeLessThanOrEqual(20000);
-  const duration = Number(await stage.getAttribute("data-duration"));
-  expect(duration).toBeGreaterThanOrEqual(4000);
-  await stage.page().waitForTimeout(400);
-  await expect(stage).toHaveAttribute("data-state", "played");
+const suiteSizes = [
+  sizes.iphone,
+  sizes["ipad-mini"],
+  sizes.desktop,
+  { width: 390, height: 664 },
+  { width: 844, height: 390 },
+  { width: 844, height: 340 },
+  { width: 375, height: 587 },
+  { width: 1133, height: 610 },
+] as const;
+
+async function tapTargets(page: Page) {
+  return page.evaluate(() => {
+    const bad: string[] = [];
+    for (const el of document.querySelectorAll("a, button")) {
+      const style = getComputedStyle(el);
+      if (style.display === "none" || style.visibility === "hidden") continue;
+      const box = el.getBoundingClientRect();
+      if (box.width < 44 || box.height < 44) {
+        bad.push(`${box.width.toFixed(1)}x${box.height.toFixed(1)} ${(el.textContent ?? "").trim().slice(0, 40)}`);
+      }
+    }
+    return bad;
+  });
+}
+
+async function stillStyle(page: Page, id: string) {
+  return page.locator(`#${id} .still`).evaluate((frame) => {
+    const image = frame.querySelector("img");
+    if (!image) return null;
+    const picture = getComputedStyle(image);
+    const grain = getComputedStyle(frame, "::after");
+    return {
+      filter: picture.filter,
+      duration: picture.transitionDuration,
+      grain: grain.opacity,
+      settled: frame.getAttribute("data-settled"),
+    };
+  });
 }
 
 for (const [name, viewport] of Object.entries(sizes)) {
@@ -124,8 +154,20 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("In progress", { exact: true })).toBeVisible();
       await expect(page.getByText("Free answer checker", { exact: true })).toBeVisible();
       await expect(page.getByText("Style Distance", { exact: true })).toBeVisible();
-      await expect(page.getByText("Recording · development build · no AI model · 4 Nov 2026")).toHaveCount(1);
-      await expect(page.getByText("Recording · 4 Nov 2026")).toHaveCount(2);
+      await expect(page.locator("video")).toHaveCount(0);
+      await expect(page.getByText("Checks each claim against the handbook passage. Development build, no AI model.")).toHaveCount(1);
+      await expect(page.getByText("Shows where an answer drops a condition.", { exact: true })).toHaveCount(1);
+      await expect(page.getByText("Measures how far a draft sits from a house voice.", { exact: true })).toHaveCount(1);
+      await expect(page.getByText("The product page is coming.", { exact: true })).toHaveCount(1);
+      await expect(page.locator('a[href*="citebot-chi.vercel.app"]')).toHaveCount(0);
+      await expect(page.locator("#autopsy").getByRole("link", { name: "Product page" })).toHaveAttribute(
+        "href",
+        "https://retrieval-autopsy.vercel.app/",
+      );
+      await expect(page.locator("#voice").getByRole("link", { name: "Product page" })).toHaveAttribute(
+        "href",
+        "https://style-distance.vercel.app/",
+      );
       await expect(page.getByText(BACKGROUND)).toBeVisible();
       await expect(page.locator("#citebot").getByRole("link", { name: "Live" })).toHaveCount(0);
       await expect(page.locator("#autopsy").getByRole("link", { name: "Live" })).toHaveAttribute(
@@ -153,6 +195,7 @@ for (const [name, viewport] of Object.entries(sizes)) {
       expect(text).not.toContain("installer phone agent");
       const report = await readPage(page);
       expect(report.small).toEqual([]);
+      expect(await tapTargets(page)).toEqual([]);
       expect(report.contrastFails).toEqual([]);
       expect(report.stray).toEqual([]);
       expect(report.iframes).toBe(0);
@@ -164,86 +207,45 @@ for (const [name, viewport] of Object.entries(sizes)) {
       }
     });
 
-    test("keyboard plays a look once", async ({ page }) => {
-      await page.goto("/");
-      const stage = page.locator("#voice figure.stage");
-      await page.getByRole("button", { name: "Play Voice check recording" }).focus();
-      await expectPlayed(stage);
-    });
-
-    test("reduced motion keeps the still", async ({ page }) => {
+    test("reduced motion shows the colour image with no transition", async ({ page }) => {
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto("/");
-      await expect(page.getByRole("button", { name: /Play / })).toHaveCount(0);
-      await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "still");
-      await expect(page.locator("#citebot img")).toBeVisible();
-      await expect(page.locator("#autopsy img")).toBeVisible();
-      await expect(page.locator("#voice img")).toBeVisible();
+      await expect(page.locator("video")).toHaveCount(0);
+      for (const id of ["citebot", "autopsy", "voice"]) {
+        const style = await stillStyle(page, id);
+        expect(style, id).not.toBeNull();
+        expect(style!.filter === "none" || style!.filter === "grayscale(0)", id).toBe(true);
+        expect(style!.duration, id).toBe("0s");
+        expect(style!.grain, id).toBe("0");
+        await expect(page.locator(`#${id} img`)).toBeVisible();
+      }
       const report = await readPage(page);
       expect(report.small).toEqual([]);
+      expect(await tapTargets(page)).toEqual([]);
     });
   });
 }
 
-test.describe("tap", () => {
-  test.use({ viewport: sizes.iphone, hasTouch: true });
-
-  test("tap plays on the phone", async ({ page }) => {
-    await page.goto("/");
-    const stage = page.locator("#citebot figure.stage");
-    await page.getByRole("button", { name: "Play CiteBot recording" }).tap();
-    await expectPlayed(stage);
-  });
-});
-
-test.describe("ipad tap", () => {
-  test.use({ viewport: sizes["ipad-mini"], hasTouch: true });
-
-  test("tap plays on the ipad", async ({ page }) => {
-    await page.goto("/");
-    const stage = page.locator("#autopsy figure.stage");
-    await page.getByRole("button", { name: "Play Retrieval Autopsy recording" }).tap();
-    await expectPlayed(stage);
-  });
-});
-
-test.describe("hover", () => {
-  test.use({ viewport: sizes.desktop });
-
-  test("hover plays on the desktop", async ({ page }) => {
-    await page.goto("/");
-    const stage = page.locator("#citebot figure.stage");
-    await stage.hover();
-    await expectPlayed(stage);
-  });
-
-  test("a missing clip keeps the still", async ({ page }) => {
-    await page.route("**/citebot.mp4", (route) => route.abort());
-    await page.goto("/");
-    await page.getByRole("button", { name: "Play CiteBot recording" }).click();
-    await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
-    await expect(
-      page.getByText("The recording did not play. The still is from the development build, no AI model, 4 Nov 2026."),
-    ).toBeVisible();
-    await expect(page.locator("#citebot img")).toBeVisible();
-  });
-
-  test("a missing canvas keeps the still", async ({ page }) => {
-    await page.addInitScript(`
-      const proto = HTMLCanvasElement.prototype;
-      const original = proto.getContext;
-      proto.getContext = function (kind) {
-        if (kind === "2d") return null;
-        return original.apply(this, arguments);
-      };
-    `);
-    await page.goto("/");
-    await expect(page.locator("#citebot figure.stage")).toHaveAttribute("data-state", "fallback");
-    await expect(page.locator("#citebot img")).toBeVisible();
-    await expect(
-      page.getByText("The recording did not play. The still is from the development build, no AI model, 4 Nov 2026.").first(),
-    ).toBeVisible();
-  });
+test("a still starts grey and settles into colour once", async ({ page }) => {
+  await page.setViewportSize(sizes.desktop);
+  await page.goto("/");
+  await expect(page.locator("video")).toHaveCount(0);
+  const before = await stillStyle(page, "citebot");
+  expect(before).not.toBeNull();
+  expect(before!.settled).toBe("0");
+  expect(before!.filter).toContain("grayscale(1)");
+  expect(before!.duration).toBe("1.2s");
+  expect(Number(before!.grain)).toBeGreaterThan(0);
+  await page.locator("#citebot .still").scrollIntoViewIfNeeded();
+  await expect(page.locator("#citebot .still")).toHaveAttribute("data-settled", "1");
+  await page.waitForTimeout(1400);
+  const after = await stillStyle(page, "citebot");
+  expect(after!.filter === "none" || after!.filter === "grayscale(0)").toBe(true);
+  expect(after!.grain).toBe("0");
+  await page.waitForTimeout(600);
+  await expect(page.locator("#citebot .still")).toHaveAttribute("data-settled", "1");
+  const again = await stillStyle(page, "citebot");
+  expect(again!.filter === "none" || again!.filter === "grayscale(0)").toBe(true);
 });
 
 test("review stills at 390", async ({ page }, testInfo) => {
@@ -251,8 +253,10 @@ test("review stills at 390", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   for (const id of ["citebot", "autopsy", "voice"]) {
-    const plate = page.locator(`#${id} .plate`);
+    const plate = page.locator(`#${id} .still`);
     await plate.scrollIntoViewIfNeeded();
+    await expect(plate).toHaveAttribute("data-settled", "1");
+    await page.waitForTimeout(1400);
     const path = testInfo.outputPath(`${id}-390.png`);
     await plate.screenshot({ path });
     await testInfo.attach(`${id}-390.png`, { path, contentType: "image/png" });
@@ -278,16 +282,12 @@ for (const viewport of [
   });
 }
 
-for (const viewport of [
-  { width: 390, height: 664 },
-  { width: 375, height: 587 },
-  { width: 844, height: 390 },
-  { width: 844, height: 340 },
-  { width: 1133, height: 610 },
-]) {
-  test(`the first screen shows the opening and LOOK 01 at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+for (const viewport of suiteSizes) {
+  test(`the main link is on the first screen at ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
+    await expect(page.locator("video")).toHaveCount(0);
+    expect(await tapTargets(page)).toEqual([]);
     for (const target of [page.locator("#opening"), page.getByRole("link", { name: "01 CiteBot" })]) {
       const box = await target.boundingBox();
       expect(box).not.toBeNull();
@@ -295,20 +295,6 @@ for (const viewport of [
     }
   });
 }
-
-test.describe("replay", () => {
-  test.use({ viewport: sizes.iphone, hasTouch: true });
-
-  test("a second tap replays the recording", async ({ page }) => {
-    await page.goto("/");
-    const stage = page.locator("#citebot figure.stage");
-    await page.getByRole("button", { name: "Play CiteBot recording" }).tap();
-    await expectPlayed(stage);
-    await page.getByRole("button", { name: "Replay CiteBot recording" }).tap();
-    await expect(stage).toHaveAttribute("data-state", "playing");
-    await expectPlayed(stage);
-  });
-});
 
 test("no page shows an email address other than the contact address", async ({ page }) => {
   for (const path of ["/", "/not-a-real-page"]) {

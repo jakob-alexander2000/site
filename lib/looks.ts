@@ -18,6 +18,8 @@ export type Proof = {
   excerpt: string;
 };
 
+export const PRODUCT_PAGE_COMING = "The product page is coming.";
+
 export type Look = {
   id: "citebot" | "autopsy" | "voice";
   index: "01" | "02" | "03";
@@ -29,11 +31,9 @@ export type Look = {
   live: string;
   source: string;
   proofs: readonly Proof[];
-  clip: string;
-  poster: string;
+  still: string;
   frame: { width: number; height: number };
   caption: string;
-  stillFrom: string;
   alt: string;
 };
 
@@ -70,12 +70,10 @@ export const LOOKS: readonly Look[] = [
           "Each claim is checked against those passages and marked pass, fail, or unsupported.",
       },
     ],
-    clip: "/recordings/citebot.mp4",
-    poster: "/recordings/citebot.jpg",
+    still: "/recordings/citebot.jpg",
     frame: { width: 900, height: 750 },
-    caption: `Recording · development build · no AI model · ${CAPTURED}`,
-    stillFrom: `the development build, no AI model, ${CAPTURED}`,
-    alt: "Still from the CiteBot development build without an AI model, 4 Nov 2026. A stand-in quotes the passage; the check marks it supported and flags a dropped unless. The passage is pto-and-leave.md.",
+    caption: "Checks each claim against the handbook passage. Development build, no AI model.",
+    alt: `CiteBot development build, no AI model, ${CAPTURED}. A stand-in quotes the passage; the check marks it supported and flags a dropped unless. The passage is pto-and-leave.md.`,
   },
   {
     id: "autopsy",
@@ -108,12 +106,10 @@ export const LOOKS: readonly Look[] = [
         excerpt: "sentence by sentence",
       },
     ],
-    clip: "/recordings/autopsy.mp4",
-    poster: "/recordings/autopsy.jpg",
+    still: "/recordings/autopsy.jpg",
     frame: { width: 900, height: 1266 },
-    caption: `Recording · ${CAPTURED}`,
-    stillFrom: CAPTURED,
-    alt: "Still from the Retrieval Autopsy recording, 4 Nov 2026. Qualifier fails because the answer drops a condition.",
+    caption: "Shows where an answer drops a condition.",
+    alt: `Retrieval Autopsy on ${CAPTURED}. Qualifier fails because the answer drops a condition.`,
   },
   {
     id: "voice",
@@ -139,12 +135,10 @@ export const LOOKS: readonly Look[] = [
         excerpt: "how far an AI draft has drifted from a house voice",
       },
     ],
-    clip: "/recordings/style.mp4",
-    poster: "/recordings/style.jpg",
+    still: "/recordings/style.jpg",
     frame: { width: 900, height: 1266 },
-    caption: `Recording · ${CAPTURED}`,
-    stillFrom: CAPTURED,
-    alt: "Still from the Style Distance recording, 4 Nov 2026. The brand-voice demo reads off-voice.",
+    caption: "Measures how far a draft sits from a house voice.",
+    alt: `Style Distance on ${CAPTURED}. The brand-voice demo reads off-voice.`,
   },
 ];
 

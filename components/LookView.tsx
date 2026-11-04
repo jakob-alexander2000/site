@@ -1,6 +1,6 @@
-import { DitherStage } from "@/components/DitherStage";
 import { Pen } from "@/components/Pen";
-import { proofHref, visibleLive, type Look } from "@/lib/looks";
+import { ProductStill } from "@/components/ProductStill";
+import { PRODUCT_PAGE_COMING, proofHref, visibleLive, type Look } from "@/lib/looks";
 
 function withPen(text: string, word?: string) {
   if (!word) return text;
@@ -50,16 +50,17 @@ export function LookView({ look }: { look: Look }) {
           </li>
         ) : null}
       </ul>
-      <DitherStage
-        name={look.name}
-        src={look.clip}
-        poster={look.poster}
-        width={look.frame.width}
-        height={look.frame.height}
-        caption={look.caption}
-        stillFrom={look.stillFrom}
-        alt={look.alt}
-      />
+      <figure className="frame">
+        <ProductStill src={look.still} width={look.frame.width} height={look.frame.height} alt={look.alt} />
+        <figcaption>{look.caption}</figcaption>
+        {visibleLive(look) ? (
+          <a className="product-link" href={look.live}>
+            Product page
+          </a>
+        ) : (
+          <p className="tag">{PRODUCT_PAGE_COMING}</p>
+        )}
+      </figure>
     </section>
   );
 }
