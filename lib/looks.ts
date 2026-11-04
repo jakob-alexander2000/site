@@ -72,7 +72,7 @@ export const LOOKS: readonly Look[] = [
     ],
     clip: "/recordings/citebot.mp4",
     poster: "/recordings/citebot.jpg",
-    frame: { width: 900, height: 858 },
+    frame: { width: 900, height: 750 },
     caption: `Recording · development build · ${CAPTURED}`,
     stillFrom: `the development build, ${CAPTURED}`,
     alt: "Still from the CiteBot development build, 4 Nov 2026. The answer is marked supported, a dropped unless is flagged, and the passage is pto-and-leave.md.",
