@@ -27,6 +27,7 @@ export function CiteBotFace() {
         type="button"
         className="press"
         data-try="citebot"
+        aria-label="Try it: CiteBot"
         onClick={replay}
         aria-describedby="citebot-caption"
       >

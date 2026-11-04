@@ -19,6 +19,8 @@ export function useSubmittedQuery(initial = "", showInitial = false) {
 
 type Props = {
   tryId: string;
+  /** Instrument name, so each form's field and button are distinct to assistive tech. */
+  instrument: string;
   note: string;
   draft: string;
   setDraft: (value: string) => void;
@@ -26,7 +28,7 @@ type Props = {
   children: ReactNode;
 };
 
-export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: Props) {
+export function QueryForm({ tryId, instrument, note, draft, setDraft, onSubmit, children }: Props) {
   const inputId = useId();
   const form = useRef<HTMLFormElement>(null);
   const arrived = useInView(form);
@@ -37,6 +39,7 @@ export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: 
         <span className="kicker">Question</span>
         <input
           id={inputId}
+          aria-label={`Question for ${instrument}`}
           type="text"
           name="q"
           value={draft}
@@ -46,7 +49,12 @@ export function QueryForm({ tryId, note, draft, setDraft, onSubmit, children }: 
           onChange={(event) => setDraft(event.target.value)}
         />
       </label>
-      <button type="submit" className="press" data-try={tryId}>
+      <button
+        type="submit"
+        className="press"
+        data-try={tryId}
+        aria-label={`Try it: ${instrument}`}
+      >
         Try it
       </button>
       <div className="results" data-arrived={arrived ? "1" : "0"} aria-live="polite">

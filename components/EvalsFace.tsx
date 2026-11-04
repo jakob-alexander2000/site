@@ -27,6 +27,7 @@ export function EvalsFace({ marks }: { marks: boolean[] }) {
         type="button"
         className="press"
         data-try="citebot-evals"
+        aria-label="Try it: citebot-evals"
         onClick={replay}
         aria-describedby="citebot-evals-caption"
       >

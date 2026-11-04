@@ -34,6 +34,7 @@ export function StyleFace() {
         type="button"
         className="press"
         data-try="style-distance"
+        aria-label="Try it: Style Distance"
         onClick={replay}
         aria-describedby="style-distance-caption"
       >

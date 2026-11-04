@@ -174,6 +174,19 @@ test("home renders six instruments", async () => {
   );
   assert.equal(buttons.filter((label) => label === "Try it").length, 6);
 
+  // Six visible "Try it" buttons must still have distinct accessible names that start
+  // with the visible text (WCAG 2.4.6 and 2.5.3), so a screen-reader button list is usable.
+  const tryNames = [...html.matchAll(/<button\b[^>]*\baria-label="([^"]*)"/gi)]
+    .map((match) => match[1])
+    .filter((name) => name.startsWith("Try it"));
+  assert.equal(tryNames.length, 6);
+  assert.equal(new Set(tryNames).size, 6);
+  const questionNames = [...html.matchAll(/<input\b[^>]*\baria-label="(Question[^"]*)"/gi)].map(
+    (match) => match[1],
+  );
+  assert.equal(questionNames.length, 2);
+  assert.equal(new Set(questionNames).size, 2);
+
   const anchors = anchorsOf(html);
   const live = anchors.filter((anchor) => anchor.label === "Live");
   assert.deepEqual(

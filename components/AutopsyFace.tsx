@@ -48,6 +48,7 @@ export function AutopsyFace() {
         type="button"
         className="press"
         data-try="retrieval-autopsy"
+        aria-label="Try it: Retrieval Autopsy"
         onClick={replay}
         aria-describedby="retrieval-autopsy-caption"
       >
