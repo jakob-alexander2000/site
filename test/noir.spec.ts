@@ -151,6 +151,15 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("LOOK 01", { exact: true })).toBeVisible();
       await expect(page.getByText("LOOK 02", { exact: true })).toBeVisible();
       await expect(page.getByText("LOOK 03", { exact: true })).toBeVisible();
+      for (const look of [
+        { id: "citebot", name: "01 CiteBot", label: "01" },
+        { id: "autopsy", name: "02 Retrieval Autopsy", label: "02" },
+        { id: "voice", name: "03 Voice check", label: "03" },
+      ] as const) {
+        const link = page.locator(`#${look.id} nav[aria-label="Looks"]`).getByRole("link", { name: look.name });
+        await expect(link).toHaveCount(1);
+        await expect(link).toHaveText(look.label);
+      }
       await expect(page.getByText("In progress", { exact: true })).toBeVisible();
       await expect(page.getByText("Free answer checker", { exact: true })).toBeVisible();
       await expect(page.getByText("Style Distance", { exact: true })).toBeVisible();
@@ -288,7 +297,7 @@ for (const viewport of suiteSizes) {
     await page.goto("/");
     await expect(page.locator("video")).toHaveCount(0);
     expect(await tapTargets(page)).toEqual([]);
-    for (const target of [page.locator("#opening"), page.getByRole("link", { name: "01 CiteBot" })]) {
+    for (const target of [page.locator("#opening"), page.locator("#top").getByRole("link", { name: "01 CiteBot" })]) {
       const box = await target.boundingBox();
       expect(box).not.toBeNull();
       expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);

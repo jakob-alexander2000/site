@@ -22,9 +22,15 @@ export function LookView({ look }: { look: Look }) {
       <div className="run">
         <a href="#top">Jakob Alex</a>
         <nav aria-label="Looks">
-          <a href="#citebot">01</a>
-          <a href="#autopsy">02</a>
-          <a href="#voice">03</a>
+          <a href="#citebot" aria-label="01 CiteBot">
+            01
+          </a>
+          <a href="#autopsy" aria-label="02 Retrieval Autopsy">
+            02
+          </a>
+          <a href="#voice" aria-label="03 Voice check">
+            03
+          </a>
         </nav>
       </div>
       <p className="tag">LOOK {look.index}</p>
