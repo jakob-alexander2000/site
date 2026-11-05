@@ -1,50 +1,61 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { DM_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { OPENING } from "@/lib/looks";
 import "./globals.css";
 
-const inter = Inter({
+const sans = Geist({
   subsets: ["latin"],
+  weight: ["100", "200"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-sans",
+  adjustFontFallback: true,
 });
 
-const dmMono = DM_Mono({
+const mono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "400",
   display: "swap",
   variable: "--font-mono",
+  adjustFontFallback: true,
+});
+
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  display: "swap",
+  variable: "--font-serif",
+  adjustFontFallback: true,
 });
 
 const title = "Jakob Alex";
-const description =
-  "Jakob Alex builds software in Berlin that shows its sources and checks its own answers.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jakobalex.vercel.app"),
   title,
-  description,
+  description: OPENING,
   openGraph: {
     title,
-    description,
+    description: OPENING,
     url: "https://jakobalex.vercel.app",
-    siteName: "Jakob Alex",
+    siteName: title,
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e8e0d2",
-  colorScheme: "light",
+  themeColor: "#000000",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
       <body>
-        <a className="skip" href="#content">
+        <a className="skip" href="#top">
           Skip to content
         </a>
         {children}
