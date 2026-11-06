@@ -44,15 +44,21 @@ export function LookView({ look }: { look: Look }) {
       <ul className="links">
         {visibleLive(look) ? (
           <li>
-            <a href={look.live}>Live</a>
+            <a href={look.live} aria-label={`Live · ${look.name}`}>
+              Live
+            </a>
           </li>
         ) : null}
         <li>
-          <a href={look.source}>Source</a>
+          <a href={look.source} aria-label={`Source · ${look.name}`}>
+            Source
+          </a>
         </li>
         {proof ? (
           <li>
-            <a href={proofHref(proof)}>Proof</a>
+            <a href={proofHref(proof)} aria-label={`Proof · ${look.name}`}>
+              Proof
+            </a>
           </li>
         ) : null}
       </ul>
@@ -60,7 +66,7 @@ export function LookView({ look }: { look: Look }) {
         <ProductStill src={look.still} width={look.frame.width} height={look.frame.height} alt={look.alt} />
         <figcaption>{look.caption}</figcaption>
         {visibleLive(look) ? (
-          <a className="product-link" href={look.live}>
+          <a className="product-link" href={look.live} aria-label={`Product page · ${look.name}`}>
             Product page
           </a>
         ) : (
