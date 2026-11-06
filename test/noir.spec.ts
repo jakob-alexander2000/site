@@ -169,24 +169,31 @@ for (const [name, viewport] of Object.entries(sizes)) {
       await expect(page.getByText("Measures how far a draft sits from a house voice.", { exact: true })).toHaveCount(1);
       await expect(page.getByText("The product page is coming.", { exact: true })).toHaveCount(1);
       await expect(page.locator('a[href*="citebot-chi.vercel.app"]')).toHaveCount(0);
-      await expect(page.locator("#autopsy").getByRole("link", { name: "Product page" })).toHaveAttribute(
-        "href",
-        "https://retrieval-autopsy.vercel.app/",
-      );
-      await expect(page.locator("#voice").getByRole("link", { name: "Product page" })).toHaveAttribute(
-        "href",
-        "https://style-distance.vercel.app/",
-      );
+      for (const look of [
+        { id: "citebot", name: "CiteBot", live: false as const },
+        { id: "autopsy", name: "Retrieval Autopsy", live: "https://retrieval-autopsy.vercel.app/" as const },
+        { id: "voice", name: "Voice check", live: "https://style-distance.vercel.app/" as const },
+      ]) {
+        const section = page.locator(`#${look.id}`);
+        const source = section.getByRole("link", { name: `Source · ${look.name}`, exact: true });
+        const proof = section.getByRole("link", { name: `Proof · ${look.name}`, exact: true });
+        await expect(source).toHaveCount(1);
+        await expect(source).toHaveText("Source");
+        await expect(proof).toHaveCount(1);
+        await expect(proof).toHaveText("Proof");
+        if (look.live) {
+          const live = section.getByRole("link", { name: `Live · ${look.name}`, exact: true });
+          const product = section.getByRole("link", { name: `Product page · ${look.name}`, exact: true });
+          await expect(live).toHaveAttribute("href", look.live);
+          await expect(live).toHaveText("Live");
+          await expect(product).toHaveAttribute("href", look.live);
+          await expect(product).toHaveText("Product page");
+        } else {
+          await expect(section.getByRole("link", { name: `Live · ${look.name}`, exact: true })).toHaveCount(0);
+          await expect(section.getByRole("link", { name: `Product page · ${look.name}`, exact: true })).toHaveCount(0);
+        }
+      }
       await expect(page.getByText(BACKGROUND)).toBeVisible();
-      await expect(page.locator("#citebot").getByRole("link", { name: "Live" })).toHaveCount(0);
-      await expect(page.locator("#autopsy").getByRole("link", { name: "Live" })).toHaveAttribute(
-        "href",
-        "https://retrieval-autopsy.vercel.app/",
-      );
-      await expect(page.locator("#voice").getByRole("link", { name: "Live" })).toHaveAttribute(
-        "href",
-        "https://style-distance.vercel.app/",
-      );
       await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
       await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute("href", "mailto:jdevacc2000@gmail.com");
       await expect(page.getByRole("link", { name: "GitHub: https://github.com/jakob-alexander2000" })).toHaveAttribute(
