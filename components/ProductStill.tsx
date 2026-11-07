@@ -40,6 +40,7 @@ export function ProductStill({
         alt={alt}
         width={width}
         height={height}
+        style={{ aspectRatio: `${width} / ${height}` }}
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
