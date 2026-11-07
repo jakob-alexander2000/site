@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import Script from "next/script";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { OPENING } from "@/lib/looks";
 import "./globals.css";
@@ -58,9 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
       <body>
-        <Script id="spatial-boot" strategy="beforeInteractive">
-          {spatialBoot}
-        </Script>
+        <script dangerouslySetInnerHTML={{ __html: spatialBoot }} />
         <a className="skip" href="#top">
           Skip to content
         </a>

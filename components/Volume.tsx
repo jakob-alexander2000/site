@@ -29,8 +29,17 @@ export function Volume({ children }: { children: ReactNode }) {
       }
       const anchor = window.innerHeight * 0.42;
       let active = 0;
+      const layoutTop = (plane: HTMLElement) => {
+        let y = 0;
+        let node: HTMLElement | null = plane;
+        while (node) {
+          y += node.offsetTop;
+          node = node.offsetParent instanceof HTMLElement ? node.offsetParent : null;
+        }
+        return y - window.scrollY;
+      };
       planes.forEach((plane, index) => {
-        if (plane.getBoundingClientRect().top <= anchor) active = index;
+        if (layoutTop(plane) <= anchor) active = index;
       });
       const focused = document.activeElement;
       const focusedPlane = focused instanceof Element ? focused.closest(".plane") : null;

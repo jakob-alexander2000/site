@@ -381,6 +381,75 @@ for (const viewport of [
   });
 }
 
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+]) {
+  test(`a later sheet does not cover the words or controls at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const covered = await page.evaluate(async () => {
+      const nodes = [
+        ...document.querySelectorAll(
+          "#citebot .copy, #autopsy .copy, #voice .copy, .limit, button[data-replay], .frame figcaption, .links a, .product-link",
+        ),
+      ].filter((node): node is HTMLElement => node instanceof HTMLElement);
+      const hits: string[] = [];
+      for (const el of nodes) {
+        const style = getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden") continue;
+        let y = 0;
+        let node: HTMLElement | null = el;
+        while (node) {
+          y += node.offsetTop;
+          node = node.offsetParent instanceof HTMLElement ? node.offsetParent : null;
+        }
+        window.scrollTo(0, Math.max(0, y - window.innerHeight * 0.35));
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined))));
+        const rect = el.getBoundingClientRect();
+        const plane = el.closest(".plane");
+        const samples = [
+          [rect.left + Math.min(28, Math.max(8, rect.width / 2)), rect.top + Math.min(18, rect.height / 2)],
+          [rect.left + rect.width / 2, rect.top + rect.height / 2],
+          [rect.right - Math.min(28, rect.width / 2), rect.bottom - Math.min(14, rect.height / 2)],
+        ];
+        for (const [x, py] of samples) {
+          if (py < 2 || py > window.innerHeight - 2 || x < 2 || x > window.innerWidth - 2) continue;
+          const hit = document.elementFromPoint(x, py);
+          const hitPlane = hit?.closest(".plane");
+          if (hit && hitPlane && plane && hitPlane !== plane) {
+            const label = (el.getAttribute("aria-label") || el.textContent || el.tagName).trim().replace(/\s+/g, " ").slice(0, 48);
+            hits.push(`${plane.id} “${label}” covered by ${hitPlane.id} ${hit.tagName}.${String(hit.className).slice(0, 24)}`);
+            break;
+          }
+        }
+      }
+      return hits;
+    });
+    expect(covered).toEqual([]);
+  });
+}
+
+test("opening the spatial sheet does not shift the body", async ({ page }) => {
+  await page.addInitScript(() => {
+    const shifts: number[] = [];
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const shift = entry as PerformanceEntry & { hadRecentInput?: boolean; value?: number };
+        if (!shift.hadRecentInput && typeof shift.value === "number") shifts.push(shift.value);
+      }
+    }).observe({ type: "layout-shift", buffered: true });
+    Object.defineProperty(window, "__shifts", { get: () => shifts });
+  });
+  await page.setViewportSize({ width: 412, height: 823 });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  const values = await page.evaluate(() => (window as unknown as { __shifts: number[] }).__shifts);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  expect(total).toBeLessThan(0.1);
+});
+
 test("unsupported 3D falls back to the readable stack", async ({ page }) => {
   await page.addInitScript(() => {
     window.CSS.supports = () => false;

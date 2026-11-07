@@ -1,6 +1,6 @@
 # Set
 
-Black ground, a near-black sheet, white type, one grey. Scroll moves through four sheets. The sheet you are reading is frontal and as tall as its content, so the limits, the replay control, and the evidence plate are reached by ordinary scrolling. The next sheet sits farther back, smaller, and the two overlap on the way through.
+Black ground, a near-black sheet, white type, one grey. Scroll moves through four sheets. The sheet you are reading is frontal and as tall as its content, so the limits, the replay control, and the evidence plate are reached by ordinary scrolling. The next sheet sits farther back and smaller. It overlaps the trailing space of the sheet in front, not the words or the controls.
 
 Reduced motion and no JavaScript leave the sheets in a vertical stack. The diagrams stay readable either way. A viewport shorter than 520px also uses that stack, so type is not clipped.
 

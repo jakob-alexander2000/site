@@ -6,6 +6,7 @@
   --pitch: 68vh;
   --gap: 520px;
   --persp: 1200px;
+  --seam: 140px;
   color-scheme: dark;
 }
 
@@ -432,6 +433,8 @@ a {
 
 html.spatial .volume {
   height: auto;
+  display: flow-root;
+  padding-top: 8vh;
 }
 
 html.spatial .camera {
@@ -451,13 +454,16 @@ html.spatial .world {
 html.spatial .plane {
   --depth: 0;
   position: relative;
+  z-index: 1;
   left: auto;
   top: auto;
   width: min(1000px, 92%);
   height: auto;
   min-height: 62vh;
   max-height: none;
-  margin: 8vh auto 0;
+  margin: 0 auto;
+  padding-bottom: calc(var(--seam) + 32px);
+  background: var(--sheet);
   overflow: visible;
   pointer-events: none;
   transform-origin: 50% 0;
@@ -465,12 +471,13 @@ html.spatial .plane {
 }
 
 html.spatial .plane.is-front {
+  z-index: 2;
   pointer-events: auto;
   transform: none;
 }
 
 html.spatial .plane + .plane {
-  margin-top: -140px;
+  margin-top: calc(var(--seam) * -1);
 }
 
 html.spatial {
@@ -499,7 +506,7 @@ html.spatial .still img {
   html.spatial .plane {
     height: auto;
     min-height: 68vh;
-    padding: 16px 16px 18px;
+    padding: 16px 16px calc(var(--seam) + 32px);
   }
 
   .run {
@@ -571,6 +578,10 @@ html.flat .plane + .plane {
   margin-top: 0;
 }
 
+html.flat .plane {
+  padding-bottom: 18px;
+}
+
 html.flat .plane[data-i="0"] {
   border-top: 0;
 }
@@ -639,6 +650,10 @@ html.flat .lede {
 
   html.spatial .plane + .plane {
     margin-top: 0;
+  }
+
+  html.spatial .plane {
+    padding-bottom: 16px;
   }
 
   html.spatial .plane[data-i="0"] {
