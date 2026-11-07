@@ -7,7 +7,6 @@ async function overflow(page: Page) {
 }
 
 test("sheets overlap in depth on the way through", async ({ page }) => {
-  test.skip(test.info().project.name !== "chromium", "Depth is measured in Chromium; WebKit repeats the readable stack.");
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 390, height: 844 },
@@ -21,8 +20,10 @@ test("sheets overlap in depth on the way through", async ({ page }) => {
     expect(before!.height).toBeGreaterThanOrEqual(viewport.height * 0.6);
 
     await page.evaluate(() => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo(0, max / 6);
+      const cite = document.getElementById("citebot");
+      if (!cite) return;
+      const top = cite.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, top - window.innerHeight * 0.7));
     });
     await page.waitForTimeout(50);
     const pair = await page.evaluate(() => {
@@ -47,8 +48,17 @@ test("sheets overlap in depth on the way through", async ({ page }) => {
     const overlapY = Math.min(pair.top!.bottom, pair.cite!.bottom) - Math.max(pair.top!.y, pair.cite!.y);
     expect(overlapX).toBeGreaterThan(8);
     expect(overlapY).toBeGreaterThan(8);
-    const [near, far] = pair.top!.height >= pair.cite!.height ? [pair.top!, pair.cite!] : [pair.cite!, pair.top!];
-    expect(far.height / near.height).toBeLessThanOrEqual(0.75);
+    const scale = await page.evaluate(() => {
+      function ratio(id: string) {
+        const node = document.getElementById(id);
+        if (!node) return 0;
+        const visual = node.getBoundingClientRect().height;
+        return visual / node.offsetHeight;
+      }
+      return { front: ratio("top"), rear: ratio("citebot") };
+    });
+    expect(scale.front).toBeGreaterThanOrEqual(0.95);
+    expect(scale.rear).toBeLessThanOrEqual(0.75);
   }
 });
 
@@ -69,7 +79,37 @@ test("every plane and control can take focus", async ({ page }) => {
     if (!(await control.isVisible())) continue;
     await control.focus();
     await expect(control).toBeFocused();
-    await expect(control).toBeInViewport();
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined)))),
+    );
+    const revealed = await control.evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      let top = rect.top;
+      let bottom = rect.bottom;
+      let left = rect.left;
+      let right = rect.right;
+      let parent = el.parentElement;
+      while (parent) {
+        const style = getComputedStyle(parent);
+        const clips = [style.overflow, style.overflowX, style.overflowY].some(
+          (value) => value === "hidden" || value === "clip" || value === "auto" || value === "scroll",
+        );
+        if (clips && parent !== document.body && parent !== document.documentElement) {
+          const bounds = parent.getBoundingClientRect();
+          top = Math.max(top, bounds.top);
+          bottom = Math.min(bottom, bounds.bottom);
+          left = Math.max(left, bounds.left);
+          right = Math.min(right, bounds.right);
+        }
+        parent = parent.parentElement;
+      }
+      top = Math.max(0, top);
+      left = Math.max(0, left);
+      bottom = Math.min(window.innerHeight, bottom);
+      right = Math.min(window.innerWidth, right);
+      return bottom - top >= rect.height - 1 && right - left >= rect.width - 1 && rect.height >= 44 - 1;
+    });
+    expect(revealed).toBe(true);
     seen += 1;
   }
   expect(seen).toBeGreaterThan(12);
@@ -184,6 +224,7 @@ for (const viewport of [
     await page.evaluate(() => {
       document.documentElement.style.zoom = "2";
     });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined))));
     expect(await overflow(page)).toBe(false);
   });
 }
@@ -198,6 +239,8 @@ test.describe("no javascript", () => {
     expect(spatial).toBe(false);
     await expect(page.locator("canvas")).toHaveCount(0);
     for (const id of ["citebot", "autopsy", "voice"]) {
+      await expect(page.locator(`#${id} button[data-replay]`)).toBeHidden();
+      expect(await fullyPainted(page, `#${id} .limit`), id).toBe(true);
       await expect(page.locator(`#${id} .flow`).getByText("Input", { exact: true })).toBeVisible();
       await expect(page.locator(`#${id} .flow`).getByText("Output", { exact: true })).toBeVisible();
     }
@@ -206,6 +249,137 @@ test.describe("no javascript", () => {
     expect(await overflow(page)).toBe(false);
   });
 });
+
+async function fullyPainted(page: Page, selector: string) {
+  return page.locator(selector).evaluate((el) => {
+    function painted(node: Element) {
+      const rect = node.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return false;
+      let top = rect.top;
+      let bottom = rect.bottom;
+      let left = rect.left;
+      let right = rect.right;
+      let parent = node.parentElement;
+      while (parent) {
+        const style = getComputedStyle(parent);
+        const clips = [style.overflow, style.overflowX, style.overflowY].some(
+          (value) => value === "hidden" || value === "clip" || value === "auto" || value === "scroll",
+        );
+        if (clips && parent !== document.body && parent !== document.documentElement) {
+          const bounds = parent.getBoundingClientRect();
+          top = Math.max(top, bounds.top);
+          bottom = Math.min(bottom, bounds.bottom);
+          left = Math.max(left, bounds.left);
+          right = Math.min(right, bounds.right);
+        }
+        parent = parent.parentElement;
+      }
+      top = Math.max(0, top);
+      left = Math.max(0, left);
+      bottom = Math.min(window.innerHeight, bottom);
+      right = Math.min(window.innerWidth, right);
+      return bottom - top >= rect.height - 1 && right - left >= rect.width - 1;
+    }
+
+    const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    for (let step = 0; step < 21; step += 1) {
+      window.scrollTo(0, max * (step / 20));
+      if (painted(el)) return true;
+    }
+    el.scrollIntoView({ block: "center", inline: "nearest" });
+    return painted(el);
+  });
+}
+
+const reachSizes = [
+  { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+  { width: 390, height: 844 },
+  { width: 360, height: 740 },
+] as const;
+
+for (const viewport of reachSizes) {
+  test(`active sheet lower content is fully painted at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    for (const id of ["citebot", "autopsy", "voice"] as const) {
+      for (const selector of [`#${id} .limit`, `#${id} button[data-replay]`, `#${id} .frame figcaption`, `#${id} .still img`]) {
+        expect(await fullyPainted(page, selector), selector).toBe(true);
+      }
+    }
+    const hidden = await page.evaluate(() => {
+      const stuck: string[] = [];
+      for (const el of document.querySelectorAll("a, button")) {
+        if (!(el instanceof HTMLElement)) continue;
+        const style = getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden") continue;
+        el.focus({ preventScroll: false });
+        el.scrollIntoView({ block: "center", inline: "nearest" });
+        const rect = el.getBoundingClientRect();
+        let top = rect.top;
+        let bottom = rect.bottom;
+        let left = rect.left;
+        let right = rect.right;
+        let parent = el.parentElement;
+        while (parent) {
+          const parentStyle = getComputedStyle(parent);
+          const clips = [parentStyle.overflow, parentStyle.overflowX, parentStyle.overflowY].some(
+            (value) => value === "hidden" || value === "clip" || value === "auto" || value === "scroll",
+          );
+          if (clips && parent !== document.body && parent !== document.documentElement) {
+            const bounds = parent.getBoundingClientRect();
+            top = Math.max(top, bounds.top);
+            bottom = Math.min(bottom, bounds.bottom);
+            left = Math.max(left, bounds.left);
+            right = Math.min(right, bounds.right);
+          }
+          parent = parent.parentElement;
+        }
+        top = Math.max(0, top);
+        left = Math.max(0, left);
+        bottom = Math.min(window.innerHeight, bottom);
+        right = Math.min(window.innerWidth, right);
+        if (bottom - top < rect.height - 1 || right - left < rect.width - 1) {
+          stuck.push((el.getAttribute("aria-label") || el.textContent || el.tagName).trim().slice(0, 60));
+        }
+      }
+      return stuck;
+    });
+    expect(hidden).toEqual([]);
+  });
+}
+
+for (const viewport of [
+  { width: 1440, height: 900 },
+  { width: 390, height: 844 },
+]) {
+  test(`voice ruler labels sit on their ranges at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await page.locator("#voice .ruler").scrollIntoViewIfNeeded();
+    const alignment = await page.locator("#voice .ruler").evaluate((ruler) => {
+      const labels = [...ruler.querySelectorAll("span")].map((node) => ({
+        name: (node.textContent || "").trim(),
+        box: node.getBoundingClientRect(),
+      }));
+      const line = ruler.getBoundingClientRect();
+      const tops = labels.map((label) => label.box.top);
+      return {
+        names: labels.map((label) => label.name),
+        sameRow: Math.max(...tops) - Math.min(...tops) <= 2,
+        inRange: labels.map((label, index) => {
+          const mid = label.box.left + label.box.width / 2;
+          const start = line.left + (line.width / 3) * index;
+          const end = start + line.width / 3;
+          return mid >= start - 4 && mid <= end + 4;
+        }),
+      };
+    });
+    expect(alignment.names).toEqual(["close", "drifting", "off-voice"]);
+    expect(alignment.sameRow).toBe(true);
+    expect(alignment.inRange).toEqual([true, true, true]);
+  });
+}
 
 test("unsupported 3D falls back to the readable stack", async ({ page }) => {
   await page.addInitScript(() => {
@@ -218,5 +392,9 @@ test("unsupported 3D falls back to the readable stack", async ({ page }) => {
   await expect(page.locator("canvas")).toHaveCount(0);
   await expect(page.locator("#autopsy .flow").getByText("Qualifier", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Source · CiteBot" })).toBeVisible();
+  for (const id of ["citebot", "autopsy", "voice"]) {
+    expect(await fullyPainted(page, `#${id} .limit`), id).toBe(true);
+    await expect(page.locator(`#${id} .frame figcaption`)).toBeVisible();
+  }
   expect(await overflow(page)).toBe(false);
 });

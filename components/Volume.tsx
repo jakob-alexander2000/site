@@ -2,14 +2,6 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-const STATIONS = ["top", "citebot", "autopsy", "voice"] as const;
-
-function cameraIsSticky(): boolean {
-  const camera = document.querySelector(".camera");
-  if (!camera) return false;
-  return getComputedStyle(camera).position === "sticky";
-}
-
 export function Volume({ children }: { children: ReactNode }) {
   const world = useRef<HTMLDivElement>(null);
 
@@ -18,8 +10,7 @@ export function Volume({ children }: { children: ReactNode }) {
     const node = world.current;
     if (!node) return;
     let frame = 0;
-
-    const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    let fromPointer = false;
 
     const place = () => {
       root.classList.toggle("flat", window.innerHeight < 520);
@@ -28,12 +19,29 @@ export function Volume({ children }: { children: ReactNode }) {
     const write = () => {
       place();
       frame = 0;
-      if (!root.classList.contains("spatial") || !cameraIsSticky()) return;
-      const p = (window.scrollY / maxScroll()) * (STATIONS.length - 1);
-      node.style.setProperty("--p", p.toFixed(4));
-      const front = Math.round(p);
-      document.querySelectorAll(".plane").forEach((plane) => {
-        plane.classList.toggle("is-front", Number(plane.getAttribute("data-i")) === front);
+      const planes = [...document.querySelectorAll<HTMLElement>(".plane")];
+      if (!root.classList.contains("spatial") || root.classList.contains("flat")) {
+        for (const plane of planes) {
+          plane.style.removeProperty("--depth");
+          plane.classList.remove("is-front");
+        }
+        return;
+      }
+      const anchor = window.innerHeight * 0.42;
+      let active = 0;
+      planes.forEach((plane, index) => {
+        if (plane.getBoundingClientRect().top <= anchor) active = index;
+      });
+      const focused = document.activeElement;
+      const focusedPlane = focused instanceof Element ? focused.closest(".plane") : null;
+      if (focusedPlane instanceof HTMLElement) {
+        const index = planes.indexOf(focusedPlane);
+        if (index > active) active = index;
+      }
+      planes.forEach((plane, index) => {
+        const depth = index - active;
+        plane.style.setProperty("--depth", String(depth > 0 ? 1 : 0));
+        plane.classList.toggle("is-front", depth === 0);
       });
     };
 
@@ -42,16 +50,18 @@ export function Volume({ children }: { children: ReactNode }) {
       if (!frame) frame = requestAnimationFrame(write);
     };
 
-    const scrollToIndex = (index: number) => {
-      const y = (index / (STATIONS.length - 1)) * (document.documentElement.scrollHeight - window.innerHeight);
-      window.scrollTo(0, Math.max(0, y));
-      write();
-    };
-
-    const focusPlane = (id: string) => {
-      const plane = document.getElementById(id);
-      const heading = plane?.querySelector("h1, h2");
-      if (heading instanceof HTMLElement) heading.focus({ preventScroll: true });
+    const alignHash = () => {
+      const id = location.hash.replace(/^#/, "");
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (!(target instanceof HTMLElement)) return;
+      let y = 0;
+      let node: HTMLElement | null = target;
+      while (node) {
+        y += node.offsetTop;
+        node = node.offsetParent instanceof HTMLElement ? node.offsetParent : null;
+      }
+      window.scrollTo(0, Math.max(0, y - 8));
     };
 
     const onClick = (event: MouseEvent) => {
@@ -75,36 +85,7 @@ export function Volume({ children }: { children: ReactNode }) {
         flow.classList.add("is-drawing");
         control.textContent = "Pause";
         control.setAttribute("aria-label", `Pause the ${look} diagram`);
-        return;
       }
-
-      if (!root.classList.contains("spatial") || !cameraIsSticky()) return;
-      const link = (event.target as Element | null)?.closest?.("a[href^='#']");
-      if (!link) return;
-      const id = link.getAttribute("href")?.slice(1) ?? "";
-      const index = STATIONS.indexOf(id as (typeof STATIONS)[number]);
-      if (index < 0) return;
-      event.preventDefault();
-      history.pushState(null, "", `#${id}`);
-      scrollToIndex(index);
-      focusPlane(id);
-    };
-
-    const onFocus = (event: FocusEvent) => {
-      if (!root.classList.contains("spatial") || !cameraIsSticky()) return;
-      const plane = (event.target as Element | null)?.closest?.(".plane");
-      if (!plane) return;
-      const index = Number(plane.getAttribute("data-i"));
-      if (!Number.isFinite(index)) return;
-      const current = Math.round((window.scrollY / maxScroll()) * (STATIONS.length - 1));
-      if (current !== index) scrollToIndex(index);
-    };
-
-    const onHash = () => {
-      if (!root.classList.contains("spatial") || !cameraIsSticky()) return;
-      const id = location.hash.slice(1);
-      const index = STATIONS.indexOf(id as (typeof STATIONS)[number]);
-      if (index >= 0) scrollToIndex(index);
     };
 
     const onEnd = (event: AnimationEvent) => {
@@ -121,23 +102,56 @@ export function Volume({ children }: { children: ReactNode }) {
       }
     };
 
+    const onFocus = (event: FocusEvent) => {
+      const pointer = fromPointer;
+      fromPointer = false;
+      write();
+      const current = event.target;
+      if (!(current instanceof HTMLElement) || pointer) return;
+      requestAnimationFrame(() => {
+        const rect = current.getBoundingClientRect();
+        const clipped =
+          rect.height < 1 ||
+          rect.top < 0 ||
+          rect.bottom > window.innerHeight ||
+          rect.left < 0 ||
+          rect.right > window.innerWidth;
+        if (clipped) current.scrollIntoView({ block: "center", inline: "nearest" });
+      });
+    };
+
+    const onHash = () => {
+      write();
+      alignHash();
+      requestAnimationFrame(() => {
+        alignHash();
+        write();
+      });
+    };
+
     write();
     onHash();
     window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("hashchange", onHash);
     window.addEventListener("resize", schedule);
     document.addEventListener("visibilitychange", schedule);
+    const onPointer = () => {
+      fromPointer = true;
+    };
+
+    document.addEventListener("pointerdown", onPointer);
     document.addEventListener("click", onClick);
     document.addEventListener("focusin", onFocus);
-    window.addEventListener("hashchange", onHash);
     document.addEventListener("animationend", onEnd);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      window.removeEventListener("hashchange", onHash);
       document.removeEventListener("visibilitychange", schedule);
+      document.removeEventListener("pointerdown", onPointer);
       document.removeEventListener("click", onClick);
       document.removeEventListener("focusin", onFocus);
-      window.removeEventListener("hashchange", onHash);
       document.removeEventListener("animationend", onEnd);
     };
   }, []);

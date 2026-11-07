@@ -53,7 +53,7 @@ test("the set keeps a restrained monochrome palette", () => {
   assert.match(css, /--sheet:\s*#070707/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /perspective:\s*var\(--persp\)/);
-  assert.match(css, /translate3d/);
+  assert.match(css, /translateZ/);
   assert.equal(css.includes("grayscale"), false);
   assert.equal(css.includes("<video"), false);
   assert.equal(readFileSync("components/ProductStill.tsx", "utf8").includes("<video"), false);

@@ -5,7 +5,7 @@
   --grey: #8c8c8c;
   --pitch: 68vh;
   --gap: 520px;
-  --persp: 1600px;
+  --persp: 1200px;
   color-scheme: dark;
 }
 
@@ -15,12 +15,16 @@
 
 html {
   background: var(--black);
+  max-width: 100%;
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--black);
   color: var(--white);
   font-family: var(--font-sans), sans-serif;
@@ -268,7 +272,6 @@ a {
 
 @media (min-width: 861px) {
   .evidence {
-    height: 0;
     min-height: 100%;
   }
 }
@@ -376,10 +379,17 @@ a {
 .ruler {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  column-gap: 8px;
+}
+
+.ruler svg {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: 8px;
 }
 
 .ruler span {
+  grid-row: 2;
   border-top: 1px solid var(--white);
   padding-top: 8px;
   color: var(--white);
@@ -421,51 +431,50 @@ a {
 }
 
 html.spatial .volume {
-  height: 400vh;
+  height: auto;
 }
 
 html.spatial .camera {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  overflow: hidden;
+  position: static;
+  height: auto;
+  overflow: visible;
   perspective: var(--persp);
-  perspective-origin: 50% 38%;
+  perspective-origin: 50% 20%;
 }
 
 html.spatial .world {
-  --p: 0;
-  height: 100%;
+  height: auto;
+  transform: none;
   transform-style: preserve-3d;
 }
 
 html.spatial .plane {
-  --i: 0;
-  position: absolute;
-  left: 50%;
-  top: 3vh;
-  width: min(1000px, 92vw);
-  height: 70vh;
-  min-height: 0;
+  --depth: 0;
+  position: relative;
+  left: auto;
+  top: auto;
+  width: min(1000px, 92%);
+  height: auto;
+  min-height: 62vh;
   max-height: none;
-  margin: 0;
-  padding: 22px 26px 28px;
-  background: var(--sheet);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: 0 36px 80px rgba(0, 0, 0, 0.85);
-  transform-origin: 50% 100%;
-  transform-style: preserve-3d;
-  transform: translate3d(
-    calc(-50% + (var(--i) - var(--p)) * 8vw),
-    calc((var(--i) - var(--p)) * var(--pitch)),
-    calc((var(--i) - var(--p)) * var(--gap) * -1)
-  );
-  overflow: hidden;
+  margin: 8vh auto 0;
+  overflow: visible;
   pointer-events: none;
+  transform-origin: 50% 0;
+  transform: perspective(1100px) translateZ(calc(var(--depth) * -520px));
 }
 
 html.spatial .plane.is-front {
   pointer-events: auto;
+  transform: none;
+}
+
+html.spatial .plane + .plane {
+  margin-top: -140px;
+}
+
+html.spatial {
+  overflow-x: clip;
 }
 
 html.spatial .plane[data-i="1"] {
@@ -487,13 +496,9 @@ html.spatial .still img {
 }
 
 @media (max-width: 860px) {
-  html.spatial {
-    --pitch: 82vh;
-  }
-
   html.spatial .plane {
-    top: 2vh;
-    height: 86vh;
+    height: auto;
+    min-height: 68vh;
     padding: 16px 16px 18px;
   }
 
@@ -562,6 +567,10 @@ html.flat .plane {
   box-shadow: none;
 }
 
+html.flat .plane + .plane {
+  margin-top: 0;
+}
+
 html.flat .plane[data-i="0"] {
   border-top: 0;
 }
@@ -626,6 +635,10 @@ html.flat .lede {
     border-top: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow: none;
     overflow: visible;
+  }
+
+  html.spatial .plane + .plane {
+    margin-top: 0;
   }
 
   html.spatial .plane[data-i="0"] {

@@ -124,7 +124,9 @@ function Voice({ spec, name }: { spec: Mechanism; name: string }) {
           <line className="trace" x1="0" y1="4" x2="100" y2="4" pathLength="1" />
         </svg>
         {spec.outputs.map((row) => (
-          <span key={row.k}>{row.k}</span>
+          <span key={row.k} data-range={row.k}>
+            {row.k}
+          </span>
         ))}
       </div>
       <p className="k">Output</p>
