@@ -306,6 +306,15 @@ test("a still that fails to load says so in words", async ({ page }) => {
   await page.goto("/");
   for (const id of ["citebot", "autopsy", "voice"]) {
     await page.locator(`#${id} .still`).scrollIntoViewIfNeeded();
+    await page.evaluate((target) => {
+      const image = document.querySelector(`#${target} .still img`);
+      if (!(image instanceof HTMLImageElement)) return;
+      image.loading = "eager";
+      const src = image.getAttribute("src");
+      if (!src) return;
+      image.src = "";
+      image.src = src;
+    }, id);
     await expect(page.locator(`#${id} .still`)).toContainText("The still did not load.");
     await expect(page.locator(`#${id} .still img`)).toHaveCount(0);
   }
