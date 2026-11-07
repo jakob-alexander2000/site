@@ -470,6 +470,10 @@ html.spatial .plane {
   transform: perspective(1100px) translateZ(calc(var(--depth) * -520px));
 }
 
+html.spatial .plane.is-open {
+  pointer-events: auto;
+}
+
 html.spatial .plane.is-front {
   z-index: 2;
   pointer-events: auto;

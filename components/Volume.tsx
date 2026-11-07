@@ -23,7 +23,7 @@ export function Volume({ children }: { children: ReactNode }) {
       if (!root.classList.contains("spatial") || root.classList.contains("flat")) {
         for (const plane of planes) {
           plane.style.removeProperty("--depth");
-          plane.classList.remove("is-front");
+          plane.classList.remove("is-front", "is-open");
         }
         return;
       }
@@ -50,7 +50,8 @@ export function Volume({ children }: { children: ReactNode }) {
       planes.forEach((plane, index) => {
         const depth = index - active;
         plane.style.setProperty("--depth", String(depth > 0 ? 1 : 0));
-        plane.classList.toggle("is-front", depth === 0);
+        plane.classList.toggle("is-front", index === active);
+        plane.classList.toggle("is-open", index <= active);
       });
     };
 

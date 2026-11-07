@@ -450,6 +450,132 @@ test("opening the spatial sheet does not shift the body", async ({ page }) => {
   expect(total).toBeLessThan(0.1);
 });
 
+for (const viewport of [
+  { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+]) {
+  test(`a visible replay accepts a real click at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    // Evidence stills are noninteractive images: they have no click handler.
+    // This regression does not invent a still click. It only requires a visible,
+    // uncovered Replay control to be the hit target and to accept a real click.
+    const scrolls = await page.evaluate((extra) => {
+      const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const stops = Array.from({ length: 21 }, (_, step) => Math.round(max * (step / 20)));
+      const layout = (el: HTMLElement) => {
+        let y = 0;
+        let node: HTMLElement | null = el;
+        while (node) {
+          y += node.offsetTop;
+          node = node.offsetParent instanceof HTMLElement ? node.offsetParent : null;
+        }
+        return y;
+      };
+      for (const button of document.querySelectorAll<HTMLButtonElement>("button[data-replay]")) {
+        const scroll = Math.round(layout(button) - 16);
+        if (scroll >= 0 && scroll <= max) stops.push(scroll);
+      }
+      if (extra >= 0 && extra <= max) stops.push(extra);
+      return [...new Set(stops)];
+    }, viewport.width === 1280 ? 1067 : -1);
+    const misses: string[] = [];
+    let acted = 0;
+    for (const y of scrolls) {
+      const open = await page.evaluate(async (top) => {
+        window.scrollTo(0, top);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined))));
+        function painted(node: HTMLElement) {
+          const rect = node.getBoundingClientRect();
+          if (rect.width < 1 || rect.height < 1) return false;
+          let boxTop = rect.top;
+          let boxBottom = rect.bottom;
+          let boxLeft = rect.left;
+          let boxRight = rect.right;
+          let parent = node.parentElement;
+          while (parent) {
+            const style = getComputedStyle(parent);
+            const clips = [style.overflow, style.overflowX, style.overflowY].some(
+              (value) => value === "hidden" || value === "clip" || value === "auto" || value === "scroll",
+            );
+            if (clips && parent !== document.body && parent !== document.documentElement) {
+              const bounds = parent.getBoundingClientRect();
+              boxTop = Math.max(boxTop, bounds.top);
+              boxBottom = Math.min(boxBottom, bounds.bottom);
+              boxLeft = Math.max(boxLeft, bounds.left);
+              boxRight = Math.min(boxRight, bounds.right);
+            }
+            parent = parent.parentElement;
+          }
+          boxTop = Math.max(0, boxTop);
+          boxLeft = Math.max(0, boxLeft);
+          boxBottom = Math.min(window.innerHeight, boxBottom);
+          boxRight = Math.min(window.innerWidth, boxRight);
+          return boxBottom - boxTop >= rect.height - 1 && boxRight - boxLeft >= rect.width - 1;
+        }
+        const rows: { id: string; x: number; y: number; label: string }[] = [];
+        for (const button of document.querySelectorAll<HTMLButtonElement>("button[data-replay]")) {
+          if (getComputedStyle(button).display === "none") continue;
+          if (!painted(button)) continue;
+          const plane = button.closest(".plane");
+          const planes = [...document.querySelectorAll(".plane")];
+          const index = plane ? planes.indexOf(plane) : -1;
+          const laterIsFront = planes.some((other, otherIndex) => otherIndex > index && other.classList.contains("is-front"));
+          if (!plane?.classList.contains("is-front") && !laterIsFront) continue;
+          const rect = button.getBoundingClientRect();
+          const x = rect.left + rect.width / 2;
+          const py = rect.top + rect.height / 2;
+          const mine = plane ? Number(getComputedStyle(plane).zIndex) || 0 : 0;
+          const covered = [...document.querySelectorAll(".plane")].some((other) => {
+            if (other === plane) return false;
+            const above = (Number(getComputedStyle(other).zIndex) || 0) > mine;
+            if (!above) return false;
+            const bounds = other.getBoundingClientRect();
+            return x >= bounds.left && x <= bounds.right && py >= bounds.top && py <= bounds.bottom;
+          });
+          if (covered) continue;
+          rows.push({
+            id: button.closest(".plane")?.id ?? "",
+            x,
+            y: py,
+            label: button.getAttribute("aria-label") ?? "",
+          });
+        }
+        return rows;
+      }, y);
+      for (const row of open) {
+        const hit = await page.evaluate(({ x, py }) => {
+          const node = document.elementFromPoint(x, py);
+          const button = node?.closest("button[data-replay]");
+          return button ? (button.getAttribute("aria-label") ?? "button") : node ? `${node.tagName}.${String(node.className).slice(0, 24)}` : "none";
+        }, { x: row.x, py: row.y });
+        const onButton = hit === row.label || hit.startsWith("Replay") || hit.startsWith("Pause");
+        if (!onButton) {
+          misses.push(`${viewport.width} y${Math.round(y)} #${row.id} hit ${hit}`);
+          continue;
+        }
+        const before = row.label;
+        await page.mouse.click(row.x, row.y);
+        const after = await page.evaluate((id) => {
+          const button = document.querySelector(`#${id} button[data-replay]`);
+          const flow = button?.closest(".flow");
+          return {
+            label: button?.getAttribute("aria-label") ?? "",
+            drawing: flow?.classList.contains("is-drawing") === true,
+            paused: flow?.classList.contains("is-paused") === true,
+          };
+        }, row.id);
+        const started = before.startsWith("Replay") && after.label.startsWith("Pause") && after.drawing && !after.paused;
+        const paused = before.startsWith("Pause") && after.label.startsWith("Replay") && after.paused;
+        if (!started && !paused) misses.push(`${viewport.width} y${Math.round(y)} #${row.id} click ${before} -> ${after.label}`);
+        else acted += 1;
+      }
+    }
+    expect(misses).toEqual([]);
+    expect(acted).toBeGreaterThan(0);
+  });
+}
+
 test("unsupported 3D falls back to the readable stack", async ({ page }) => {
   await page.addInitScript(() => {
     window.CSS.supports = () => false;
