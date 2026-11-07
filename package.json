@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/scan.test.ts",
+    "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.tsx test/scan.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
     "test": "npm run test:unit && npm run test:scan && npm run test:e2e"
