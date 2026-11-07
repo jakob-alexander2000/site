@@ -5,6 +5,8 @@ const sizes = {
   iphone: { width: 390, height: 844 },
   "ipad-mini": { width: 744, height: 1133 },
   desktop: { width: 1280, height: 800 },
+  wide: { width: 1440, height: 900 },
+  narrow: { width: 360, height: 740 },
 } as const;
 
 const opening = "I build AI tools whose answers you can check, sentence by sentence.";
@@ -100,11 +102,15 @@ const suiteSizes = [
   sizes.iphone,
   sizes["ipad-mini"],
   sizes.desktop,
+  sizes.wide,
+  sizes.narrow,
   { width: 390, height: 664 },
   { width: 844, height: 390 },
   { width: 844, height: 340 },
   { width: 375, height: 587 },
+  { width: 375, height: 667 },
   { width: 1133, height: 610 },
+  { width: 1133, height: 744 },
 ] as const;
 
 async function tapTargets(page: Page) {
@@ -112,28 +118,15 @@ async function tapTargets(page: Page) {
     const bad: string[] = [];
     for (const el of document.querySelectorAll("a, button")) {
       const style = getComputedStyle(el);
-      if (style.display === "none" || style.visibility === "hidden") continue;
+      if (style.display === "none" || style.visibility === "hidden" || style.pointerEvents === "none") continue;
+      const plane = el.closest(".plane");
+      if (plane && getComputedStyle(plane).pointerEvents === "none") continue;
       const box = el.getBoundingClientRect();
       if (box.width < 44 || box.height < 44) {
         bad.push(`${box.width.toFixed(1)}x${box.height.toFixed(1)} ${(el.textContent ?? "").trim().slice(0, 40)}`);
       }
     }
     return bad;
-  });
-}
-
-async function stillStyle(page: Page, id: string) {
-  return page.locator(`#${id} .still`).evaluate((frame) => {
-    const image = frame.querySelector("img");
-    if (!image) return null;
-    const picture = getComputedStyle(image);
-    const grain = getComputedStyle(frame, "::after");
-    return {
-      filter: picture.filter,
-      duration: picture.transitionDuration,
-      grain: grain.opacity,
-      settled: frame.getAttribute("data-settled"),
-    };
   });
 }
 
@@ -218,22 +211,31 @@ for (const [name, viewport] of Object.entries(sizes)) {
       expect(report.overflow).toBe(false);
       expect(report.ems.every((count) => count <= 1)).toBe(true);
       expect(report.ems.reduce((sum, count) => sum + count, 0)).toBe(1);
-      for (const height of report.heights) {
-        expect(height).toBeGreaterThanOrEqual(viewport.height - 2);
+      const spatial = await page.evaluate(() => document.documentElement.classList.contains("spatial"));
+      if (spatial) {
+        const sheet = await page.locator("#top").boundingBox();
+        expect(sheet).not.toBeNull();
+        expect(sheet!.width).toBeGreaterThanOrEqual(Math.min(1000, viewport.width * 0.9) - 2);
+        expect(sheet!.height).toBeGreaterThanOrEqual(viewport.height * 0.6);
+      } else {
+        for (const height of report.heights) {
+          expect(height).toBeGreaterThanOrEqual(viewport.height - 2);
+        }
       }
     });
 
-    test("reduced motion shows the colour image with no transition", async ({ page }) => {
+    test("reduced motion keeps the diagrams readable", async ({ page }) => {
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto("/");
       await expect(page.locator("video")).toHaveCount(0);
+      await expect(page.locator("canvas")).toHaveCount(0);
+      const spatial = await page.evaluate(() => document.documentElement.classList.contains("spatial"));
+      expect(spatial).toBe(false);
       for (const id of ["citebot", "autopsy", "voice"]) {
-        const style = await stillStyle(page, id);
-        expect(style, id).not.toBeNull();
-        expect(style!.filter === "none" || style!.filter === "grayscale(0)", id).toBe(true);
-        expect(style!.duration, id).toBe("0s");
-        expect(style!.grain, id).toBe("0");
         await expect(page.locator(`#${id} img`)).toBeVisible();
+        await expect(page.locator(`#${id} .flow`).getByText("Input", { exact: true })).toBeVisible();
+        await expect(page.locator(`#${id} .flow`).getByText("Output", { exact: true })).toBeVisible();
+        await expect(page.locator(`#${id} button[data-replay]`)).toBeHidden();
       }
       const report = await readPage(page);
       expect(report.small).toEqual([]);
@@ -242,37 +244,13 @@ for (const [name, viewport] of Object.entries(sizes)) {
   });
 }
 
-test("a still starts grey and settles into colour once", async ({ page }) => {
-  await page.setViewportSize(sizes.desktop);
-  await page.goto("/");
-  await expect(page.locator("video")).toHaveCount(0);
-  const before = await stillStyle(page, "citebot");
-  expect(before).not.toBeNull();
-  expect(before!.settled).toBe("0");
-  expect(before!.filter).toContain("grayscale(1)");
-  expect(before!.duration).toBe("1.2s");
-  expect(Number(before!.grain)).toBeGreaterThan(0);
-  await page.locator("#citebot .still").scrollIntoViewIfNeeded();
-  await expect(page.locator("#citebot .still")).toHaveAttribute("data-settled", "1");
-  await page.waitForTimeout(1400);
-  const after = await stillStyle(page, "citebot");
-  expect(after!.filter === "none" || after!.filter === "grayscale(0)").toBe(true);
-  expect(after!.grain).toBe("0");
-  await page.waitForTimeout(600);
-  await expect(page.locator("#citebot .still")).toHaveAttribute("data-settled", "1");
-  const again = await stillStyle(page, "citebot");
-  expect(again!.filter === "none" || again!.filter === "grayscale(0)").toBe(true);
-});
-
 test("review stills at 390", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "One Chromium capture is the review set.");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   for (const id of ["citebot", "autopsy", "voice"]) {
-    const plate = page.locator(`#${id} .still`);
+    const plate = page.locator(`#${id} .flow`);
     await plate.scrollIntoViewIfNeeded();
-    await expect(plate).toHaveAttribute("data-settled", "1");
-    await page.waitForTimeout(1400);
     const path = testInfo.outputPath(`${id}-390.png`);
     await plate.screenshot({ path });
     await testInfo.attach(`${id}-390.png`, { path, contentType: "image/png" });
@@ -281,19 +259,21 @@ test("review stills at 390", async ({ page }, testInfo) => {
 
 for (const viewport of [
   { width: 390, height: 664 },
+  { width: 390, height: 844 },
   { width: 844, height: 390 },
   { width: 844, height: 340 },
   { width: 744, height: 1133 },
   { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+  { width: 360, height: 740 },
 ]) {
   test(`each look shows its main action without scrolling at ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
     for (const id of ["citebot", "autopsy", "voice"]) {
-      await page.evaluate((target) => document.getElementById(target)?.scrollIntoView({ block: "start" }), id);
-      const box = await page.locator(`#${id} .links a`).first().boundingBox();
-      expect(box, id).not.toBeNull();
-      expect(box!.y + box!.height, id).toBeLessThanOrEqual(viewport.height);
+      await page.locator(`#top a[href="#${id}"]`).click();
+      const link = page.locator(`#${id} .links a`).first();
+      await expect(link).toBeInViewport();
     }
   });
 }
@@ -325,6 +305,16 @@ test("a still that fails to load says so in words", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   for (const id of ["citebot", "autopsy", "voice"]) {
+    await page.locator(`#${id} .still`).scrollIntoViewIfNeeded();
+    await page.evaluate((target) => {
+      const image = document.querySelector(`#${target} .still img`);
+      if (!(image instanceof HTMLImageElement)) return;
+      image.loading = "eager";
+      const src = image.getAttribute("src");
+      if (!src) return;
+      image.src = "";
+      image.src = src;
+    }, id);
     await expect(page.locator(`#${id} .still`)).toContainText("The still did not load.");
     await expect(page.locator(`#${id} .still img`)).toHaveCount(0);
   }

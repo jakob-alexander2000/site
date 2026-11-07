@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { OPENING } from "@/lib/looks";
 import "./globals.css";
+
+const spatialBoot = `(function(){var root=document.documentElement;root.classList.add("js");var reduce=false;var ok=false;try{reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;ok=!!(window.CSS&&CSS.supports&&CSS.supports("transform","translate3d(0,0,0)")&&CSS.supports("perspective","1200px"));}catch(e){}if(!reduce&&ok)root.classList.add("spatial");if(window.innerHeight<520)root.classList.add("flat");})();`;
 
 const sans = Geist({
   subsets: ["latin"],
@@ -55,6 +58,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
       <body>
+        <Script id="spatial-boot" strategy="beforeInteractive">
+          {spatialBoot}
+        </Script>
         <a className="skip" href="#top">
           Skip to content
         </a>
