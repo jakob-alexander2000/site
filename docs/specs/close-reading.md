@@ -153,7 +153,7 @@ On 11 Nov 2026 the live URLs `https://citebot-chi.vercel.app/`, `https://citebot
 
 ### Public face
 
-Visible text has no raw URL, no third person, no place name (the scanner rule is the word Berlin), no company-target name (the scanner rule is Langdock), and no money language (the words money, income, salary, euro, a euro sign, or a dollar amount). The contact address is not visible; it is only in the mailto href. Test, in the browser: `visible text has no raw url, third person, location, company target, or money`. Test, on the server render: `rendered home visible text has no public-face hits`. The scanner itself is `public-face scanner flags third person, location, raw urls, company targets, and money`.
+Visible text has no raw URL, no third person, no place name (the scanner rule is the word Berlin), no company-target names (stored as hashes), and no money language (the words money, income, salary, euro, a euro sign, or a dollar amount). The contact address is not visible; it is only in the mailto href. Test, in the browser: `visible text has no raw url, third person, location, company target, or money`. Test, on the server render: `rendered home visible text has no public-face hits`. The scanner itself is `public-face scanner flags third person, location, raw urls, company targets, and money`.
 
 ### Performance
 
@@ -223,7 +223,7 @@ The lookbook unit tests in that same unit run passed. Lookbook Playwright `test/
 ## 7. Standing rules
 
 - First person. The scanner's third-person rule covers he, him, his, she, her, and a third-person "Jakob Alex" clause.
-- No employer or company name as a target. The scanner's company-target rule is Langdock. Do not add others to the page.
+- No employer or company name as a target. Company-target names (stored as hashes) are matched by hashing each word of visible text. The words themselves are not stored. Do not add a name to the page.
 - No hire pitch, no career-change story, no "taught himself", no city, no income, no money target, no name-dropping, no buzzwords, no co-author line, no commit-count line.
 - The contact address stays `jdevacc2000@gmail.com`. Phone stays null.
 - Visible text has no raw URL and no email address. Href values may.

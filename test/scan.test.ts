@@ -16,7 +16,7 @@ test("the site carries only the contact address", () => {
 test("every banned rule fires on the fixture", () => {
   const found = rules(readFileSync("test/fixtures/bad-copy.txt", "utf8"));
   for (const rule of [
-    "made-in-berlin", "location", "company-target", "money", "guitar", "cost", "commit-count",
+    "made-in-berlin", "location", "money", "guitar", "cost", "commit-count",
     "self-taught", "taught-himself", "taught-myself", "third-person", "ledger", "grounded-docs",
     "mittelstand", "white-label", "vierspur", "open-to-work", "hiring", "income", "salary", "euro",
     "tape-brand", "slash-count", "email",
@@ -38,7 +38,6 @@ test("case, lookalike, invisible and spacing tricks are folded", () => {
     ["autodidakt", "self-taught"],
     ["Made in\u202FBerlin", "made-in-berlin"],
     ["Berl\u0456n", "location"],
-    ["Lang\u200Bdock", "company-target"],
     ["Money", "money"],
     ["TASC\u00ADAM", "tape-brand"],
     ["Einkommen", "income"],
