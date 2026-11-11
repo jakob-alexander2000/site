@@ -10,7 +10,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -24,7 +24,23 @@ jobs:
       - run: npm run build
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm test
+      # A red unit suite must not skip Playwright. The gate fails the job if any suite fails.
+      - id: unit
+        continue-on-error: true
+        run: npm run test:unit
+      - id: scan
+        continue-on-error: true
+        run: npm run test:scan
+      - id: e2e
+        continue-on-error: true
+        run: npm run test:e2e
+      - name: Require unit, copy scan, and Playwright
+        if: always()
+        run: |
+          echo "unit=${{ steps.unit.outcome }} scan=${{ steps.scan.outcome }} e2e=${{ steps.e2e.outcome }}"
+          test "${{ steps.unit.outcome }}" = "success"
+          test "${{ steps.scan.outcome }}" = "success"
+          test "${{ steps.e2e.outcome }}" = "success"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:

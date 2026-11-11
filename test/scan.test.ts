@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { contact } from "../lib/contact";
-import { findHits, normalise } from "../scripts/scan-copy";
+import { findHits, normalise, skipsSource } from "../scripts/scan-copy";
 
 const rules = (text: string) => new Set(findHits(text).map((hit) => hit.rule));
 
@@ -16,9 +16,10 @@ test("the site carries only the contact address", () => {
 test("every banned rule fires on the fixture", () => {
   const found = rules(readFileSync("test/fixtures/bad-copy.txt", "utf8"));
   for (const rule of [
-    "made-in-berlin", "guitar", "cost", "commit-count", "self-taught", "taught-himself", "taught-myself",
-    "third-person", "ledger", "grounded-docs", "mittelstand", "white-label", "vierspur", "open-to-work",
-    "hiring", "income", "salary", "euro", "tape-brand", "slash-count", "email",
+    "made-in-berlin", "location", "company-target", "money", "guitar", "cost", "commit-count",
+    "self-taught", "taught-himself", "taught-myself", "third-person", "ledger", "grounded-docs",
+    "mittelstand", "white-label", "vierspur", "open-to-work", "hiring", "income", "salary", "euro",
+    "tape-brand", "slash-count", "email",
   ]) {
     assert.equal(found.has(rule), true, rule);
   }
@@ -36,6 +37,9 @@ test("case, lookalike, invisible and spacing tricks are folded", () => {
     ["Selbst beigebracht", "self-taught"],
     ["autodidakt", "self-taught"],
     ["Made in\u202FBerlin", "made-in-berlin"],
+    ["Berl\u0456n", "location"],
+    ["Lang\u200Bdock", "company-target"],
+    ["Money", "money"],
     ["TASC\u00ADAM", "tape-brand"],
     ["Einkommen", "income"],
     ["name\uFF20example.com", "email"],
@@ -56,8 +60,19 @@ test("approved copy stays clean", () => {
     "Checks each claim against the handbook passage. Development build, no AI model.",
     "The product page is coming.",
     "18 of 18",
+    "I build AI products that companies can trust: answers tied to their sources, agents with checks, interfaces people actually understand.",
+    "I studied comparative literature. Checking a sentence against its passage is the same job.",
+    "The offline eval scores 18 of 18 example answers.",
+    "8 of 8",
+    "25 of 32",
   ]) {
     assert.deepEqual(findHits(text), [], text);
   }
   assert.equal(normalise("a\u00A0\u00A0b"), "a b");
+});
+
+test("fixture copies under content/fixtures are not source-scanned", () => {
+  assert.equal(skipsSource("content/fixtures/citebot/pto-and-leave.md"), true);
+  assert.equal(skipsSource("lib/flagship.ts"), false);
+  assert.equal(skipsSource("test/fixtures/bad-copy.txt"), false);
 });

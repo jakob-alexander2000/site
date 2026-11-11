@@ -8,6 +8,9 @@ const TEXT = new Set([".ts", ".tsx", ".js", ".mjs", ".css", ".md", ".svg", ".txt
 
 const RULES: ReadonlyArray<readonly [string, RegExp]> = [
   ["made-in-berlin", /made in berlin/i],
+  ["location", /\bberlin\b/i],
+  ["company-target", /\blangdock\b/i],
+  ["money", /\bmoney\b/i],
   ["guitar", /guitar/i],
   ["cost", /the cost is/i],
   ["commit-count", /\bcommit counts?\b|\b\d+\s+commits?\b/i],
@@ -63,11 +66,36 @@ export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
   return hits;
 }
 
+const RAW_URL = /\bhttps?:\/\/\S+|\bwww\.\S+|\b[a-z0-9.-]+\.[a-z]{2,}\/\S+/i;
+
+/**
+ * Rules for text a visitor can read. Source files may store a mailto address and
+ * an href; visible text may not show either. Dollar amounts are caught here so
+ * a replacement pattern in source is not treated as a price.
+ */
+export function findPublicFaceHits(raw: string, options: { file?: string } = {}): Hit[] {
+  const file = options.file ?? "text";
+  const hits = findHits(raw, { file });
+  const text = normalise(raw);
+  RAW_URL.lastIndex = 0;
+  if (RAW_URL.test(text)) hits.push({ rule: "raw-url", file });
+  if (/\$\s?\d/.test(text)) hits.push({ rule: "money", file });
+  if (text.includes(ALLOWED_EMAIL)) hits.push({ rule: "visible-address", file });
+  return hits;
+}
+
+/** Handbook fixtures keep place names and currency. They are not public copy. */
+export function skipsSource(file: string): boolean {
+  const parts = file.split(/[/\\]/);
+  return parts.includes("content") && parts.includes("fixtures");
+}
+
 function walk(dir: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
   for (const name of readdirSync(dir)) {
     if (name === "node_modules" || name === ".git" || name === "test" || name === "cache") continue;
     const path = join(dir, name);
+    if (skipsSource(path)) continue;
     if (path.endsWith(`${join("scripts", "scan-copy.ts")}`)) continue;
     if (path.endsWith("HANDOFF.md")) continue;
     const info = statSync(path);
@@ -117,6 +145,7 @@ function main() {
     ...walk("lib"),
     ...walk("public"),
     ...walk("scripts"),
+    ...walk("content"),
     ...["README.md", "DESIGN.md", "AGENTS.md"].filter((path) => existsSync(path)),
     ...builtFiles(),
   ];
