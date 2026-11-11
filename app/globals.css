@@ -162,6 +162,7 @@ a, button, [data-sentence] {
 html[data-reduced="flat"] [data-tie] { display: inline; }
 
 canvas[data-stage] { display: block; width: min(100%, 640px); height: 48px; }
+html[data-reduced="flat"] canvas[data-stage] { display: none; }
 
 .matrix, .pipeline, .checks, .scores {
   display: grid;

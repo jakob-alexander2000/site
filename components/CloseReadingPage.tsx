@@ -1,4 +1,3 @@
-import { Scene } from "@/components/Scene";
 import { DIAGRAM_TEXT, OPENING } from "@/lib/copy";
 import type { Flagship, ShelfEntry } from "@/lib/close-reading";
 import { DROPPED, PIPELINE, WORKED_QUESTION } from "@/lib/diagrams";
@@ -23,6 +22,50 @@ const GRID_SCRIPT = `(function(){
   addEventListener("resize",apply);
   if(matchMedia("(prefers-reduced-motion: reduce)").matches){
     document.documentElement.dataset.reduced="flat";
+  }
+  var root=document.querySelector("[data-flagship]");
+  if(!root) return;
+  var reduced=document.documentElement.dataset.reduced==="flat";
+  function sentences(){return Array.prototype.slice.call(root.querySelectorAll("[data-sentence]"));}
+  function active(){return root.querySelector("[aria-pressed='true']")||sentences()[0];}
+  function select(button){
+    if(!button) return;
+    var id=button.getAttribute("data-sentence-id");
+    sentences().forEach(function(el){
+      var on=el===button;
+      el.setAttribute("aria-pressed", on?"true":"false");
+      if(on) el.setAttribute("data-active-sentence", id);
+      else el.removeAttribute("data-active-sentence");
+    });
+    root.querySelectorAll("[data-thread]").forEach(function(thread){
+      var on=thread.getAttribute("data-sentence-id")===id;
+      thread.setAttribute("data-playing","false");
+      if(on && !reduced){
+        void thread.offsetWidth;
+        thread.setAttribute("data-playing","true");
+      }
+    });
+  }
+  root.addEventListener("click", function(event){
+    var sentence=event.target.closest("[data-sentence]");
+    if(sentence) select(sentence);
+    if(event.target.closest("[data-replay]")) select(active());
+  });
+  if(!reduced){
+    var start=function(){
+      var script=document.createElement("script");
+      script.src="/close-reading-stage.js";
+      script.async=true;
+      script.onload=function(){
+        var stage=window.__closeReadingStage;
+        var canvas=document.querySelector("canvas[data-stage]");
+        if(stage && canvas) stage.mount(canvas);
+      };
+      script.onerror=function(){ script.remove(); };
+      document.body.appendChild(script);
+    };
+    if(window.requestIdleCallback) requestIdleCallback(start);
+    else setTimeout(start, 1);
   }
 })();`;
 
@@ -52,7 +95,50 @@ export function CloseReadingPage({
       <h1 id="opening" data-opening data-type="display">
         {OPENING}
       </h1>
-      <Scene flagship={item} />
+      <div data-flagship data-block="scene">
+        <div className="sentences">
+          {item.sentences.map((sentence, index) => (
+            <div key={sentence.id}>
+              <button
+                type="button"
+                data-sentence
+                data-sentence-id={sentence.id}
+                data-verdict={sentence.verdict}
+                data-active-sentence={index === 0 ? sentence.id : undefined}
+                aria-pressed={index === 0}
+              >
+                {sentence.verdict === "fail" ? `Fail. ${sentence.text}` : sentence.text}
+              </button>
+              <span data-tie>{index + 1}</span>
+              <span
+                data-thread
+                data-sentence-id={sentence.id}
+                data-playing="false"
+                data-thread-end={sentence.verdict === "unsupported" ? "open" : "closed"}
+              />
+            </div>
+          ))}
+        </div>
+        <div>
+          {item.sentences.map((sentence) => (
+            <p key={sentence.id} data-role="body" data-type="body">
+              {sentence.evidence}
+            </p>
+          ))}
+        </div>
+        <div className="fold-links">
+          <button type="button" data-replay>
+            Replay
+          </button>
+        </div>
+        <p data-role="body" data-type="body">
+          {item.recorded}
+        </p>
+        <p data-passage data-role="body" data-type="body">
+          {item.passage}
+        </p>
+        <canvas data-stage aria-hidden="true" />
+      </div>
       <p data-role="body" data-type="body" className="craft">
         {before}
         <em>{accent}</em>
