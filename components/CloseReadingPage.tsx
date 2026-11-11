@@ -4,6 +4,7 @@ import { DROPPED, PIPELINE, WORKED_QUESTION } from "@/lib/diagrams";
 import { getFlagship } from "@/lib/flagship";
 import { PROOF_SHELF } from "@/lib/proof-shelf";
 import { SCORES } from "@/lib/scores";
+import { SKILLS, type Skill } from "@/lib/skills";
 import { contact } from "@/lib/contact";
 
 const GRID_SCRIPT = `(function(){
@@ -72,12 +73,15 @@ const GRID_SCRIPT = `(function(){
 export function CloseReadingPage({
   flagship,
   shelf,
+  skills,
 }: {
   flagship?: Flagship | null;
   shelf?: readonly ShelfEntry[];
+  skills?: readonly Skill[];
 } = {}) {
   const item = flagship === undefined ? getFlagship() : flagship;
   const rows = shelf === undefined ? PROOF_SHELF : shelf;
+  const gallery = skills === undefined ? SKILLS : skills;
   if (!item) return null;
   const before = "I studied comparative literature. Checking a sentence against its ";
   const accent = "passage";
@@ -248,6 +252,38 @@ export function CloseReadingPage({
               <p data-limit data-role="body" data-type="body">
                 {entry.limit}
               </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section data-block="skills" aria-labelledby="skills-title">
+        <h2 id="skills-title" data-type="heading">
+          Skills
+        </h2>
+        <ul data-skill-list>
+          {gallery.map((skill) => (
+            <li key={skill.id} data-skill={skill.id}>
+              <div className="skill-row">
+                <h3>{skill.name}</h3>
+                <a data-proof={skill.id} href={skill.proof.href}>
+                  {skill.proof.label}
+                </a>
+              </div>
+              <p data-skill-line data-role="body" data-type="body">
+                {skill.line}
+              </p>
+              <ol data-diagram={skill.id} aria-label={skill.steps.join(", ")}>
+                {skill.steps.map((step, index) => (
+                  <li key={step}>
+                    {index > 0 ? (
+                      <svg aria-hidden="true" viewBox="0 0 20 8" width="20" height="8" focusable="false">
+                        <path d="M0 4h14M11 1l4 3-4 3" fill="none" stroke="currentColor" strokeWidth="1" />
+                      </svg>
+                    ) : null}
+                    {step}
+                  </li>
+                ))}
+              </ol>
             </li>
           ))}
         </ul>
