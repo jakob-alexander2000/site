@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { ALLOWED_EMAIL } from "../lib/contact";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
@@ -52,35 +51,14 @@ export function normalise(text: string): string {
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
-/** Company-target names, stored as SHA-256 hex of the lowercased word. */
-export const COMPANY_TARGET_DIGESTS: ReadonlySet<string> = new Set([
-  "080f487fb62a439e14d014a808414249797d8a262e28301f2608fa178b610b93",
-]);
-
-export function wordDigest(word: string): string {
-  return createHash("sha256").update(word.toLowerCase()).digest("hex");
-}
-
-/** Tokenise normalised text and flag a word whose digest is in the set. */
-export function companyTargetHit(text: string, digests: ReadonlySet<string> = COMPANY_TARGET_DIGESTS): boolean {
-  const words = normalise(text).toLowerCase().match(/[a-z0-9]+/g) ?? [];
-  return words.some((word) => digests.has(wordDigest(word)));
-}
-
 /** Only the contact address in lib/contact.ts is allowed; any other address is a hit. */
-export function findHits(
-  raw: string,
-  options: { file?: string; companyTargets?: ReadonlySet<string> } = {},
-): Hit[] {
+export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
   const file = options.file ?? "text";
   const text = normalise(raw);
   const hits: Hit[] = [];
   for (const [rule, pattern] of RULES) {
     pattern.lastIndex = 0;
     if (pattern.test(text)) hits.push({ rule, file });
-  }
-  if (companyTargetHit(text, options.companyTargets ?? COMPANY_TARGET_DIGESTS)) {
-    hits.push({ rule: "company-target", file });
   }
   EMAIL.lastIndex = 0;
   for (const email of text.match(EMAIL) ?? []) if (email !== ALLOWED_EMAIL) hits.push({ rule: "email", file, email });
@@ -94,12 +72,9 @@ const RAW_URL = /\bhttps?:\/\/\S+|\bwww\.\S+|\b[a-z0-9.-]+\.[a-z]{2,}\/\S+/i;
  * an href; visible text may not show either. Dollar amounts are caught here so
  * a replacement pattern in source is not treated as a price.
  */
-export function findPublicFaceHits(
-  raw: string,
-  options: { file?: string; companyTargets?: ReadonlySet<string> } = {},
-): Hit[] {
+export function findPublicFaceHits(raw: string, options: { file?: string } = {}): Hit[] {
   const file = options.file ?? "text";
-  const hits = findHits(raw, { file, companyTargets: options.companyTargets });
+  const hits = findHits(raw, { file });
   const text = normalise(raw);
   RAW_URL.lastIndex = 0;
   if (RAW_URL.test(text)) hits.push({ rule: "raw-url", file });

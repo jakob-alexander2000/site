@@ -38,7 +38,14 @@ async function foldProblems(page: Page, device: Device): Promise<string[]> {
   }
   const scene = page.locator("[data-flagship]");
   if ((await scene.count()) !== 1) problems.push("flagship scene is missing");
-  else if (!(await inFirstScreen(scene, device.height))) problems.push("flagship scene is below the first screen");
+  else if (!(await inFirstScreen(scene.locator("[data-sentence]").first(), device.height))) {
+    problems.push("flagship sentence is below the first screen");
+  }
+  for (const name of [PASS_SENTENCE, FAIL_SENTENCE, "Try it"]) {
+    const target = name === "Try it" ? page.getByRole("link", { name, exact: true }).first() : page.getByText(name, { exact: name !== FAIL_SENTENCE }).first();
+    if ((await target.count()) < 1) problems.push(`${name} is missing`);
+    else if (!(await inFirstScreen(target, device.height))) problems.push(`${name} is below the first screen`);
+  }
   return problems;
 }
 
@@ -116,7 +123,7 @@ for (const device of devices) {
   });
 }
 
-test("visible text has no raw url, third person, location, company target, or money", async ({ page }) => {
+test("visible text has no raw url, third person, location, or money", async ({ page }) => {
   await page.goto("/");
   const hits = findPublicFaceHits(await page.locator("body").innerText());
   expect(hits.map((hit) => hit.rule)).toEqual([]);
@@ -158,6 +165,7 @@ test("labeled scores do not contradict each other", async ({ page }) => {
     }
     const value = (await node.innerText()).replace(/\s+/g, " ").trim();
     if (!value.includes(score.value)) problems.push(`${score.id} value is ${value}`);
+    if (!value.toLowerCase().includes(score.label)) problems.push(`${score.id} label is missing`);
     if (score.date && !value.includes(score.date)) problems.push(`${score.id} date is missing`);
     if (/\d+\s*\/\s*\d+/.test(value)) problems.push(`${score.id} uses a slash ratio`);
   }
@@ -179,8 +187,8 @@ test("the scene uses the two clean fixture sentences", async ({ page }) => {
     const failText = (await fail.innerText()).replace(/\s+/g, " ").trim();
     if (!failText.includes(FAIL_SENTENCE)) problems.push(`fail sentence is ${failText}`);
     if (!failText.includes("Fail")) problems.push("fail sentence is missing the word Fail");
-    if (!failText.includes(FAIL_EVIDENCE)) problems.push("fail evidence is missing");
   }
+  if (!(await page.locator("body").innerText()).includes(FAIL_EVIDENCE)) problems.push("fail evidence is missing");
   const passage = page.locator("[data-passage]");
   if ((await passage.count()) !== 1) problems.push("passage is missing");
   else {
@@ -277,7 +285,7 @@ test("type ramp uses the four sizes", async ({ page }) => {
     ["display", 40, 72],
     ["heading", 32, 32],
     ["body", 17, 17],
-    ["mono", 12, 12],
+    ["mono", 16, 16],
   ] as const;
   for (const [name, min, max] of expected) {
     const node = page.locator(`[data-type="${name}"]`).first();

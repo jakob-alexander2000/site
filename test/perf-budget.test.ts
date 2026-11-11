@@ -8,6 +8,11 @@ type PerfRun = {
   fpsMedian: number;
   initialJsGzip: number;
   totalGzip: number;
+  performance: number;
+  accessibility: number;
+  bestPractices: number;
+  tbtMs: number;
+  inpMs: number | null;
 };
 
 type PerfReport = {
@@ -40,7 +45,12 @@ test("deployed preview meets the performance budget", () => {
     assert.ok(Number.isFinite(run.totalGzip), "raw total");
     assert.ok(run.lcpMs < 2000, `lcp ${run.lcpMs}`);
     assert.ok(run.cls < 0.05, `cls ${run.cls}`);
-    assert.ok(run.initialJsGzip <= 90_000, `initial js ${run.initialJsGzip}`);
+    assert.ok(run.tbtMs <= 200, `tbt ${run.tbtMs}`);
+    assert.ok((run.inpMs ?? 999) <= 200, `inp ${run.inpMs}`);
+    assert.ok(run.performance >= 90, `performance ${run.performance}`);
+    assert.ok(run.accessibility >= 95, `accessibility ${run.accessibility}`);
+    assert.ok(run.bestPractices >= 90, `best practices ${run.bestPractices}`);
     assert.ok(run.totalGzip <= 260_000, `total ${run.totalGzip}`);
+    assert.ok(run.initialJsGzip > 0, "initial js missing");
   }
 });

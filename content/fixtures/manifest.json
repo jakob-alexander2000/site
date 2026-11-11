@@ -1,0 +1,24 @@
+{
+  "citebot": {
+    "commit": "2ec2319dd9b3a75e45d5e7773b3841f4afe3fff9",
+    "files": {
+      "tests/fixtures/verify-cases.json": "914692a2350b8acf39a0de7a66da6eaba65b1895",
+      "examples/nordlicht-corpus/pto-and-leave.md": "511f514b4742ebfc70af178224f59f1dd26543e5",
+      "evals/last-run.json": "edfae91e150293c46f7f05a1240ef5fae8a9df8f"
+    }
+  },
+  "retrievalAutopsy": {
+    "commit": "58a5599cec3ba7d7b2d4962261b8463501b7d9d5",
+    "files": {
+      "fixtures/answers.jsonl": "3e55fef48ee10abb4d7d91dbb9d5f4c877f96731",
+      "scorer/baseline.json": "4292befdd3983bc79e2b59e3502140a73cdfc66d"
+    }
+  },
+  "citebotEvals": {
+    "commit": "b9e2c8ba3c2b8f5f61a1a6e79d6af4470d9b3a45",
+    "files": {
+      "fixtures/sample-run.json": "55233877b579049cf1e734212ef137cdc7797cc9",
+      "reports/SAMPLE.md": "1db253014188239e23d1fa95a6c707359dce67bf"
+    }
+  }
+}

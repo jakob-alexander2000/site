@@ -7,12 +7,10 @@ export function ContactBlock({ value = siteContact }: { value?: Contact }) {
       {entries.map((entry) => (
         <li key={entry.kind}>
           {entry.href ? (
-            <a href={entry.href}>
-              {entry.label}: {entry.text}
-            </a>
+            <a href={entry.href}>{entry.label}</a>
           ) : (
             <span>
-              {entry.label}: {entry.text}
+              {entry.label}
             </span>
           )}
         </li>

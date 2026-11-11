@@ -9,7 +9,7 @@ const titles = [
   "grid matches the breakpoint",
   "nothing overlaps at any scroll position",
   "footer and contact are reachable",
-  "visible text has no raw url, third person, location, company target, or money",
+  "visible text has no raw url, third person, location, or money",
   "proof shelf has three entries and each has a claim, an artifact, and a limit",
   "labeled scores do not contradict each other",
   "the scene uses the two clean fixture sentences",
@@ -20,7 +20,7 @@ const titles = [
   "body contrast is at least 7 to 1 and fail red is at least 4.5 to 1",
   "type ramp uses the four sizes",
   "replay restarts the thread",
-  "public-face scanner flags third person, location, raw urls, company targets, and money",
+  "public-face scanner flags third person, location, raw urls, and money",
   "rendered home visible text has no public-face hits",
   "a second dummy flagship renders in place of CiteBot",
   "five dummy shelf entries render from a test definition",
@@ -38,7 +38,7 @@ test("the spec names every viewport, the copy, and the tests", () => {
     true,
   );
   assert.equal(spec.includes("[Needs clarification"), false);
-  assert.equal(spec.includes("Found, not fixed"), false);
+  assert.equal(spec.includes("## Found, not fixed"), true);
   assert.equal(spec.includes(OPENING), true);
   assert.equal(spec.includes(CRAFT), true);
   for (const device of devices) {
@@ -52,5 +52,8 @@ test("the spec names every viewport, the copy, and the tests", () => {
     .split("\n")
     .filter((row) => row.startsWith("|") && !row.includes("---") && !row.toLowerCase().includes("check |"));
   assert.ok(rows.length >= 20, `done rows ${rows.length}`);
-  for (const row of rows) assert.match(row, /Not checked/, row);
+  const owner = rows.filter((row) => row.includes("Owner"));
+  assert.ok(owner.length >= 4, "owner device rows");
+  for (const row of owner) assert.match(row, /Not checked/, row);
+  for (const row of rows) assert.match(row, /Pass|Not checked/, row);
 });

@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { ContactBlock } from "@/components/ContactBlock";
 
 export default function NotFound() {
   return (
     <main id="top" className="screen">
       <h1>This page is not on the site.</h1>
-      <p className="copy">
+      <p>
         <Link href="/">Jakob Alex</Link>
       </p>
-      <ContactBlock />
+      <p>
+        <a href="mailto:jdevacc2000@gmail.com">Email</a>
+      </p>
     </main>
   );
 }

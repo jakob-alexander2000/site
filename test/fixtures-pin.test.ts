@@ -43,7 +43,7 @@ test("committed fixtures are vendored before any verdict is rendered", () => {
     "1db253014188239e23d1fa95a6c707359dce67bf",
   );
 
-  const handbook = readFileSync("content/fixtures/citebot/examples/nordlicht-corpus/pto-and-leave.md", "utf8");
+  const handbook = readFileSync("content/fixtures/citebot/examples/nordlicht-corpus/pto-and-leave.md", "utf8").replace(/\*\*/g, "");
   assert.equal(handbook.includes(PASS_SPAN), true);
   assert.equal(handbook.includes("Berlin"), true);
   const baseline = JSON.parse(readFileSync("content/fixtures/retrieval-autopsy/scorer/baseline.json", "utf8")) as {

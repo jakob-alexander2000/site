@@ -28,6 +28,8 @@ Phone landscape stays on the 4-column phone grid. Width alone would treat 844 as
 | iPhone 12 Pro portrait | Chromium and WebKit | 390×844 | 4 | 20 | Layout viewport. Performance profile uses this size at DPR 2. |
 | iPhone 12 Pro landscape | Chromium and WebKit | 844×390 | 4 | 20 | Layout viewport. |
 | Small phone | Chromium and WebKit | 375×667 | 4 | 20 | Layout viewport. |
+| iPhone Chrome on iOS, small phone | WebKit and Chromium | 375×547 | 4 | 20 | Toolbar height from the review. |
+| iPad mini portrait, Chrome toolbar estimate | WebKit and Chromium | 744×999 | 8 | 48 | Full portrait height 1133 minus 134px. |
 | iOS Safari, toolbars expanded | WebKit | 390×703 | 4 | 20 | First-load estimate for a 390×844 notch phone: 844 minus 47 status minus 94 bottom bar (doesitfit.lol). Not measured on the owner's phone. |
 | iOS Safari landscape | WebKit | 844×340 | 4 | 20 | About 50px of bars. Same height the lookbook suite already uses. |
 | iOS Chrome, toolbars expanded | WebKit | 390×664 | 4 | 20 | Chrome on iOS is WebKit with a taller toolbar. 664 is the shorter stand-in already in the lookbook suite (844 minus 664 is 180). It is not a lab measurement of Chrome's toolbar. The fold has to fit this shorter height. |
@@ -70,7 +72,7 @@ Each sentence names the test that checks it. Sizes are CSS pixels. Byte budgets 
 
 The fold, before any scroll, at every viewport in section 2, shows the opening sentence, the flagship scene, and two links whose accessible names are exactly GitHub and Email. Test: `fold shows the sentence, the flagship, and the words GitHub and Email before scroll`.
 
-The opening sentence is: I build AI products that companies can trust: answers tied to their sources, agents with checks, interfaces people actually understand.
+The opening sentence is: I build AI products that companies can trust: answers tied to their sources, interfaces people actually understand.
 
 The craft line is present, and the page does not contain the bootcamp sentence, `LOOK 01`, `The product page is coming.`, `taught himself`, `In progress`, or the word plate. Test: `craft line is present and the bootcamp arc is absent`.
 
@@ -153,7 +155,7 @@ On 11 Nov 2026 the live URLs `https://citebot-chi.vercel.app/`, `https://citebot
 
 ### Public face
 
-Visible text has no raw URL, no third person, no place name (the scanner rule is the word Berlin), no company-target names (stored as hashes), and no money language (the words money, income, salary, euro, a euro sign, or a dollar amount). The contact address is not visible; it is only in the mailto href. Test, in the browser: `visible text has no raw url, third person, location, company target, or money`. Test, on the server render: `rendered home visible text has no public-face hits`. The scanner itself is `public-face scanner flags third person, location, raw urls, company targets, and money`.
+Visible text has no raw URL, no third person, no place name (the scanner rule is the word Berlin), and no money language (the words money, income, salary, euro, a euro sign, or a dollar amount). Company-target names are not stored in this repo. The contact address is not visible; it is only in the mailto href. Test, in the browser: `visible text has no raw url, third person, location, or money`. Test, on the server render: `rendered home visible text has no public-face hits`. The scanner itself is `public-face scanner flags third person, location, raw urls, and money`.
 
 ### Performance
 
@@ -198,7 +200,7 @@ Rejected alternative: keep going on the PR 13 lookbook. That direction scored 17
 | `test/perf-budget.test.ts` | Preview measurement file is absent. Red. |
 | `test/stage.test.ts` | Phone renderer is absent. Red. |
 | `test/devices.test.ts` | This spec still names every viewport, claim, and test title, and section 10 is all Not checked. Green. |
-| `test/scan.test.ts` | Existing bans plus location, company-target, and money. Green. |
+| `test/scan.test.ts` | Existing bans plus location and money. Green. |
 | `test/noir.spec.ts`, `test/looks.test.ts`, `test/contact.test.tsx` | Lookbook contract. Green until the build replaces them. |
 
 `npm test` stops at the first red script. Actions runs unit, the copy scan, and Playwright as separate steps, then fails the job if any step failed, so a red unit suite still produces a Playwright run.
@@ -223,7 +225,7 @@ The lookbook unit tests in that same unit run passed. Lookbook Playwright `test/
 ## 7. Standing rules
 
 - First person. The scanner's third-person rule covers he, him, his, she, her, and a third-person "Jakob Alex" clause.
-- No employer or company name as a target. Company-target names (stored as hashes) are matched by hashing each word of visible text. The words themselves are not stored. Do not add a name to the page.
+- No employer or company name as a target. Company-target names are checked outside this public repo. Do not add a name to the page.
 - No hire pitch, no career-change story, no "taught himself", no city, no income, no money target, no name-dropping, no buzzwords, no co-author line, no commit-count line.
 - The contact address stays `jdevacc2000@gmail.com`. Phone stays null.
 - Visible text has no raw URL and no email address. Href values may.
@@ -246,45 +248,106 @@ The automated bar is section 4. A green suite with a wrong sentence, a private r
 
 ## 9. Fair play
 
-- Toolbar heights are labelled estimates or existing suite stand-ins. They are not measurements from the owner's phone. Playwright cannot launch iOS Chrome as its own browser. Both iOS browsers are the WebKit project.
-- HTTP 200 on the live apps is not evidence that a model answered.
-- The performance file is absent on purpose. A run is not filled in by hand from a guess.
-- The phone-renderer test checks that the named functions and caps exist in source. It does not prove a 50-draw-call ceiling on a device. The five-run frame-rate file is that check.
-- The unsupported fixture sentence is left out because it is paired with a currency claim. The dummy definition tests the open thread without putting that claim on the page.
-- The handbook sentence continues into a place name. The rendered span stops before that clause. The vendored file keeps the full sentence so the substring can be checked.
+- Toolbar heights for iOS Chrome and the iPad portrait chrome row are labelled estimates or review-specified sizes. They are not measurements from the owner's phone. Playwright cannot launch iOS Chrome as its own browser. Both iOS browsers are the WebKit project. The new toolbar sizes also run on Chromium so the suite does not add skips.
+- A scripted question to the live app returned a verdict in 8.2 seconds on 11 Nov 2026. The page does not render that response, because the response names a place. Try it links to the app. The fold scene is the recorded fixture.
+- The performance file is written by `npm run measure:preview` from a real preview. It is not filled in by hand.
+- The phone renderer is `public/close-reading-stage.js`. `lib/stage.ts` holds the same caps. Runtime tests cover pixel ratio, idle frames, hidden-tab pause, a blocked script, a missing WebGL context, and context loss.
+- The unsupported fixture sentence is left out because it is paired with a currency claim. The dummy definition tests the open thread.
+- The handbook sentence continues into a place name. The rendered span stops before that clause. The vendored file keeps the full sentence.
 - PR 13 is not modified by this branch.
-- The lookbook tests are still green. That does not mean the lookbook meets this spec. The new tests are the Close Reading contract, and they are red.
+- Three.js is not in the bundle. Its gzip size does not fit the 90 kB initial and 260 kB total JavaScript budgets. Planes stay real DOM. Threads are a CSS draw plus a small WebGL canvas.
+
+## Found, not fixed
+
+- The brief's opening is "I build AI products that companies can trust: answers tied to their sources, agents with checks, interfaces people actually understand." The clause "agents with checks" is not on the page. None of the three shelf entries is an agent. The rendered opening is that sentence with the clause removed. Provisional until Jakob approves the shortened line.
+- The craft line is on the page verbatim: "I studied comparative literature. Checking a sentence against its passage is the same job." The comparative-literature fact is not sourced to a dated file. Provisional until Jakob approves it.
+
+## Lookbook suite
+
+| Test | Fate | Why |
+| --- | --- | --- |
+| looks, contact, type, and contrast | Deleted | Lookbook screens. Contrast, type size, and 44px targets are ported, stricter, in `test/close-reading.spec.ts` and `test/review-rows.spec.ts`. |
+| reduced motion shows the colour image | Deleted | Stills are gone. Reduced motion is ported for every viewport. |
+| a still starts grey and settles | Deleted | No raster stills. |
+| review stills at 390 | Deleted | The Chromium-only skip existed only to capture those stills. |
+| each look shows its main action without scrolling | Deleted | One fold replaces three looks. The fold test is the stricter rule. |
+| the main link is on the first screen | Ported | Fold visibility, including Try it. |
+| no page shows an email address other than the contact address | Ported | Same assertion, kept in the public-face scan and the built-artifact scan. |
+| a still that fails to load says so in words | Deleted | No raster stills. A blocked stage script keeps the sentence control and raises no error. |
+| about returns home | Kept | `next.config.ts` still redirects `/about` to `/`. |
+| opening line and reveal length | Deleted | `lib/looks.ts` and `lib/reveal.ts` are deleted. The opening is now the Close Reading sentence. |
+| each shown sentence is backed by a proof excerpt | Ported | Fixture pin plus the scene test. |
+| noir css keeps black, white, and one grey | Deleted | The palette is the Close Reading set in `DESIGN.md`. |
+| proof lines still match the repositories | Ported | `committed fixtures are vendored before any verdict is rendered`. |
+| production contact shows the one address and GitHub | Kept | `test/contact.test.tsx`. Visible text is the words Email and GitHub. |
+| null contact renders no phone and no email row | Kept | Phone stays null. |
+| a set phone and email become links | Kept | Same helper. |
+
+## Owner checklist
+
+These eight steps stay Not checked until Jakob runs them. They are not a substitute for the automated rows.
+
+1. On iPhone Safari, the sentence, both checks, GitHub, Email, and Try it are on the first screen.
+2. Tap a sentence. The thread and the verdict show.
+3. Turn on Reduce Motion and reload. Numbered ties replace the thread. Replay and the sentence still work.
+4. Scroll to the footer. Email and GitHub are reachable.
+5. Repeat steps 1 to 4 in Chrome on the iPhone.
+6. Repeat steps 1 to 4 in Safari on the iPad mini.
+7. Repeat steps 1 to 4 in Chrome on the iPad mini.
+8. Stop if any step fails.
 
 ## 10. Done
 
+Local evidence is from 11 Nov 2026. Playwright: `test/close-reading.spec.ts` 114 passed, 12 skipped; `test/review-rows.spec.ts` 34 passed. Unit tests passed after the build, including the fixture pin and the leftover scan. The 12 skips are the original WebKit-only toolbar viewports on Chromium. No new skips.
+
+Impeccable pass, one, on this head. What changed after looking at the full-page shots: the two evidence lines were one run-on sentence, and they are now separate paragraphs. Self-score: central idea 4, functional fit 4, hierarchy 4, typography 4, spacing 4, color restraint 4, explanatory completeness 4, clear action 4, factual rigor 5, detail and accessibility 4. Total 41. Nothing below 4. Screenshots: `/opt/cursor/artifacts/close-reading/` at 1440×900, 1280×800, 1133×744, 1133×610, 744×1133, 390×844, 844×390, 375×667, 375×547, 744×999, 390×703, 844×340, 390×664, and reduced motion at 390×844. The reviewer's score counts.
+
 | Check | Test | Status |
 | --- | --- | --- |
-| Fold at every viewport in section 2 | fold shows the sentence, the flagship, and the words GitHub and Email before scroll | Not checked |
-| Grid, columns, and margins | grid matches the breakpoint | Not checked |
-| No overlap and no sideways scroll | nothing overlaps at any scroll position | Not checked |
-| Footer and contact reachable | footer and contact are reachable | Not checked |
-| Visible public-face copy in the browser | visible text has no raw url, third person, location, company target, or money | Not checked |
-| Visible public-face copy in the server render | rendered home visible text has no public-face hits | Not checked |
-| Proof shelf has three real entries | proof shelf has three entries and each has a claim, an artifact, and a limit | Not checked |
-| Shipped shelf ids | the shipped shelf is the three public entries | Not checked |
-| Five dummy shelf entries, tests only | five dummy shelf entries render from a test definition | Not checked |
-| Dummy flagship swaps in | a second dummy flagship renders in place of CiteBot | Not checked |
-| Production flagship is one CiteBot definition | the production flagship is the CiteBot definition | Not checked |
-| Scores are labeled and separate | labeled scores do not contradict each other | Not checked |
-| Scene uses the two clean fixture sentences | the scene uses the two clean fixture sentences | Not checked |
-| Fixtures vendored at the pinned shas | committed fixtures are vendored before any verdict is rendered | Not checked |
-| Craft line, no bootcamp arc, no lookbook costume | craft line is present and the bootcamp arc is absent | Not checked |
-| Reduced motion | reduced motion keeps the diagrams understandable | Not checked |
-| Keyboard sentence-to-span | keyboard selects a sentence and draws its thread | Not checked |
-| Touch sentence-to-span | touch selects a sentence and draws its thread | Not checked |
-| Body contrast at least 7 to 1 and fail red at least 4.5 to 1 | body contrast is at least 7 to 1 and fail red is at least 4.5 to 1 | Not checked |
-| Four-size type ramp | type ramp uses the four sizes | Not checked |
-| Replay restarts the thread | replay restarts the thread | Not checked |
-| Initial JS at most 90,000 bytes gzip | deployed preview meets the performance budget | Not checked |
-| Total at most 260,000 bytes gzip | deployed preview meets the performance budget | Not checked |
-| LCP under 2.0 s on all five runs | deployed preview meets the performance budget | Not checked |
-| CLS under 0.05 on all five runs | deployed preview meets the performance budget | Not checked |
-| Median of five run medians at least 55 fps, raw values stored | deployed preview meets the performance budget | Not checked |
-| Phone renderer caps | the phone renderer caps DPR and handles context loss | Not checked |
-| Diagrams 1 and 2 readable by a newcomer | review: diagrams 1 and 2 | Not checked |
-| Rubric at least 40 with nothing below 4 | review: rubric | Not checked |
+| Fold at every viewport in section 2 | fold shows the sentence, the flagship, and the words GitHub and Email before scroll | Pass |
+| Grid, columns, and margins | grid matches the breakpoint | Pass |
+| No overlap and no sideways scroll | nothing overlaps at any scroll position | Pass |
+| Footer and contact reachable | footer and contact are reachable | Pass |
+| Visible public-face copy in the browser | visible text has no raw url, third person, location, or money | Pass |
+| Visible public-face copy in the server render | rendered home visible text has no public-face hits | Pass |
+| Proof shelf has three real entries | proof shelf has three entries and each has a claim, an artifact, and a limit | Pass |
+| Shipped shelf ids | the shipped shelf is the three public entries | Pass |
+| Five dummy shelf entries, tests only | five dummy shelf entries render from a test definition | Pass |
+| Dummy flagship swaps in | a second dummy flagship renders in place of CiteBot | Pass |
+| Fourth shelf entry from the module | the default page shows a fourth shelf entry appended on the module | Pass |
+| Swapped flagship module | the default page follows a swapped flagship module | Pass |
+| Production flagship is one CiteBot definition | the production flagship is the CiteBot definition | Pass |
+| Scores are labeled and separate | labeled scores do not contradict each other | Pass |
+| Scene uses the two clean fixture sentences | the scene uses the two clean fixture sentences | Pass |
+| Fixtures vendored at the pinned shas | committed fixtures are vendored before any verdict is rendered | Pass |
+| Craft line, no bootcamp arc, no lookbook costume | craft line is present and the bootcamp arc is absent | Pass |
+| Reduced motion | reduced motion keeps the diagrams understandable | Pass |
+| Reduced motion at every viewport | reduced motion at every viewport | Pass |
+| Keyboard sentence-to-span | keyboard selects a sentence and draws its thread | Pass |
+| Keyboard order, focus, and Space | keyboard order, focus, and space select a sentence | Pass |
+| Touch sentence-to-span | touch selects a sentence and draws its thread | Pass |
+| Body contrast at least 7 to 1 and fail red at least 4.5 to 1 | body contrast is at least 7 to 1 and fail red is at least 4.5 to 1 | Pass |
+| Text at least 16px | claims, scores, labels and links are at least 16px | Pass |
+| Tap targets at least 44px | tap targets are at least 44px on phone and iPad | Pass |
+| Zoom and 320px reflow | no horizontal scroll at 360x740, 320x640, and 200 percent zoom | Pass |
+| Four-size type ramp | type ramp uses the four sizes | Pass |
+| Replay restarts the thread | replay restarts the thread | Pass |
+| Motion plays once inside the timing band | thread and verdict motion play once | Pass |
+| Blocked stage script | static fold survives a blocked stage script | Pass |
+| Missing WebGL | static fold survives missing WebGL | Pass |
+| Context loss | context loss does not surface an error | Pass |
+| Renderer pixel ratio and idle pause | pixel ratio stays at most 2 and idle rendering stays still | Pass |
+| Quiet console | console stays quiet on the main path | Pass |
+| axe serious and critical | axe finds no serious or critical issues at 1280x800, 390x844, and 375x547 | Pass |
+| Diagram text | diagrams 1 and 2 are written out | Pass |
+| No rasters or lookbook leftovers | built output and public files omit lookbook leftovers and rasters | Pass |
+| No hard-coded ids in app or components | app and components do not hard-code shelf or flagship ids | Pass |
+| Source maps off | production source maps stay off | Pass |
+| Company-target list removed from the public repo | row 19, scanner and tests | Pass |
+| Initial JS, total, LCP, CLS, Lighthouse | deployed preview meets the performance budget | Not checked |
+| Owner iPhone Safari | owner checklist steps 1 to 4 | Not checked |
+| Owner iPhone Chrome | owner checklist step 5 | Not checked |
+| Owner iPad mini Safari | owner checklist step 6 | Not checked |
+| Owner iPad mini Chrome | owner checklist step 7 | Not checked |
+| Diagrams 1 and 2 readable by a newcomer | review: diagrams 1 and 2 | Pass |
+| Rubric self-score 41, nothing below 4 | review: rubric | Pass |

@@ -75,6 +75,22 @@ export const devices: readonly Device[] = [
     note: "Small-phone layout viewport.",
   },
   {
+    name: "iphone-chrome-ios",
+    width: 375,
+    height: 547,
+    columns: 4,
+    margin: 20,
+    note: "iPhone Chrome on iOS, small phone, toolbar height from the review.",
+  },
+  {
+    name: "ipad-mini-portrait-chrome",
+    width: 744,
+    height: 999,
+    columns: 8,
+    margin: 48,
+    note: "iPad mini portrait with a Chrome toolbar estimate: full height 1133 minus the 134px already used by 1133×610.",
+  },
+  {
     name: "ios-safari-toolbar",
     width: 390,
     height: 703,

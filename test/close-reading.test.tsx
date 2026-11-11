@@ -3,13 +3,19 @@ import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CloseReadingPage } from "../components/CloseReadingPage";
 import type { Flagship, ShelfEntry } from "../lib/close-reading";
-import { flagship } from "../lib/flagship";
+import { flagshipSlot, getFlagship } from "../lib/flagship";
 import { PROOF_SHELF } from "../lib/proof-shelf";
 
 const dummyFlagship: Flagship = {
   id: "dummy-flagship",
   title: "Dummy Flagship",
   passage: "A dummy passage sits behind the claim.",
+  recorded: "Recorded fixture.",
+  tryHref: "https://example.com/dummy-try",
+  useCases: [
+    { question: "Dummy question one?", source: "one.md" },
+    { question: "Dummy question two?", source: "two.md" },
+  ],
   sentences: [
     {
       id: "one",
@@ -43,10 +49,42 @@ const dummyShelf: ShelfEntry[] = [1, 2, 3, 4, 5].map((n) => ({
 }));
 
 test("the production flagship is the CiteBot definition", () => {
-  assert.ok(flagship, "production flagship definition is not filled");
+  const flagship = getFlagship();
   assert.equal(flagship.id, "citebot");
+  assert.equal(flagship.tryHref, "https://citebot-chi.vercel.app/ask");
   const html = renderToStaticMarkup(<CloseReadingPage />);
   assert.match(html, /CiteBot/);
+  assert.equal(html.includes("agents with checks"), false);
+});
+
+test("the default page shows a fourth shelf entry appended on the module", () => {
+  const extra = {
+    id: "dummy-extra",
+    claim: "Dummy claim extra.",
+    artifact: { href: "https://example.com/dummy-extra", label: "Dummy extra" },
+    limit: "Dummy limit extra.",
+  };
+  PROOF_SHELF.push(extra);
+  try {
+    const html = renderToStaticMarkup(<CloseReadingPage />);
+    assert.equal((html.match(/data-shelf-entry=/g) ?? []).length, 4);
+    assert.ok(html.indexOf(PROOF_SHELF[0].id) < html.indexOf(PROOF_SHELF[1].id));
+    assert.ok(html.includes("Dummy claim extra."));
+  } finally {
+    PROOF_SHELF.pop();
+  }
+});
+
+test("the default page follows a swapped flagship module", () => {
+  const previous = flagshipSlot.value;
+  flagshipSlot.value = dummyFlagship;
+  try {
+    const html = renderToStaticMarkup(<CloseReadingPage />);
+    assert.match(html, /Dummy Flagship/);
+    assert.equal(html.includes("CiteBot"), false);
+  } finally {
+    flagshipSlot.value = previous;
+  }
 });
 
 test("a second dummy flagship renders in place of CiteBot", () => {

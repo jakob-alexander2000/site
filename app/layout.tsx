@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { OPENING } from "@/lib/looks";
+import { OPENING } from "@/lib/copy";
 import "./globals.css";
 
 const sans = Geist({
   subsets: ["latin"],
-  weight: ["100", "200"],
+  weight: ["200", "300", "400"],
   display: "swap",
   variable: "--font-sans",
   adjustFontFallback: true,
@@ -42,10 +42,15 @@ export const metadata: Metadata = {
     siteName: title,
     type: "website",
   },
+  twitter: {
+    card: "summary",
+    title,
+    description: OPENING,
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0a0a0a",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,

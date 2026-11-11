@@ -10,17 +10,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Jakob Alex site
 
-Noir lookbook. Read DESIGN.md before changing type, color, or motion.
+Close Reading. Read `docs/specs/close-reading.md` and `DESIGN.md` before changing type, color, or motion.
 
-The Close Reading replacement is specified in `docs/specs/close-reading.md`. It is not the page yet. Until that page replaces this one, the lookbook rules below still describe what is rendered.
+The home page reads `lib/flagship.ts` and `lib/proof-shelf.ts`. Swapping the flagship replaces that definition. Adding a shelf entry appends a definition. Do not branch on an entry id in `app/` or `components/`.
 
-The home page is the opening line plus the looks in `lib/looks.ts`. Each look needs one screenshot, a one-line caption, and a proof whose excerpt is on the page. Link the product page only when it is public. Otherwise the caption block says the product page is coming. `lib/shelf.ts` lists names that are not rendered.
+`lib/contact.ts` is the only contact config. `phone` stays `null`. `email` is the one allowed address (`ALLOWED_EMAIL`). The visible links say GitHub and Email.
 
-`lib/contact.ts` is the only contact config. `phone` stays `null`, so no phone row renders. `email` is the one allowed address (`ALLOWED_EMAIL`), a `mailto:` link next to GitHub. The copy scan and the end-to-end test "no page shows an email address other than the contact address" fail on any other address.
-
-Write about Jakob Alex in the first person. Run `npm run build` and then `node --import tsx scripts/scan-copy.ts`.
-
-A still starts greyscale with generated grain and settles once into the colour file over `SETTLE_MS` in `lib/reveal.ts`. Reduced motion shows the colour file with no transition. There is no video. `showCiteBotLive` in `lib/looks.ts` is false until the public CiteBot deployment answers again.
+Write about Jakob Alex in the first person.
 
 ```bash
 npm run build
