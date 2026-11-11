@@ -256,24 +256,34 @@ export function CloseReadingPage({
           ))}
         </ul>
       </section>
-      <section data-block="skills" aria-label="Skills">
+      <section data-block="skills" aria-labelledby="skills-title">
+        <h2 id="skills-title" data-type="heading">
+          Skills
+        </h2>
         <ul data-skill-list>
           {gallery.map((skill) => (
             <li key={skill.id} data-skill={skill.id}>
-              <h2 data-type="heading">{skill.name}</h2>
+              <div className="skill-row">
+                <h3>{skill.name}</h3>
+                <a data-proof={skill.id} href={skill.proof.href}>
+                  {skill.proof.label}
+                </a>
+              </div>
               <p data-skill-line data-role="body" data-type="body">
                 {skill.line}
               </p>
-              <ol data-diagram={skill.id}>
-                {skill.steps.map((step) => (
-                  <li key={step} data-type="body">
+              <ol data-diagram={skill.id} aria-label={skill.steps.join(", ")}>
+                {skill.steps.map((step, index) => (
+                  <li key={step}>
+                    {index > 0 ? (
+                      <svg aria-hidden="true" viewBox="0 0 20 8" width="20" height="8" focusable="false">
+                        <path d="M0 4h14M11 1l4 3-4 3" fill="none" stroke="currentColor" strokeWidth="1" />
+                      </svg>
+                    ) : null}
                     {step}
                   </li>
                 ))}
               </ol>
-              <a data-proof={skill.id} href={skill.proof.href}>
-                {skill.proof.label}
-              </a>
             </li>
           ))}
         </ul>

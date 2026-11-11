@@ -3,17 +3,10 @@ import { expect, test } from "@playwright/test";
 const skills = [
   {
     name: "Evaluation",
-    line: "I score example answers against the handbook, and the run does not call a model.",
-    steps: ["Example answers", "Score", "No model"],
-    label: "Question set",
-    href: "https://github.com/jakob-alexander2000/citebot-evals",
-  },
-  {
-    name: "Verification",
-    line: "I mark the condition a sample answer drops.",
-    steps: ["Claim", "Passage", "Verdict"],
-    label: "Checks",
-    href: "https://retrieval-autopsy.vercel.app/",
+    line: "I run the handbook questions through the agent loop, and a failed question stops the build.",
+    steps: ["Questions", "Stand-in", "Check"],
+    label: "Evals",
+    href: "https://citebot-chi.vercel.app/evals",
   },
   {
     name: "Tool use",
@@ -25,9 +18,9 @@ const skills = [
   {
     name: "TypeScript",
     line: "I typecheck the handbook app in CI, and that same CI builds it.",
-    steps: ["Typecheck", "Build"],
-    label: "CI",
-    href: "https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml",
+    steps: ["Lint", "Tests", "Eval", "Build"],
+    label: "Runs",
+    href: "https://github.com/jakob-alexander2000/citebot/actions/workflows/ci.yml",
   },
   {
     name: "Retrieval",
@@ -40,13 +33,19 @@ const skills = [
 
 const omitted = ["MCP", "observability"];
 
-test("skills gallery shows the five public skills", async ({ page }) => {
+test("skills gallery shows the public skills", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const problems: string[] = [];
   const text = await page.locator("body").innerText();
-  if ((await page.locator("[data-block='skills']").count()) !== 1) problems.push("skills section is missing");
-  if ((await page.locator("[data-skill]").count()) !== 5) problems.push("expected 5 skills");
+  const gallery = page.locator("[data-block='skills']");
+  if ((await gallery.count()) !== 1) problems.push("skills section is missing");
+  if ((await gallery.getByRole("heading", { level: 2 }).count()) !== 1) problems.push("section heading is missing");
+  if ((await gallery.locator("h3").count()) !== skills.length) problems.push("skill names are not h3");
+  if ((await page.locator("[data-skill]").count()) !== skills.length) problems.push(`expected ${skills.length} skills`);
+  const shelfHrefs = await page.locator("[data-artifact]").evaluateAll((nodes) =>
+    nodes.map((node) => node.getAttribute("href")),
+  );
   for (const skill of skills) {
     if (!text.includes(skill.name)) problems.push(`missing name ${skill.name}`);
     if (!text.includes(skill.line)) problems.push(`missing line ${skill.line}`);
@@ -57,16 +56,28 @@ test("skills gallery shows the five public skills", async ({ page }) => {
     }
     const steps = (await row.locator("[data-diagram] li").allInnerTexts()).map((step) => step.replace(/\s+/g, " ").trim());
     if (steps.join("|") !== skill.steps.join("|")) problems.push(`${skill.name} diagram is ${steps.join("|")}`);
+    const marks = await row.locator("[data-diagram] svg[aria-hidden='true']").count();
+    if (marks !== skill.steps.length - 1) problems.push(`${skill.name} direction marks ${marks}`);
+    const boxy = await row.locator("[data-diagram] li").evaluateAll((nodes) =>
+      nodes.filter((node) => {
+        const style = getComputedStyle(node);
+        return Number.parseFloat(style.minHeight) >= 44 || Number.parseFloat(style.borderTopWidth) > 0;
+      }).length,
+    );
+    if (boxy !== 0) problems.push(`${skill.name} steps look like buttons`);
     const link = row.getByRole("link", { name: skill.label, exact: true });
     if ((await link.count()) !== 1) problems.push(`missing proof ${skill.name}`);
     else if ((await link.getAttribute("href")) !== skill.href) problems.push(`${skill.name} href is ${await link.getAttribute("href")}`);
+    else if (shelfHrefs.includes(skill.href)) problems.push(`${skill.name} repeats a shelf link`);
   }
+  const galleryText = await gallery.innerText();
+  if (galleryText.includes("does not call a model")) problems.push("gallery repeats the shelf limit");
   for (const name of omitted) {
     if (new RegExp(`\\b${name}\\b`, "i").test(text)) problems.push(`page contains ${name}`);
   }
   const shelf = await page.locator("[data-block='shelf']").boundingBox();
-  const gallery = await page.locator("[data-block='skills']").boundingBox();
-  if (shelf && gallery && gallery.y < shelf.y) problems.push("gallery is above the shelf");
+  const galleryBox = await gallery.boundingBox();
+  if (shelf && galleryBox && galleryBox.y < shelf.y) problems.push("gallery is above the shelf");
   expect(problems).toEqual([]);
 });
 
@@ -108,13 +119,25 @@ test("reduced motion keeps the skill diagrams", async ({ page }) => {
   const reduced = await page.locator("html").getAttribute("data-reduced");
   if (reduced !== "flat") problems.push("reduced motion is not flat");
   const steps = await page.locator("[data-diagram] li").count();
-  if (steps < 5) problems.push(`diagram steps ${steps}`);
-  const moving = await page.evaluate(() =>
-    [...document.querySelectorAll("[data-block='skills'] *")].filter((node) => {
-      const name = getComputedStyle(node).animationName;
-      return name !== "none" && name !== "";
-    }).length,
-  );
-  if (moving !== 0) problems.push(`${moving} skill animations`);
+  if (steps < 1) problems.push(`diagram steps ${steps}`);
+  const motion = await page.evaluate(() => {
+    const section = document.querySelector("[data-block='skills']");
+    if (!section) return { transitions: -1, animations: -1, running: -1 };
+    const nodes = [section, ...section.querySelectorAll("*")];
+    let transitions = 0;
+    let animations = 0;
+    for (const node of nodes) {
+      const style = getComputedStyle(node);
+      const duration = style.transitionDuration.split(",").some((part) => Number.parseFloat(part) > 0);
+      if (duration) transitions += 1;
+      const name = style.animationName;
+      if (name && name !== "none") animations += 1;
+    }
+    const running = section.getAnimations({ subtree: true }).length;
+    return { transitions, animations, running };
+  });
+  if (motion.transitions !== 0) problems.push(`${motion.transitions} skill transitions`);
+  if (motion.animations !== 0) problems.push(`${motion.animations} skill animations`);
+  if (motion.running !== 0) problems.push(`${motion.running} running skill animations`);
   expect(problems).toEqual([]);
 });

@@ -10,21 +10,11 @@ export const SKILLS: readonly Skill[] = [
   {
     id: "evaluation",
     name: "Evaluation",
-    line: "I score example answers against the handbook, and the run does not call a model.",
-    steps: ["Example answers", "Score", "No model"],
+    line: "I run the handbook questions through the agent loop, and a failed question stops the build.",
+    steps: ["Questions", "Stand-in", "Check"],
     proof: {
-      href: "https://github.com/jakob-alexander2000/citebot-evals",
-      label: "Question set",
-    },
-  },
-  {
-    id: "verification",
-    name: "Verification",
-    line: "I mark the condition a sample answer drops.",
-    steps: ["Claim", "Passage", "Verdict"],
-    proof: {
-      href: "https://retrieval-autopsy.vercel.app/",
-      label: "Checks",
+      href: "https://citebot-chi.vercel.app/evals",
+      label: "Evals",
     },
   },
   {
@@ -41,10 +31,10 @@ export const SKILLS: readonly Skill[] = [
     id: "typescript",
     name: "TypeScript",
     line: "I typecheck the handbook app in CI, and that same CI builds it.",
-    steps: ["Typecheck", "Build"],
+    steps: ["Lint", "Tests", "Eval", "Build"],
     proof: {
-      href: "https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml",
-      label: "CI",
+      href: "https://github.com/jakob-alexander2000/citebot/actions/workflows/ci.yml",
+      label: "Runs",
     },
   },
   {

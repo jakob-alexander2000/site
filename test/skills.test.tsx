@@ -1,9 +1,35 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CloseReadingPage } from "../components/CloseReadingPage";
+import { PROOF_SHELF } from "../lib/proof-shelf";
 import { SKILLS, type Skill } from "../lib/skills";
+
+function clientModules(entry: string): string[] {
+  const seen = new Set<string>();
+  const hits: string[] = [];
+  const queue = [entry];
+  while (queue.length > 0) {
+    const file = queue.pop();
+    if (!file || seen.has(file)) continue;
+    seen.add(file);
+    if (!existsSync(file)) continue;
+    const text = readFileSync(file, "utf8");
+    if (text.includes("use client")) hits.push(file);
+    const dir = dirname(file);
+    for (const match of text.matchAll(/from\s+["']([^"']+)["']/g)) {
+      const spec = match[1] ?? "";
+      if (!spec.startsWith(".") && !spec.startsWith("@/")) continue;
+      const base = spec.startsWith("@/") ? join(".", spec.slice(2)) : resolve(dir, spec);
+      for (const candidate of [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx")]) {
+        if (existsSync(candidate)) queue.push(candidate);
+      }
+    }
+  }
+  return hits;
+}
 
 function row(html: string, id: string): string {
   const start = html.indexOf(`data-skill="${id}"`);
@@ -12,15 +38,29 @@ function row(html: string, id: string): string {
   return html.slice(start, next === -1 ? html.length : next);
 }
 
-test("the shipped skills are the five public proofs", () => {
+test("the skills gallery imports no client module", () => {
+  const hits = [...clientModules("lib/skills.ts"), ...clientModules("components/CloseReadingPage.tsx")];
+  assert.deepEqual(hits, []);
+});
+
+test("the shipped skills are the public proofs", () => {
   const spec = readFileSync("docs/specs/skills-gallery.md", "utf8");
   const page = readFileSync("components/CloseReadingPage.tsx", "utf8");
   const html = renderToStaticMarkup(<CloseReadingPage />);
   const problems: string[] = [];
+  const shelfHrefs = new Set(PROOF_SHELF.map((entry) => entry.artifact.href));
   if (!html.includes('data-block="skills"')) problems.push("skills section is missing");
-  if (SKILLS.length !== 5) problems.push(`module has ${SKILLS.length}`);
+  if (!html.includes('id="skills-title"')) problems.push("section heading is missing");
+  if ((html.match(/<h3>/g) ?? []).length !== SKILLS.length) problems.push("skill names are not h3");
+  if (SKILLS.map((skill) => skill.id).join(",") !== "evaluation,tool-use,typescript,retrieval") {
+    problems.push(`module ids ${SKILLS.map((skill) => skill.id).join(",")}`);
+  }
   if (page.includes("use client")) problems.push("page is a client component");
   if (page.includes("citebot") || page.includes("retrieval-autopsy")) problems.push("component hard-codes a proof");
+  for (const skill of SKILLS) {
+    if (shelfHrefs.has(skill.proof.href)) problems.push(`${skill.id} repeats a shelf link`);
+    if (skill.line.includes("does not call a model")) problems.push(`${skill.id} repeats the shelf limit`);
+  }
   for (const skill of SKILLS) {
     if (!spec.includes(skill.line)) problems.push(`spec missing line ${skill.id}`);
     if (!spec.includes(skill.proof.href)) problems.push(`spec missing href ${skill.id}`);
