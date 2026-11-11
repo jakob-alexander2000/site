@@ -51,6 +51,6 @@ test("deployed preview meets the performance budget", () => {
     assert.ok(run.accessibility >= 95, `accessibility ${run.accessibility}`);
     assert.ok(run.bestPractices >= 90, `best practices ${run.bestPractices}`);
     assert.ok(run.totalGzip <= 260_000, `total ${run.totalGzip}`);
-    assert.ok(run.initialJsGzip > 0, "initial js missing");
+    assert.ok(run.initialJsGzip <= 145_000, `initial js ${run.initialJsGzip}`);
   }
 });

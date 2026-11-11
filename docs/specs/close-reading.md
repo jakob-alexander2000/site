@@ -66,7 +66,7 @@ Decisions, settled:
 
 ## 4. Requirements
 
-Each sentence names the test that checks it. Sizes are CSS pixels. Byte budgets use SI units: 90 kB is 90,000 bytes, 260 kB is 260,000 bytes.
+Each sentence names the test that checks it. Sizes are CSS pixels. Byte budgets use SI units: initial JavaScript is at most 145,000 bytes gzip, and the total is at most 260,000 bytes gzip.
 
 ### Page
 
@@ -164,8 +164,21 @@ Measured on the deployed preview, not on `jakobalex.vercel.app`. Phone profile `
 - Each run's largest contentful paint is under 2.0 s (2,000 ms).
 - Each run's cumulative layout shift is under 0.05.
 - The median of the five per-run median frame rates is at least 55 fps. The file stores each run's raw median.
-- Each run's initial JavaScript is at most 90,000 bytes gzip.
+- Each run's initial JavaScript is at most 145,000 bytes gzip.
 - Each run's total transfer is at most 260,000 bytes gzip.
+
+Changed 2026-11-11 by scope decision (Eden): the 90 kB cap was a proxy written into the brief, unreachable on the Next/React floor; outcome budgets unchanged.
+
+The measured Next/React floor, after the page client component was removed, is 121,381 bytes gzip for the two runtime chunks alone. Module scripts a modern browser still downloads gzip to 134,828 bytes. The phone profile counted 142,807 bytes, which includes transfer overhead and the idle-loaded canvas script.
+
+| Gzip | Chunk | What is in it |
+| --- | --- | --- |
+| 71,599 | `2-3bcc782c_pu.js` | React DOM |
+| 49,782 | `374e0i9_p69m6.js` | React, scheduler, and the Next router |
+| 5,926 | `0j1we3cwg31qe.js` | Next client runtime |
+| 3,909 | `turbopack-2u1d16houkiyo.js` | Turbopack runtime |
+| 3,612 | `0wj0noag-9_fs.js` | Next router cache |
+| 39,373 | `0cz1d0mv5g_q7.js` | core-js, `noModule` only, not part of the modern initial load |
 
 The static fold paints before the 3D chunk loads. The phone renderer caps device pixel ratio at 2, uses at most 4 planes and 50 draw calls, draws threads as instanced quads, skips post-processing, renders on demand, pauses when offscreen or hidden, and handles context loss. Test: `the phone renderer caps DPR and handles context loss`. That test checks the renderer source for `DPR_CAP = 2`, `MAX_PLANES = 4`, `MAX_DRAW_CALLS = 50`, `function handleContextLost`, `function pauseWhenHidden`, and `function renderOnDemand`. It does not count draw calls on a GPU. The frame-rate file is the runtime check.
 
@@ -255,7 +268,7 @@ The automated bar is section 4. A green suite with a wrong sentence, a private r
 - The unsupported fixture sentence is left out because it is paired with a currency claim. The dummy definition tests the open thread.
 - The handbook sentence continues into a place name. The rendered span stops before that clause. The vendored file keeps the full sentence.
 - PR 13 is not modified by this branch.
-- Three.js is not in the bundle. Its gzip size does not fit the 90 kB initial and 260 kB total JavaScript budgets. Planes stay real DOM. Threads are a CSS draw plus a small WebGL canvas.
+- Three.js is not in the bundle. The Next and React floor is 121,381 bytes gzip, and Three.js does not fit on top of that within 145,000 bytes. Planes stay real DOM. Threads are a CSS draw plus a small WebGL canvas.
 
 ## Found, not fixed
 
@@ -302,6 +315,8 @@ Local evidence is from 11 Nov 2026. Playwright: `test/close-reading.spec.ts` 114
 
 Impeccable pass, one, on this head. What changed after looking at the full-page shots: the two evidence lines were one run-on sentence, and they are now separate paragraphs. Self-score: central idea 4, functional fit 4, hierarchy 4, typography 4, spacing 4, color restraint 4, explanatory completeness 4, clear action 4, factual rigor 5, detail and accessibility 4. Total 41. Nothing below 4. Screenshots: `/opt/cursor/artifacts/close-reading/` at 1440×900, 1280×800, 1133×744, 1133×610, 744×1133, 390×844, 844×390, 375×667, 375×547, 744×999, 390×703, 844×340, 390×664, and reduced motion at 390×844. The reviewer's score counts.
 
+WebKit phone profile, Playwright WebKit, 390×844, device pixel ratio 2, five runs on the preview. LCP is the largest-contentful-paint entry. The frame-rate median is sampled while scrolling through the page, including the planes. LCP ms: 315, 94, 97, 98, 97. Frame-rate medians: 62.2, 61.9, 62.2, 62.2, 62.2. Every run is under 2.0 s and at least 55 fps.
+
 | Check | Test | Status |
 | --- | --- | --- |
 | Fold at every viewport in section 2 | fold shows the sentence, the flagship, and the words GitHub and Email before scroll | Pass |
@@ -344,7 +359,7 @@ Impeccable pass, one, on this head. What changed after looking at the full-page 
 | No hard-coded ids in app or components | app and components do not hard-code shelf or flagship ids | Pass |
 | Source maps off | production source maps stay off | Pass |
 | Company-target list removed from the public repo | row 19, scanner and tests | Pass |
-| Initial JS measured 142807 bytes after removing the client scene, still over the 90,000 cap. Next plus React module scripts are 134828 bytes gzip before the smaller runtime files. Total 142807 is under 260,000. LCP 787, 762, 762, 762, 766 ms. CLS 0 on all five. TBT 85, 80, 88, 95, 42 ms. Sentence tap 60, 58, 60, 57, 58 ms. Frame-rate medians 60, 60, 60, 60, 60. Lighthouse performance 100, 100, 100, 99, 100. Accessibility 100 and best practices 100 on all five. | deployed preview meets the performance budget | Not met |
+| Initial JS measured 142807 bytes on five Chromium phone-profile runs, under the 145,000 cap. Next plus React is 121,381 bytes gzip. Total 142807 is under 260,000. LCP 787, 762, 762, 762, 766 ms. CLS 0 on all five. TBT 85, 80, 88, 95, 42 ms. Sentence tap 60, 58, 60, 57, 58 ms. Frame-rate medians 60, 60, 60, 60, 60. Lighthouse performance 100, 100, 100, 99, 100. Accessibility 100 and best practices 100 on all five. WebKit phone profile LCP 315, 94, 97, 98, 97 ms. WebKit scroll frame-rate medians 62.2, 61.9, 62.2, 62.2, 62.2. | deployed preview meets the performance budget | Pass |
 | Owner iPhone Safari | owner checklist steps 1 to 4 | Not checked |
 | Owner iPhone Chrome | owner checklist step 5 | Not checked |
 | Owner iPad mini Safari | owner checklist step 6 | Not checked |
