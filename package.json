@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --import tsx --test test/contact.test.tsx test/scan.test.ts test/public-face.test.tsx test/close-reading.test.tsx test/fixtures-pin.test.ts test/perf-budget.test.ts test/devices.test.ts test/stage.test.ts test/leftovers.test.ts",
+    "test:unit": "node --import tsx --test test/contact.test.tsx test/scan.test.ts test/public-face.test.tsx test/close-reading.test.tsx test/fixtures-pin.test.ts test/perf-budget.test.ts test/devices.test.ts test/stage.test.ts test/leftovers.test.ts test/skills.test.tsx",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
     "check:live": "node --import tsx scripts/check-live.ts",
