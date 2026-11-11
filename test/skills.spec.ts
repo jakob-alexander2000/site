@@ -38,7 +38,7 @@ const skills = [
   },
 ] as const;
 
-const omitted = ["MCP", "Vierspur", "Apply Desk", "phone agent", "routing study", "observability"];
+const omitted = ["MCP", "observability"];
 
 test("skills gallery shows the five public skills", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });

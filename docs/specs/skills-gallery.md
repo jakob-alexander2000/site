@@ -36,7 +36,7 @@ Out of this draft:
 
 - A merge, a production deploy, or any change to `jakobalex.vercel.app`.
 - A placeholder for a skill that has no public proof.
-- Any private repo, including Apply Desk, Vierspur, the phone agent, and the routing study.
+- Any private repo.
 
 ## 4. Requirements
 
@@ -52,21 +52,20 @@ Checked 11 Nov 2026. A live URL was accepted only when `curl -L` returned 200 wi
 | TypeScript in production | `https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml` | CI typechecks the TypeScript app and builds it. | API `visibility=public`. curl 200 on the workflow and on `https://citebot-chi.vercel.app/`. The file has a Typecheck step and a Build step. |
 | Retrieval with citations | `https://citebot-chi.vercel.app/ask` | A question is answered from one handbook, and the passage stays with the answer. | curl 200. No login. |
 
-Observability and tracing of AI runs had no public proof. Retrieval with citations takes that place. The search was the public trees of citebot, citebot-evals, retrieval-autopsy, desk, desk-index, the accounts API, this site, and style-distance. The only "tracing" hit was a Next file-tracing comment. There was no OpenTelemetry, LangSmith, or trace of an AI run.
+Observability and tracing of AI runs had no public proof. Retrieval with citations takes that place. The search was the public trees of citebot, citebot-evals, retrieval-autopsy, desk, desk-index, this site, and style-distance. The only "tracing" hit was a Next file-tracing comment. There was no OpenTelemetry, LangSmith, or trace of an AI run.
 
 Also checked, and not a gallery row:
 
 - `https://citebot-chi.vercel.app/evals` returned 200. It is the golden run already on the flagship. The evaluation row uses the offline question set.
-- `https://github.com/jakob-alexander2000/ledger-api` is public and curl returned 200. It is a Kotlin accounts API with tests and Docker. It is not TypeScript, not an eval, not an agent, not retrieval with citations, and it has no trace of an AI run.
 - `https://github.com/jakob-alexander2000/site/blob/main/.github/workflows/test.yml` is public and curl returned 200. It typechecks and tests this site. The TypeScript row uses the shipped app's CI, which typechecks and builds the live app.
 
 ### Omitted, no public proof
 
 - MCP. No public file and no public page.
 - Observability and tracing of AI runs. Substituted above.
-- Apply Desk, Vierspur, the phone agent, and the routing study. Not public. Not linked. No empty slot.
+- Private repos. Not linked. No empty slot.
 
-The rendered page does not contain those names. Test: `skills gallery shows the five public skills`.
+The rendered page does not name MCP or observability. Test: `skills gallery shows the five public skills`.
 
 ### The section
 
@@ -126,7 +125,6 @@ The same ten dimensions as Close Reading section 8: central idea, functional fit
 ## 9. Fair play
 
 - The inventory was checked on 11 Nov 2026 against the public URLs above. Nothing in the table was inferred from a private repo.
-- The accounts API is public and was still left out, because it does not show one of these skills.
 - This site's own CI is public and was still left out of the TypeScript row, so the row would not point at a branch that is not what is shipped.
 - The golden eval page was left out of the evaluation row so the row would not repeat the flagship's recorded run.
 - Toolbar heights and owner-device checks stay in the Close Reading spec. This addendum does not mark them done.
