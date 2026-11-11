@@ -11,18 +11,20 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/scan.test.ts",
+    "test:unit": "node --import tsx --test test/contact.test.tsx test/scan.test.ts test/public-face.test.tsx test/close-reading.test.tsx test/fixtures-pin.test.ts test/perf-budget.test.ts test/devices.test.ts test/stage.test.ts test/leftovers.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
+    "check:live": "node --import tsx scripts/check-live.ts",
+    "measure:preview": "node scripts/measure-preview.mjs",
     "test": "npm run test:unit && npm run test:scan && npm run test:e2e"
   },
   "dependencies": {
     "next": "16.4.5",
     "react": "19.3.1",
-    "react-dom": "19.3.1",
-    "rough-notation": "^0.5.1"
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
@@ -30,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "lighthouse": "^13.6.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"

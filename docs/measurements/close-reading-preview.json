@@ -1,0 +1,67 @@
+{
+  "url": "https://jakobalex-git-cursor-close-394395-jakobalexander2000s-projects.vercel.app",
+  "profile": "iphone-12-pro",
+  "dpr": 2,
+  "runs": [
+    {
+      "lcpMs": 786.9485,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 85,
+      "inpMs": 60
+    },
+    {
+      "lcpMs": 762.0495,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 80,
+      "inpMs": 58
+    },
+    {
+      "lcpMs": 762.3759999999999,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 88,
+      "inpMs": 60
+    },
+    {
+      "lcpMs": 761.796,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 99,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 95,
+      "inpMs": 57
+    },
+    {
+      "lcpMs": 766.0225000000002,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 42,
+      "inpMs": 58
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 # Jakob Alex
 
-Personal site. An opening line and three looks: CiteBot, Retrieval Autopsy, and Voice check (Style Distance).
+I build AI products that companies can trust: answers tied to their sources, interfaces people actually understand.
 
 ## Local
 
-Node.js 22 or newer (`engines` in package.json; GitHub Actions uses 22).
+Node.js 22 or newer.
 
 ```bash
 npm install
@@ -19,5 +19,3 @@ npm run typecheck
 npm run lint
 npm test
 ```
-
-`npm test` runs the unit checks, the copy scan against source and the production build, then Playwright in Chromium and WebKit. Build first so the scan can read `.next`.
