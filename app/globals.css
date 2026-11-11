@@ -171,6 +171,33 @@ html[data-reduced="flat"] canvas[data-stage] { display: none; }
   list-style: none;
 }
 
+[data-skill-list] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+[data-block="skills"] h2 { margin-bottom: 8px; }
+
+[data-diagram] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 8px;
+}
+
+[data-diagram] li {
+  flex: 0 1 auto;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  min-height: 44px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+}
+
 .matrix { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 em {

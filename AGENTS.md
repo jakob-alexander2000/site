@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Close Reading. Read `docs/specs/close-reading.md` and `DESIGN.md` before changing type, color, or motion.
 
-The home page reads `lib/flagship.ts` and `lib/proof-shelf.ts`. Swapping the flagship replaces that definition. Adding a shelf entry appends a definition. Do not branch on an entry id in `app/` or `components/`.
+The home page reads `lib/flagship.ts`, `lib/proof-shelf.ts`, and `lib/skills.ts`. Swapping the flagship replaces that definition. Adding a shelf entry or a skill appends a definition. Do not branch on an entry id in `app/` or `components/`.
 
 `lib/contact.ts` is the only contact config. `phone` stays `null`. `email` is the one allowed address (`ALLOWED_EMAIL`). The visible links say GitHub and Email.
 

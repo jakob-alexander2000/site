@@ -24,9 +24,9 @@ const skills = [
   },
   {
     name: "TypeScript",
-    line: "I typecheck CiteBot in CI, and that same CI builds it.",
+    line: "I typecheck the handbook app in CI, and that same CI builds it.",
     steps: ["Typecheck", "Build"],
-    label: "Typecheck",
+    label: "CI",
     href: "https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml",
   },
   {
@@ -105,9 +105,6 @@ test("reduced motion keeps the skill diagrams", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const problems: string[] = [];
-  if ((await page.locator("html")).getAttribute("data-reduced") !== "flat") {
-    // attribute is read below; keep the assertion in the collected problems
-  }
   const reduced = await page.locator("html").getAttribute("data-reduced");
   if (reduced !== "flat") problems.push("reduced motion is not flat");
   const steps = await page.locator("[data-diagram] li").count();

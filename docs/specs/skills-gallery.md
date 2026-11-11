@@ -77,7 +77,7 @@ The gallery is one `data-block="skills"` section after the proof shelf. It has f
 | Evaluation | I score example answers against the handbook, and the run does not call a model. | Example answers, Score, No model | Question set | `https://github.com/jakob-alexander2000/citebot-evals` |
 | Verification | I mark the condition a sample answer drops. | Claim, Passage, Verdict | Checks | `https://retrieval-autopsy.vercel.app/` |
 | Tool use | I stop the handbook agent after three tool calls, then the draft is checked. | Plan, At most three tools, Draft, Check | Harness | `https://citebot-chi.vercel.app/harness` |
-| TypeScript | I typecheck CiteBot in CI, and that same CI builds it. | Typecheck, Build | Typecheck | `https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml` |
+| TypeScript | I typecheck the handbook app in CI, and that same CI builds it. | Typecheck, Build | CI | `https://github.com/jakob-alexander2000/citebot/blob/main/.github/workflows/ci.yml` |
 | Retrieval | I answer from one handbook and keep the passage next to the answer. | Question, Passage, Cited answer | Ask | `https://citebot-chi.vercel.app/ask` |
 
 `lib/skills.ts` is the only copy of those rows. `app/` and `components/` do not contain the proof URLs or a branch on a skill id. A test can pass five dummy rows and the page renders those rows instead. Test: `the shipped skills are the five public proofs`. Test: `five dummy skills render from a test definition`.
@@ -109,7 +109,7 @@ Unit, in `test/skills.test.tsx`:
 - `the shipped skills are the five public proofs`
 - `five dummy skills render from a test definition`
 
-The section is not on the page yet. Those tests are red for that reason.
+The section renders from `lib/skills.ts`. The tests above are the check.
 
 ## 7. Standing rules
 
@@ -133,11 +133,15 @@ The same ten dimensions as Close Reading section 8: central idea, functional fit
 
 ## 10. Done
 
+Local evidence is from 11 Nov 2026. Playwright on Chromium and WebKit passed 154 tests, 12 skipped, with the gallery on the page. The 12 skips are the original WebKit-only toolbar viewports on Chromium. After the diagram boxes were sized to their text, the three gallery tests and the axe checks passed again on both engines. Unit tests passed, including the shipped-skill lock and the five dummy rows. The gallery is server HTML. It adds no client module and no script.
+
+One pass on the gallery, after the diagrams were drawn content-sized instead of stretched. Self-score: central idea 4, functional fit 5, hierarchy 4, typography 4, spacing and grid 4, color restraint 5, explanatory completeness 4, clear action 4, factual rigor 5, detail and accessibility 4. Total 43. Nothing below 4.
+
 | Check | Test | Status |
 | --- | --- | --- |
-| Five public skills, lines, diagrams, and proof links | skills gallery shows the five public skills | Not checked |
-| Phone and iPad fit | skill diagrams fit the phone and the iPad | Not checked |
-| Reduced motion | reduced motion keeps the skill diagrams | Not checked |
-| Definition module | the shipped skills are the five public proofs | Not checked |
-| Dummy rows | five dummy skills render from a test definition | Not checked |
-| Rubric, one pass | review: rubric | Not checked |
+| Five public skills, lines, diagrams, and proof links | skills gallery shows the five public skills | Pass |
+| Phone and iPad fit | skill diagrams fit the phone and the iPad | Pass |
+| Reduced motion | reduced motion keeps the skill diagrams | Pass |
+| Definition module | the shipped skills are the five public proofs | Pass |
+| Dummy rows | five dummy skills render from a test definition | Pass |
+| Rubric, one pass | review: rubric | Pass |
