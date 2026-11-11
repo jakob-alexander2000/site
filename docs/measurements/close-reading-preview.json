@@ -4,64 +4,64 @@
   "dpr": 2,
   "runs": [
     {
-      "lcpMs": 813.767,
+      "lcpMs": 786.9485,
       "cls": 0,
       "fpsMedian": 60,
-      "initialJsGzip": 143772,
-      "totalGzip": 143772,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
       "performance": 100,
       "accessibility": 100,
       "bestPractices": 100,
-      "tbtMs": 79,
+      "tbtMs": 85,
       "inpMs": 60
     },
     {
-      "lcpMs": 763.841,
+      "lcpMs": 762.0495,
       "cls": 0,
       "fpsMedian": 60,
-      "initialJsGzip": 143772,
-      "totalGzip": 143772,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
       "performance": 100,
       "accessibility": 100,
       "bestPractices": 100,
-      "tbtMs": 42,
+      "tbtMs": 80,
+      "inpMs": 58
+    },
+    {
+      "lcpMs": 762.3759999999999,
+      "cls": 0,
+      "fpsMedian": 60,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "tbtMs": 88,
       "inpMs": 60
     },
     {
-      "lcpMs": 765.5730000000001,
+      "lcpMs": 761.796,
       "cls": 0,
       "fpsMedian": 60,
-      "initialJsGzip": 143772,
-      "totalGzip": 143772,
-      "performance": 100,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
+      "performance": 99,
       "accessibility": 100,
       "bestPractices": 100,
-      "tbtMs": 26,
+      "tbtMs": 95,
       "inpMs": 57
     },
     {
-      "lcpMs": 767.4929999999999,
+      "lcpMs": 766.0225000000002,
       "cls": 0,
       "fpsMedian": 60,
-      "initialJsGzip": 143772,
-      "totalGzip": 143772,
+      "initialJsGzip": 142807,
+      "totalGzip": 142807,
       "performance": 100,
       "accessibility": 100,
       "bestPractices": 100,
       "tbtMs": 42,
-      "inpMs": 59
-    },
-    {
-      "lcpMs": 765.245,
-      "cls": 0,
-      "fpsMedian": 60,
-      "initialJsGzip": 143772,
-      "totalGzip": 143772,
-      "performance": 100,
-      "accessibility": 100,
-      "bestPractices": 100,
-      "tbtMs": 51,
-      "inpMs": 59
+      "inpMs": 58
     }
   ]
 }
