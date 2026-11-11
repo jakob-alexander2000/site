@@ -55,5 +55,5 @@ test("the spec names every viewport, the copy, and the tests", () => {
   const owner = rows.filter((row) => row.includes("Owner"));
   assert.ok(owner.length >= 4, "owner device rows");
   for (const row of owner) assert.match(row, /Not checked/, row);
-  for (const row of rows) assert.match(row, /Pass|Not checked/, row);
+  for (const row of rows) assert.match(row, /Pass|Not checked|Not met/, row);
 });

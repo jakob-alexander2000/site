@@ -15,7 +15,7 @@
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
     "check:live": "node --import tsx scripts/check-live.ts",
-    "measure:preview": "node --import tsx scripts/measure-preview.ts",
+    "measure:preview": "node scripts/measure-preview.mjs",
     "test": "npm run test:unit && npm run test:scan && npm run test:e2e"
   },
   "dependencies": {

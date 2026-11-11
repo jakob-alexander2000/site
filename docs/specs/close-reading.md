@@ -344,7 +344,7 @@ Impeccable pass, one, on this head. What changed after looking at the full-page 
 | No hard-coded ids in app or components | app and components do not hard-code shelf or flagship ids | Pass |
 | Source maps off | production source maps stay off | Pass |
 | Company-target list removed from the public repo | row 19, scanner and tests | Pass |
-| Initial JS, total, LCP, CLS, Lighthouse | deployed preview meets the performance budget | Not checked |
+| Initial JS measured 143772 bytes, over the 90,000 cap. Total 143772 is under 260,000. LCP 814, 764, 766, 767, 765 ms. CLS 0 on all five. TBT 79, 42, 26, 42, 51 ms. Sentence tap 60, 60, 57, 59, 59 ms. Frame-rate medians 60, 60, 60, 60, 60. Lighthouse performance 100, accessibility 100, best practices 100 on all five. | deployed preview meets the performance budget | Not met |
 | Owner iPhone Safari | owner checklist steps 1 to 4 | Not checked |
 | Owner iPhone Chrome | owner checklist step 5 | Not checked |
 | Owner iPad mini Safari | owner checklist step 6 | Not checked |
