@@ -1,4 +1,4 @@
-SHA_PENDING
+df147e36cfbfc97fa15cd3dfb0e1d1cc01314501
 Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-reduced-motion.png.
 Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle.
 390x844 exploded stack: 65 frames, median 16.7 ms, p95 16.7 ms, 70.8 percent at or under 16.7 ms.
