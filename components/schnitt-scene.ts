@@ -46,9 +46,12 @@ function placeCallouts(stage: HTMLElement) {
     const width = 132;
     const room = box.left - root.left;
     if (stage.clientWidth < 700) {
-      const y = box.top + box.height * 0.08 - root.top;
-      callout.style.transform = `translate(4px, ${y}px)`;
-      parts.push(`<path d="M 104 ${y.toFixed(1)} L ${(pr.left - root.left).toFixed(1)} ${(pr.top + pr.height / 2 - root.top).toFixed(1)}" />`);
+      const y = box.top - root.top;
+      callout.style.transform = `translate(0px, ${y}px)`;
+      const labelRight = callout.offsetWidth;
+      const sheetLeft = box.left - root.left;
+      const yLine = y + Math.min(11, callout.offsetHeight / 2);
+      parts.push(`<path d="M ${labelRight.toFixed(1)} ${yLine.toFixed(1)} L ${Math.max(labelRight + 4, sheetLeft).toFixed(1)} ${yLine.toFixed(1)}" />`);
     } else if (room < width + 18) {
       const lx = Math.max(4, box.left - root.left);
       const ly = box.top - root.top - 34;
@@ -73,11 +76,13 @@ function placeThread(stage: HTMLElement) {
   const root = stage.getBoundingClientRect();
   const a = from.getBoundingClientRect();
   const b = to.getBoundingClientRect();
-  const x1 = a.right - root.left;
   const y1 = a.top + a.height / 2 - root.top;
   const y2 = b.top + b.height / 2 - root.top;
-  const gutter = Math.min(stage.clientWidth - 10, Math.max(a.right, b.right) - root.left + 16);
-  const x2 = b.right - root.left;
+  const phone = stage.clientWidth < 700;
+  const limit = stage.clientWidth - 6;
+  const x1 = phone ? Math.min(a.right - root.left, limit) : a.right - root.left;
+  const x2 = phone ? Math.min(b.right - root.left, limit) : b.right - root.left;
+  const gutter = phone ? Math.min(limit, Math.max(x1, x2) + 8) : Math.min(stage.clientWidth - 10, Math.max(a.right, b.right) - root.left + 16);
   svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
   path.setAttribute("d", `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y2.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
   stage.dataset.ties = "1";
@@ -122,8 +127,8 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const narrow = stage.clientWidth < 700;
     const sheet = new CSS3DObject(slot);
     sheet.rotation.order = "YXZ";
-    sheet.rotation.y = narrow ? Math.PI / 24 : Math.PI / 10;
-    sheet.rotation.x = narrow ? -Math.PI / 22 : -Math.PI / 7;
+    sheet.rotation.y = narrow ? Math.PI / 28 : Math.PI / 10;
+    sheet.rotation.x = narrow ? -Math.PI / 36 : -Math.PI / 7;
     rig.add(sheet);
 
     const fill = new MeshBasicMaterial({
@@ -175,23 +180,54 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
 
     const sample = cards[0];
     const rawH = sample?.cssH ?? 140;
-    const fit = phone ? 0.92 : 1;
+    const fit = 1;
     const planeH = rawH * fit;
-    const gap0 = phone ? 88 : planeH * 1.04;
-    const gap1 = phone ? 176 : planeH * 1.62;
+    const gap0 = planeH * 1.04;
+    const gap1 = planeH * 1.62;
     const gap = gap0 + progress * (gap1 - gap0);
-    const x = phone ? 36 : width * 0.08;
+    const x = phone ? 0 : width * 0.08;
 
-    cards.forEach((item, index) => {
-      const y = (1.5 - index) * gap;
-      item.sheet.scale.set(fit, fit, fit);
-      item.card.scale.set(fit, fit, 1);
-      item.edge?.scale.set(fit, fit, 1);
-      item.rig.position.set(x, y, (index - 1.5) * (10 + progress * 48));
-    });
-
-    camera.position.set(dist * 0.04, dist * 0.02 + progress * 12, dist);
-    look.set(x * 0.35, progress * 8, 0);
+    if (phone) {
+      const tilt = 6;
+      let pad = 12 + progress * 10;
+      let fitPhone = 1;
+      const span = () => cards.reduce((sum, item) => sum + item.cssH * fitPhone + tilt, 0) + pad * (cards.length - 1);
+      if (span() > height - 6) {
+        const cssSum = cards.reduce((sum, item) => sum + item.cssH, 0);
+        const room = height - 20 - tilt * cards.length - 12 * (cards.length - 1);
+        fitPhone = Math.min(1, room / Math.max(cssSum, 1));
+        pad = 12;
+      }
+      const used = span();
+      const inset = Math.max(4, (height - used) / 2);
+      const overflow = inset + used - (height - 12);
+      const lift = Math.max(0, Math.min(overflow, inset - 4));
+      let cursor = inset;
+      cards.forEach((item, index) => {
+        const box = item.cssH * fitPhone + tilt;
+        const center = cursor + (item.cssH * fitPhone) / 2;
+        cursor += box + pad;
+        item.sheet.scale.set(fitPhone, fitPhone, fitPhone);
+        item.card.scale.set(fitPhone, fitPhone, 1);
+        item.edge?.scale.set(fitPhone, fitPhone, 1);
+        const sheetW = item.cssW * fitPhone;
+        const worldX = 132 + sheetW / 2 - width / 2;
+        const worldY = height / 2 - center + lift;
+        item.rig.position.set(worldX, worldY, (index - 1.5) * (6 + progress * 18));
+      });
+      camera.position.set(0, 0, dist);
+      look.set(0, 0, 0);
+    } else {
+      cards.forEach((item, index) => {
+        const y = (1.5 - index) * gap;
+        item.sheet.scale.set(fit, fit, fit);
+        item.card.scale.set(fit, fit, 1);
+        item.edge?.scale.set(fit, fit, 1);
+        item.rig.position.set(x, y, (index - 1.5) * (10 + progress * 48));
+      });
+      camera.position.set(dist * 0.04, dist * 0.02 + progress * 12, dist);
+      look.set(x * 0.35, progress * 8, 0);
+    }
     camera.lookAt(look);
     scene.updateMatrixWorld(true);
     renderer.render(scene, camera);
