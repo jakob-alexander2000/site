@@ -167,7 +167,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
   padding: 12px 14px 14px;
   transform: matrix(0.866, 0.5, -0.866, 0.5, 0, 0);
   transform-origin: left center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .callout {
@@ -267,13 +267,20 @@ html[data-schnitt="gl"] .schnitt-sticky {
   color: var(--fail);
 }
 
+.fail-text {
+  position: relative;
+  display: inline-block;
+}
+
 .fail-loop {
   position: absolute;
-  left: 2.6rem;
-  right: 4px;
-  top: -4px;
-  width: calc(100% - 3rem);
-  height: 34px;
+  left: -7px;
+  right: -8px;
+  top: -7px;
+  bottom: -6px;
+  width: auto;
+  height: auto;
+  overflow: visible;
   pointer-events: none;
 }
 
@@ -478,7 +485,7 @@ html[data-schnitt="flat"] .plane-slot {
   .schnitt-sticky {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
-    padding: 8px 16px 10px;
+    padding: 4px 10px 8px;
   }
 
   .schnitt-copy,
@@ -489,13 +496,29 @@ html[data-schnitt="flat"] .plane-slot {
     grid-row: auto;
   }
 
+  .schnitt-head {
+    gap: 0 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .schnitt-nav {
+    gap: 0 2px;
+    margin-right: 0;
+  }
+
   .schnitt h1 {
-    font-size: 1rem;
+    font-size: 0.92rem;
+    letter-spacing: -0.05em;
   }
 
   .schnitt-head a {
-    font-size: 14px;
-    gap: 0;
+    flex: 0 0 auto;
+    font-size: 13px;
+    min-width: 44px;
+    padding: 0 1px;
+    justify-content: center;
+    white-space: nowrap;
   }
 
   .display {
@@ -513,15 +536,33 @@ html[data-schnitt="flat"] .plane-slot {
     margin-top: 4px;
   }
 
-  .numeral {
+  .schnitt-copy {
     position: static;
-    font-size: 2.6rem;
+  }
+
+  .numeral {
+    position: absolute;
+    left: -0.06em;
+    bottom: -0.28em;
+    z-index: 4;
     margin: 0;
+    height: 0.86em;
+    overflow: hidden;
+    font-size: 8.75rem;
+    line-height: 0.68;
+    pointer-events: none;
+  }
+
+  .schnitt-foot {
+    position: relative;
+    z-index: 6;
+    padding-left: 6.5rem;
+    background: transparent;
   }
 
   .sheet-title,
   .body {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .leader-note {
@@ -534,15 +575,28 @@ html[data-schnitt="flat"] .plane-slot {
   .mark,
   .evidence,
   .schnitt-foot {
-    font-size: 12px;
+    font-size: 13px;
+  }
+
+  .file {
+    overflow-wrap: anywhere;
   }
 
   .sheet {
     transform: matrix(0.96, 0.22, -0.18, 0.94, 0, 0);
   }
 
+  html[data-schnitt="gl"] .sheet {
+    width: 14.5rem;
+  }
+
   .plane-slot {
     width: min(100%, 22rem);
+  }
+
+  .callout {
+    max-width: 6.4rem;
+    background: var(--paper);
   }
 }
 

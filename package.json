@@ -14,7 +14,8 @@
     "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/scan.test.ts test/schnitt-run.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
-    "test": "npm run test:unit && npm run test:scan && npm run test:e2e"
+    "test": "npm run test:unit && npm run test:scan && npm run test:e2e",
+    "verify": "npm run typecheck && npm run lint && npm run build && npm test"
   },
   "dependencies": {
     "next": "16.4.5",

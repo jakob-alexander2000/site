@@ -45,7 +45,11 @@ function placeCallouts(stage: HTMLElement) {
     const pr = peg.getBoundingClientRect();
     const width = 132;
     const room = box.left - root.left;
-    if (room < width + 18) {
+    if (stage.clientWidth < 700) {
+      const y = box.top + box.height * 0.08 - root.top;
+      callout.style.transform = `translate(4px, ${y}px)`;
+      parts.push(`<path d="M 104 ${y.toFixed(1)} L ${(pr.left - root.left).toFixed(1)} ${(pr.top + pr.height / 2 - root.top).toFixed(1)}" />`);
+    } else if (room < width + 18) {
       const lx = Math.max(4, box.left - root.left);
       const ly = box.top - root.top - 34;
       callout.style.transform = `translate(${lx}px, ${ly}px)`;
@@ -115,10 +119,11 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const cssW = Math.max(slot.offsetWidth, 220);
     const cssH = Math.max(slot.offsetHeight, 96);
     const rig = new Group();
+    const narrow = stage.clientWidth < 700;
     const sheet = new CSS3DObject(slot);
     sheet.rotation.order = "YXZ";
-    sheet.rotation.y = Math.PI / 10;
-    sheet.rotation.x = -Math.PI / 7;
+    sheet.rotation.y = narrow ? Math.PI / 24 : Math.PI / 10;
+    sheet.rotation.x = narrow ? -Math.PI / 22 : -Math.PI / 7;
     rig.add(sheet);
 
     const fill = new MeshBasicMaterial({
@@ -170,12 +175,12 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
 
     const sample = cards[0];
     const rawH = sample?.cssH ?? 140;
-    const fit = phone ? 0.86 : 1;
+    const fit = phone ? 0.92 : 1;
     const planeH = rawH * fit;
-    const gap0 = planeH * (phone ? 0.7 : 1.04);
-    const gap1 = planeH * (phone ? 1.22 : 1.62);
+    const gap0 = phone ? 88 : planeH * 1.04;
+    const gap1 = phone ? 176 : planeH * 1.62;
     const gap = gap0 + progress * (gap1 - gap0);
-    const x = phone ? 28 : width * 0.08;
+    const x = phone ? 36 : width * 0.08;
 
     cards.forEach((item, index) => {
       const y = (1.5 - index) * gap;

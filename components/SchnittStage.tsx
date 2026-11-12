@@ -88,16 +88,19 @@ export function SchnittStage({ run }: { run: SchnittRun }) {
           {fail ? (
             <p className="body claim is-fail">
               <span className="mark fail">FAIL</span>
-              <span className="fail-text">{fail.text}</span>
-              <svg className="fail-loop" viewBox="0 0 120 36" aria-hidden="true" data-fail="loop">
-                <path
-                  d="M8 20 C 10 6, 46 4, 70 10 C 98 17, 104 30, 78 33 C 48 36, 18 30, 16 20"
-                  fill="none"
-                  stroke="#C6302A"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <span className="fail-text">
+                {fail.text}
+                <svg className="fail-loop" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true" data-fail="loop">
+                  <path
+                    d="M6 20 C 6 6, 94 6, 94 20 C 94 34, 6 34, 6 20"
+                    fill="none"
+                    stroke="#C6302A"
+                    strokeWidth="2.4"
+                    vectorEffect="non-scaling-stroke"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
             </p>
           ) : null}
         </Sheet>
