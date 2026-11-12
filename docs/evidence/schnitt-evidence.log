@@ -1,4 +1,4 @@
-1a1cc0d28c253245c6d7f138176b1bff7511c1aa
+5618b29b1c02e2c44980e82280429562b299999f
 Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-end-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-end-scroll.png, schnitt-phone-390x844-reduced-motion.png.
 Phone 390x844 shots in that commit: scroll 0, mid-scroll, end-scroll, reduced motion.
 Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle, scrolling the hero for 1.2s.
