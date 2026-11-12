@@ -1,5 +1,6 @@
-2b299c98349a69730511afb444068d59b9f2030e
-Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-end-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-reduced-motion.png.
+1a1cc0d28c253245c6d7f138176b1bff7511c1aa
+Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-end-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-end-scroll.png, schnitt-phone-390x844-reduced-motion.png.
+Phone 390x844 shots in that commit: scroll 0, mid-scroll, end-scroll, reduced motion.
 Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle, scrolling the hero for 1.2s.
 390x844: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share of frames above 20 ms = 0.
 1440x900: 64 frames, median 16.70 ms, p95 16.80 ms, max 166.70 ms, share of frames above 20 ms = 0.02.
