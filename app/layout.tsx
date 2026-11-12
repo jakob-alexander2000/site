@@ -6,7 +6,7 @@ import "./globals.css";
 
 const sans = Geist({
   subsets: ["latin"],
-  weight: ["100", "200"],
+  weight: ["100", "200", "300"],
   display: "swap",
   variable: "--font-sans",
   adjustFontFallback: true,
@@ -53,8 +53,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`} suppressHydrationWarning>
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var c=document.createElement("canvas");var o={failIfMajorPerformanceCaveat:false};var gl=c.getContext("webgl2",o)||c.getContext("webgl",o);var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.documentElement.dataset.schnitt=(!gl||reduce)?"flat":"gl";}catch(e){document.documentElement.dataset.schnitt="flat";}})();',
+          }}
+        />
         <a className="skip" href="#top">
           Skip to content
         </a>

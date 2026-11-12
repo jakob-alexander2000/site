@@ -1,0 +1,600 @@
+.schnitt {
+  --paper: #f7f7f5;
+  --sheet: #fbfaf7;
+  --ink: #111111;
+  --mute: #3a3a36;
+  --fail: #c6302a;
+  --fail-on-ink: #ff8a84;
+  --verdict: #111111;
+  --verdict-ink: #f3f2ee;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+}
+
+.schnitt-sticky {
+  box-sizing: border-box;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(26rem, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  column-gap: 28px;
+  row-gap: 12px;
+  padding: 18px clamp(20px, 5vw, 88px) 14px;
+  align-items: stretch;
+}
+
+html[data-schnitt="gl"] .schnitt {
+  height: 200vh;
+}
+
+html[data-schnitt="gl"] .schnitt-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.schnitt-head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 28px;
+}
+
+.schnitt h1 {
+  font-size: 1.35rem;
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.schnitt a {
+  color: var(--ink);
+}
+
+.schnitt-nav,
+.schnitt .contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schnitt-nav {
+  margin-right: auto;
+}
+
+.schnitt-nav a,
+.schnitt .contact a,
+.actions a {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.actions a:last-child {
+  color: var(--mute);
+  border-bottom-color: #b9b8b2;
+}
+
+.schnitt-copy {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  max-width: 38rem;
+  position: relative;
+  z-index: 2;
+}
+
+.display {
+  margin: 0;
+  max-width: 9.2em;
+  color: var(--ink);
+  font-weight: 200;
+  font-size: clamp(2.6rem, 4.6vw, 4.7rem);
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.support {
+  margin: 18px 0 0;
+  max-width: 38rem;
+  color: var(--mute);
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 18px 0 0;
+}
+
+.schnitt-stage {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+
+html[data-schnitt="gl"] .flat-planes {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.flat-planes {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.plane-row {
+  display: grid;
+  grid-template-columns: 8.2rem minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  width: min(100%, 24rem);
+}
+
+.leader {
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.leader-name,
+.file,
+.question,
+.mark,
+.evidence,
+.schnitt-foot,
+.eval-caption {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.leader-name,
+.file,
+.question,
+.mark,
+.evidence {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.leader-name,
+.file {
+  color: var(--ink);
+  margin: 0;
+}
+
+.leader-note {
+  color: var(--mute);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.sheet {
+  background: var(--sheet);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 10px 12px 12px;
+}
+
+.sheet-title {
+  margin: 6px 0;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.body {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.question {
+  margin: 6px 0 8px;
+  color: var(--mute);
+}
+
+.claim {
+  position: relative;
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translateY(-1px);
+}
+
+.span,
+[data-anchor="passage"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.is-fail .fail-text {
+  position: relative;
+  z-index: 1;
+}
+
+.mark {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.mark.fail {
+  color: var(--fail);
+}
+
+.pen {
+  position: absolute;
+  left: 3.2rem;
+  top: -6px;
+  width: calc(100% - 3.5rem);
+  height: 44px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.verdict {
+  background: var(--verdict);
+  color: var(--verdict-ink);
+  border-color: var(--verdict);
+}
+
+.verdict .file,
+.verdict .leader-name {
+  color: var(--verdict-ink);
+}
+
+.verdict .mark.fail {
+  color: var(--fail-on-ink);
+}
+
+.verdict-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.verdict-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.evidence {
+  color: #c8c7c2;
+}
+
+.schnitt {
+  overflow-x: clip;
+}
+
+.schnitt-gl,
+.schnitt-css,
+.tie-svg,
+.crops {
+  position: absolute;
+  inset: 0;
+}
+
+.schnitt-gl {
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.schnitt-css {
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tie-svg {
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.crops {
+  z-index: 4;
+  pointer-events: none;
+}
+
+.crops span {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+}
+
+.crops span::before,
+.crops span::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+
+.crops span::before {
+  left: 0;
+  top: 6px;
+  width: 13px;
+  height: 1px;
+}
+
+.crops span::after {
+  left: 6px;
+  top: 0;
+  width: 1px;
+  height: 13px;
+}
+
+.crops span:nth-child(1) {
+  top: 8px;
+  left: 8px;
+}
+
+.crops span:nth-child(2) {
+  top: 8px;
+  right: 8px;
+}
+
+.crops span:nth-child(3) {
+  bottom: 8px;
+  left: 8px;
+}
+
+.crops span:nth-child(4) {
+  right: 8px;
+  bottom: 8px;
+}
+
+.numeral {
+  position: absolute;
+  z-index: 2;
+  left: clamp(20px, 5vw, 88px);
+  bottom: 52px;
+  margin: 0;
+  font-weight: 100;
+  font-size: clamp(6.5rem, 12vw, 9rem);
+  letter-spacing: -0.08em;
+  line-height: 0.8;
+  color: var(--ink);
+  pointer-events: none;
+  user-select: none;
+}
+
+.schnitt-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin: 0;
+  color: var(--mute);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.schnitt-foot p {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.schnitt-foot p:last-child {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.schnitt a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.schnitt ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+html[data-schnitt="flat"] .schnitt {
+  height: auto;
+}
+
+html[data-schnitt="flat"] .schnitt-sticky {
+  position: relative;
+  height: auto;
+  overflow: visible;
+}
+
+html[data-schnitt="flat"] .schnitt-stage {
+  min-height: 0;
+}
+
+html[data-schnitt="flat"] .schnitt-gl {
+  display: none;
+}
+
+html[data-schnitt="flat"] .numeral {
+  position: relative;
+  inset: auto;
+  display: block;
+  margin-top: 8px;
+  transform: none;
+  font-size: clamp(6rem, 28vw, 12rem);
+  line-height: 0.7;
+  overflow: hidden;
+  height: 0.42em;
+}
+
+@media (max-width: 800px) {
+  html[data-schnitt="gl"] .schnitt {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  html[data-schnitt="gl"] .schnitt-sticky {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+
+  .schnitt-sticky {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(36rem, auto) auto;
+    padding: 12px 20px 16px;
+  }
+
+  .schnitt-stage {
+    min-height: 36rem;
+  }
+
+  .schnitt-copy,
+  .schnitt-stage,
+  .schnitt-head,
+  .schnitt-foot {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .schnitt-copy {
+    align-self: start;
+  }
+
+  .display {
+    font-size: clamp(2.35rem, 12vw, 3.1rem);
+    max-width: 11em;
+  }
+
+  .support {
+    font-size: 16px;
+  }
+
+  html[data-schnitt="gl"] .flat-planes,
+  .schnitt.is-stack .flat-planes {
+    position: relative;
+    inset: auto;
+    overflow: visible;
+  }
+
+  html[data-schnitt="gl"] .schnitt-gl,
+  .schnitt.is-stack .schnitt-gl,
+  .schnitt.is-stack .schnitt-css {
+    display: none;
+  }
+
+  .plane-row {
+    width: 100%;
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+  }
+
+  .body,
+  .sheet-title {
+    font-size: 16px;
+  }
+
+  .leader-name,
+  .leader-note,
+  .file,
+  .question,
+  .mark,
+  .evidence,
+  .schnitt-foot {
+    font-size: 12px;
+  }
+
+  .numeral {
+    position: relative;
+    left: 0;
+    bottom: auto;
+    display: block;
+    margin: 12px 0 0;
+    font-size: 8.5rem;
+  }
+}
+
+@media (max-height: 420px) {
+  .display {
+    font-size: 1.7rem;
+    max-width: 18em;
+    line-height: 1.05;
+  }
+
+  .support {
+    margin-top: 8px;
+    font-size: 16px;
+  }
+
+  .actions {
+    margin-top: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schnitt {
+    height: auto;
+  }
+
+  .schnitt-sticky {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+
+  .schnitt-stage {
+    min-height: 0;
+  }
+
+  .flat-planes {
+    position: relative;
+    inset: auto;
+    overflow: visible;
+  }
+
+  .schnitt-gl {
+    display: none;
+  }
+
+  .numeral {
+    position: relative;
+    inset: auto;
+    display: block;
+    transform: none;
+    height: 0.42em;
+    overflow: hidden;
+    font-size: clamp(6rem, 28vw, 12rem);
+  }
+}

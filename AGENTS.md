@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Noir lookbook. Read DESIGN.md before changing type, color, or motion.
 
-The home page is the opening line plus the looks in `lib/looks.ts`. Each look needs one screenshot, a one-line caption, and a proof whose excerpt is on the page. Link the product page only when it is public. Otherwise the caption block says the product page is coming. `lib/shelf.ts` lists names that are not rendered.
+The home page opens with the Schnitt hero (`docs/specs/schnitt-hero.md`), then the looks in `lib/looks.ts`. Each look needs one screenshot, a one-line caption, and a proof whose excerpt is on the page. Link the product page only when it is public. Otherwise the caption block says the product page is coming. `lib/shelf.ts` lists names that are not rendered.
 
 `lib/contact.ts` is the only contact config. `phone` stays `null`, so no phone row renders. `email` is the one allowed address (`ALLOWED_EMAIL`), a `mailto:` link next to GitHub. The copy scan and the end-to-end test "no page shows an email address other than the contact address" fail on any other address.
 

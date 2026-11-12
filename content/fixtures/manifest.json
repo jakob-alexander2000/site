@@ -1,0 +1,17 @@
+{
+  "pinned": "2026-11-09",
+  "citebot": {
+    "commit": "2ec2319dd9b3a75e45d5e7773b3841f4afe3fff9",
+    "files": {
+      "tests/fixtures/verify-cases.json": "914692a2350b8acf39a0de7a66da6eaba65b1895",
+      "examples/nordlicht-corpus/pto-and-leave.md": "511f514b4742ebfc70af178224f59f1dd26543e5",
+      "evals/golden.json": "9723431d89acb45874b33f369aeae85071cc4c5c"
+    }
+  },
+  "citebotEvals": {
+    "commit": "b9e2c8ba3c2b8f5f61a1a6e79d6af4470d9b3a45",
+    "files": {
+      "reports/SAMPLE.md": "1db253014188239e23d1fa95a6c707359dce67bf"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "phone390": {
+    "viewport": "390x844",
+    "cpuThrottle": 4,
+    "layout": "exploded stack, WebGL scene not mounted",
+    "frames": 65,
+    "medianMs": 16.7,
+    "p95Ms": 16.7,
+    "shareAtMost16ms": 0.708,
+    "source": "playwright chromium test frame time while the layers separate"
+  },
+  "desktop1440": {
+    "viewport": "1440x900",
+    "cpuThrottle": 4,
+    "webgl": "swiftshader",
+    "frames": 73,
+    "medianMs": 16.7,
+    "p95Ms": 16.7,
+    "shareAtMost16ms": 0.616
+  },
+  "cls": 0,
+  "consoleErrors": 0,
+  "axeViolations": 0
+}

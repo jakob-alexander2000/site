@@ -1,0 +1,8 @@
+SHA_PENDING
+Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-reduced-motion.png.
+Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle.
+390x844 exploded stack: 65 frames, median 16.7 ms, p95 16.7 ms, 70.8 percent at or under 16.7 ms.
+1440x900 WebGL scene: 73 frames, median 16.7 ms, p95 16.7 ms, 61.6 percent at or under 16.7 ms.
+Hero CLS 0. Console errors 0. Axe violations 0.
+Playwright: 61 passed, 3 skipped. The skips are WebKit copies of the Chromium-only still capture, canvas-ink test, and frame-time test.
+Not checked: a physical iPhone, and frame rate on that phone.
