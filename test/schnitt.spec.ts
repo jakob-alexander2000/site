@@ -81,14 +81,14 @@ test("phone type is at least 11px and the stage is not a shrunk desktop", async 
     }
     const copy = document.querySelector(".schnitt-copy")?.getBoundingClientRect();
     const stage = document.querySelector(".schnitt-stage")?.getBoundingClientRect();
-    const row = document.querySelector(".plane-row")?.getBoundingClientRect();
+    const row = document.querySelector(".sheet")?.getBoundingClientRect();
     return {
       small,
       copyY: copy ? Math.round(copy.y) : null,
       stageY: stage ? Math.round(stage.y) : null,
       rowW: row ? Math.round(row.width) : null,
       below: Boolean(copy && stage && stage.y >= copy.y + 24),
-      wide: Boolean(row && row.width >= 200),
+      wide: Boolean(row && row.width >= 140),
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     };
   });
@@ -107,8 +107,11 @@ test("reduced motion keeps the exploded stack and skips the scroll scene", async
   await expect(page.locator(".claim", { hasText: "Full-time employees receive 30 days." })).toBeVisible();
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-ties", "1");
-  const position = await page.locator(".flat-planes").evaluate((node) => getComputedStyle(node).position);
-  expect(position).not.toBe("absolute");
+  const transform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
+  expect(transform.includes("matrix")).toBe(true);
+  const label = page.locator(".callout").first();
+  await expect(label).toBeVisible();
+  expect(await label.evaluate((node) => node.closest(".sheet") !== null)).toBe(false);
 });
 
 test("a blocked WebGL context still shows the sheets", async ({ page }) => {
@@ -197,16 +200,39 @@ test("frame time while the layers separate", async ({ page, browserName }) => {
   });
   await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   const sorted = [...samples].sort((a, b) => a - b);
-  const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
-  const p95 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] ?? 0;
-  const under16 = samples.filter((gap) => gap <= 16.7).length;
+  const mid = sorted.length % 2 === 1 ? sorted[(sorted.length - 1) / 2] : ((sorted[sorted.length / 2 - 1] ?? 0) + (sorted[sorted.length / 2] ?? 0)) / 2;
+  const p95 = sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1)] ?? 0;
+  const max = sorted[sorted.length - 1] ?? 0;
+  const over20 = samples.filter((gap) => gap > 20).length;
   console.log(
     JSON.stringify({
+      viewport: "390x844",
       frames: samples.length,
-      medianMs: Number(median.toFixed(2)),
+      medianMs: Number((mid ?? 0).toFixed(2)),
       p95Ms: Number(p95.toFixed(2)),
-      shareAtMost16ms: Number((under16 / Math.max(samples.length, 1)).toFixed(3)),
+      maxMs: Number(max.toFixed(2)),
+      shareOver20ms: Number((over20 / Math.max(samples.length, 1)).toFixed(3)),
     }),
   );
   expect(samples.length).toBeGreaterThan(10);
+});
+
+test("scroll pulls the tilted planes apart", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const gap = () =>
+    page.evaluate(() => {
+      const tops = [...document.querySelectorAll(".sheet")].map((node) => node.getBoundingClientRect().top).sort((a, b) => a - b);
+      return (tops[1] ?? 0) - (tops[0] ?? 0);
+    });
+  const start = await gap();
+  await page.evaluate(() => {
+    const node = document.querySelector(".schnitt");
+    const range = node ? node.clientHeight - window.innerHeight : 0;
+    window.scrollTo(0, range);
+  });
+  await page.waitForTimeout(80);
+  const end = await gap();
+  expect(end - start).toBeGreaterThan(48);
 });

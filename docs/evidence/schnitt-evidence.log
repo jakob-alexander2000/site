@@ -1,8 +1,7 @@
-df147e36cfbfc97fa15cd3dfb0e1d1cc01314501
-Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-reduced-motion.png.
-Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle.
-390x844 exploded stack: 65 frames, median 16.7 ms, p95 16.7 ms, 70.8 percent at or under 16.7 ms.
-1440x900 WebGL scene: 73 frames, median 16.7 ms, p95 16.7 ms, 61.6 percent at or under 16.7 ms.
-Hero CLS 0. Console errors 0. Axe violations 0.
-Playwright: 61 passed, 3 skipped. The skips are WebKit copies of the Chromium-only still capture, canvas-ink test, and frame-time test.
+SHA_PENDING
+Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-end-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-reduced-motion.png.
+Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle, scrolling the hero for 1.2s.
+390x844: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share of frames above 20 ms = 0.
+1440x900: 64 frames, median 16.70 ms, p95 16.80 ms, max 166.70 ms, share of frames above 20 ms = 0.02.
+The earlier pair of numbers disagreed because a cutoff at 16.7 ms splits the 60 Hz cluster (frames land near 16.67 ms and a few at 16.8 ms) while a rounded p95 still prints 16.7. p95 here is the sample at ceil(0.95 n) - 1. Max is the slowest gap. Hero CLS 0. Console errors 0. Axe violations 0.
 Not checked: a physical iPhone, and frame rate on that phone.

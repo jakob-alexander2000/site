@@ -68,8 +68,7 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | WebGL blocked still shows the sheets | `a blocked WebGL context still shows the sheets` | Pass, Chromium and WebKit |
 | Canvas pixels are not blank | `the WebGL canvas draws ink` | Pass on Chromium. Skipped on WebKit |
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
-| Frame time at 390×844, 4× CPU | `frame time while the layers separate` | Pass. 65 frames, median 16.7 ms, p95 16.7 ms, 70.8% at or under 16.7 ms. The phone layout is the exploded stack; the WebGL scene is the wide layout |
-| Frame time at 1440×900, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 73 frames, median 16.7 ms, p95 16.7 ms, 61.6% at or under 16.7 ms |
+| Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on: 64 frames, median 16.70 ms, p95 16.80 ms, max 166.70 ms, share above 20 ms = 0.02 (one hitch). |
 | Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run build`, `npm run lint`, `npm test` | Pass. 15 unit tests. Copy scan ok. Playwright 61 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
 | Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
 | Real iPhone Safari | — | Not checked |

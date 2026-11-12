@@ -189,9 +189,13 @@ for (const [name, viewport] of Object.entries(sizes)) {
       );
       await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
       await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute("href", "mailto:jdevacc2000@gmail.com");
-      await expect(page.getByRole("link", { name: "GitHub: https://github.com/jakob-alexander2000" })).toHaveAttribute(
+      await expect(page.getByRole("link", { name: "GitHub", exact: true })).toHaveAttribute(
         "href",
         "https://github.com/jakob-alexander2000",
+      );
+      await expect(page.getByRole("link", { name: "Email", exact: true })).toHaveAttribute(
+        "href",
+        "mailto:jdevacc2000@gmail.com",
       );
       const text = await page.locator("body").innerText();
       expect(text).not.toContain("Phone");
