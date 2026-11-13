@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { LAYERS, type LayerId } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
 import { mountSchnittScene, showExplodedFallback } from "@/components/schnitt-scene";
@@ -18,18 +18,42 @@ export function SchnittStage({ run }: { run: SchnittRun }) {
   const fail = run.sentences.find((sentence) => sentence.verdict === "fail");
   const passage = splitSpan(run.passage.text, run.passage.span);
 
+  useLayoutEffect(() => {
+    const stage = stageRef.current;
+    const canvas = canvasRef.current;
+    if (!stage || !canvas) return;
+    if (document.documentElement.dataset.schnitt !== "gl") {
+      showExplodedFallback(stage);
+      return;
+    }
+    try {
+      const attributes = {
+        alpha: true,
+        depth: true,
+        stencil: false,
+        antialias: false,
+        premultipliedAlpha: true,
+        preserveDrawingBuffer: true,
+        powerPreference: "low-power",
+        failIfMajorPerformanceCaveat: false,
+      } as const;
+      const gl = canvas.getContext("webgl2", attributes) || canvas.getContext("webgl", attributes);
+      if (!gl) throw new Error("WebGL context is missing");
+    } catch {
+      document.documentElement.dataset.schnitt = "flat";
+      showExplodedFallback(stage);
+    }
+  }, []);
+
   useEffect(() => {
     const stage = stageRef.current;
     const canvas = canvasRef.current;
     if (!stage || !canvas) return;
+    if (document.documentElement.dataset.schnitt !== "gl") return;
     let destroy = () => {};
     let cancelled = false;
     const start = () => {
-      if (cancelled) return;
-      if (document.documentElement.dataset.schnitt !== "gl") {
-        showExplodedFallback(stage);
-        return;
-      }
+      if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
       try {
         destroy = mountSchnittScene(stage, canvas);
       } catch {
@@ -92,7 +116,7 @@ export function SchnittStage({ run }: { run: SchnittRun }) {
                 {fail.text}
                 <svg className="fail-loop" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true" data-fail="loop">
                   <path
-                    d="M6 20 C 6 6, 94 6, 94 20 C 94 34, 6 34, 6 20"
+                    d="M50 4 C 86 4, 97 9, 97 20 C 97 31, 86 36, 50 36 C 14 36, 3 31, 3 20 C 3 9, 14 4, 52 5"
                     fill="none"
                     stroke="#C6302A"
                     strokeWidth="2.4"

@@ -274,12 +274,10 @@ html[data-schnitt="gl"] .schnitt-sticky {
 
 .fail-loop {
   position: absolute;
-  left: -7px;
-  right: -8px;
-  top: -7px;
-  bottom: -6px;
-  width: auto;
-  height: auto;
+  left: -10px;
+  top: -6px;
+  width: calc(100% + 20px);
+  height: calc(100% + 12px);
   overflow: visible;
   pointer-events: none;
 }
@@ -459,6 +457,15 @@ html[data-schnitt="flat"] .schnitt {
   height: auto;
 }
 
+html[data-schnitt="flat"] .support-scroll {
+  display: none;
+}
+
+html[data-schnitt="flat"] .callout::after {
+  right: auto;
+  left: calc(100% + 4px);
+}
+
 html[data-schnitt="flat"] .schnitt-sticky {
   position: relative;
   height: auto;
@@ -528,9 +535,9 @@ html[data-schnitt="flat"] .plane-slot {
   }
 
   .support {
-    font-size: 13px;
-    line-height: 1.25;
-    margin-top: 4px;
+    font-size: 16px;
+    line-height: 1.35;
+    margin-top: 6px;
   }
 
   .actions {

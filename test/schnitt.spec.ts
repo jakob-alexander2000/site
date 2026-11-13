@@ -114,6 +114,35 @@ test("reduced motion keeps the exploded stack and skips the scroll scene", async
   expect(await label.evaluate((node) => node.closest(".sheet") !== null)).toBe(false);
 });
 
+test("a WebGL context that throws after detection shows the static stack", async ({ page }) => {
+  const errors = await quiet(page);
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    let seen = 0;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const webgl = type === "webgl" || type === "webgl2" || type === "experimental-webgl";
+      if (webgl) {
+        seen += 1;
+        if (seen > 1) throw new Error("webgl context failed");
+      }
+      return original.apply(this, [type, ...args] as unknown as [string, CanvasRenderingContext2DSettings]);
+    } as typeof HTMLCanvasElement.prototype.getContext;
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-schnitt", "flat");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "off");
+  await expect(page.locator(".sheet")).toHaveCount(4);
+  const transform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
+  expect(transform.includes("matrix")).toBe(true);
+  expect(await page.locator(".callout").first().evaluate((node) => node.closest(".sheet") === null)).toBe(true);
+  await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const cls = await page.evaluate(() => (window as Window & { __cls?: number }).__cls ?? 0);
+  expect(cls).toBe(0);
+  expect(errors).toEqual([]);
+});
+
 test("a blocked WebGL context still shows the sheets", async ({ page }) => {
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
@@ -236,3 +265,72 @@ test("scroll pulls the tilted planes apart", async ({ page }) => {
   const end = await gap();
   expect(end - start).toBeGreaterThan(48);
 });
+
+for (const height of [844, 780]) {
+  test(`phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x${height}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height });
+    await page.goto("/");
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-ties", "1");
+    await page.evaluate(() => document.fonts.ready);
+    const report = await page.evaluate(() => {
+      const small: string[] = [];
+      for (const sheet of document.querySelectorAll<HTMLElement>(".sheet")) {
+        const probe = (top: string) => {
+          const dot = document.createElement("i");
+          dot.style.cssText = `position:absolute;left:0;top:${top};width:0;height:0;margin:0;padding:0`;
+          sheet.appendChild(dot);
+          const box = dot.getBoundingClientRect();
+          dot.remove();
+          return box;
+        };
+        const a = probe("0");
+        const b = probe("100%");
+        const scale = Math.hypot(b.left - a.left, b.top - a.top) / sheet.offsetHeight;
+        for (const node of sheet.querySelectorAll("p, span")) {
+          const own = [...node.childNodes].some((child) => child.nodeType === Node.TEXT_NODE && (child.textContent ?? "").trim());
+          if (!own) continue;
+          const rendered = Number.parseFloat(getComputedStyle(node).fontSize) * scale;
+          if (rendered < 11) small.push(`${rendered.toFixed(1)}px ${(node.textContent ?? "").trim().slice(0, 30)}`);
+        }
+      }
+      const holder = document.querySelector(".fail-text");
+      const loop = holder?.querySelector("svg")?.getBoundingClientRect();
+      const words = [...(holder?.childNodes ?? [])].find((child) => child.nodeType === Node.TEXT_NODE);
+      const range = document.createRange();
+      if (words) range.selectNodeContents(words);
+      const text = range.getBoundingClientRect();
+      const ring = loop
+        ? {
+            dy: Math.abs((loop.top + loop.bottom) / 2 - (text.top + text.bottom) / 2),
+            margin: Math.min(text.left - loop.left, loop.right - text.right, text.top - loop.top, loop.bottom - text.bottom),
+          }
+        : null;
+      const stage = document.querySelector(".schnitt-stage")?.getBoundingClientRect();
+      const start = document.querySelector(".tie-svg path")?.getAttribute("d")?.match(/-?[\d.]+/g)?.map(Number) ?? [];
+      const sentence = document.querySelector("[data-anchor='sentence']")?.firstChild;
+      let tie: { dx: number; dy: number } | null = null;
+      if (stage && start.length >= 2 && sentence?.textContent) {
+        const x = stage.left + start[0];
+        const y = stage.top + start[1];
+        const glyph = document.createRange();
+        for (let index = 0; index < sentence.textContent.length; index += 1) {
+          glyph.setStart(sentence, index);
+          glyph.setEnd(sentence, index + 1);
+          const box = glyph.getBoundingClientRect();
+          if (box.width === 0) continue;
+          const dx = x < box.left ? box.left - x : x > box.right ? x - box.right : 0;
+          const dy = Math.abs(y - (box.top + box.bottom) / 2);
+          if (!tie || dx + dy < tie.dx + tie.dy) tie = { dx, dy };
+        }
+      }
+      return { small, ring, tie };
+    });
+    expect(report.small).toEqual([]);
+    expect(report.ring, "the fail loop is drawn").not.toBeNull();
+    expect(report.ring!.dy, JSON.stringify(report.ring)).toBeLessThanOrEqual(2);
+    expect(report.ring!.margin, JSON.stringify(report.ring)).toBeGreaterThanOrEqual(4);
+    expect(report.tie, "the pass thread is drawn").not.toBeNull();
+    expect(report.tie!.dx, JSON.stringify(report.tie)).toBeLessThanOrEqual(3);
+    expect(report.tie!.dy, JSON.stringify(report.tie)).toBeLessThanOrEqual(3);
+  });
+}

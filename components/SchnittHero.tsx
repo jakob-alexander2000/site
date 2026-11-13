@@ -1,7 +1,7 @@
 import { RunLink } from "@/components/RunLink";
 import { SchnittStage } from "@/components/SchnittStage";
 import { contact } from "@/lib/contact";
-import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SUPPORT, HERO_WORD, PATTERN_LABEL, RUN_LINK } from "@/lib/schnitt-copy";
+import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PATTERN_LABEL, RUN_LINK } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
 import { LOOKS } from "@/lib/looks";
 
@@ -33,7 +33,10 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
             <em>{HERO_WORD}</em>
             {HERO_AFTER}
           </p>
-          <p className="support">{HERO_SUPPORT}</p>
+          <p className="support">
+            {HERO_SUPPORT}
+            <span className="support-scroll"> {HERO_SCROLL}</span>
+          </p>
           <p className="actions">
             <RunLink href="#schnitt-layers">{RUN_LINK}</RunLink>
             <a href={source}>{BUILT_LINK}</a>

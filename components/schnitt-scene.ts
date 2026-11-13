@@ -63,8 +63,49 @@ function placeCallouts(stage: HTMLElement) {
       callout.style.transform = `translate(${left}px, ${y1 - 16}px)`;
       parts.push(`<path d="M ${(pr.left - root.left).toFixed(1)} ${y1.toFixed(1)} L ${(left + width).toFixed(1)} ${y1.toFixed(1)}" />`);
     }
+    if (stage.clientWidth >= 700) {
+      const labelW = callout.offsetWidth;
+      const labelH = callout.offsetHeight;
+      const placed = callout.getBoundingClientRect();
+      const hits = !(placed.right < box.left + 1 || placed.left > box.right - 1 || placed.bottom < box.top + 1 || placed.top > box.bottom - 1);
+      if (hits) {
+        const sheetLeft = box.left - root.left;
+        const sheetTop = box.top - root.top;
+        const beside = sheetLeft - labelW - 16;
+        if (beside >= 4) {
+          const y1 = pr.top + pr.height / 2 - root.top;
+          const top = Math.max(4, Math.min(y1 - labelH / 2, root.height - labelH - 4));
+          callout.style.transform = `translate(${beside}px, ${top}px)`;
+          parts[parts.length - 1] = `<path d="M ${(beside + labelW).toFixed(1)} ${(top + labelH / 2).toFixed(1)} L ${sheetLeft.toFixed(1)} ${(top + labelH / 2).toFixed(1)}" />`;
+        } else {
+          const lx = Math.max(4, sheetLeft);
+          const ly = Math.max(4, sheetTop - labelH - 8);
+          callout.style.transform = `translate(${lx}px, ${ly}px)`;
+          parts[parts.length - 1] = `<path d="M ${(lx + 12).toFixed(1)} ${(ly + labelH).toFixed(1)} L ${(pr.left - root.left).toFixed(1)} ${(pr.top - root.top).toFixed(1)}" />`;
+        }
+      }
+    }
   }
   svg.innerHTML = parts.join("");
+}
+
+function rightmostGlyph(node: HTMLElement) {
+  const text = node.firstChild;
+  if (!text || text.nodeType !== Node.TEXT_NODE || !text.textContent) return node.getBoundingClientRect();
+  const range = document.createRange();
+  let best = node.getBoundingClientRect();
+  let right = -Infinity;
+  for (let index = 0; index < text.textContent.length; index += 1) {
+    if (!text.textContent[index].trim()) continue;
+    range.setStart(text, index);
+    range.setEnd(text, index + 1);
+    const box = range.getBoundingClientRect();
+    if (box.width > 0 && box.right > right) {
+      right = box.right;
+      best = box;
+    }
+  }
+  return best;
 }
 
 function placeThread(stage: HTMLElement) {
@@ -74,8 +115,8 @@ function placeThread(stage: HTMLElement) {
   const path = svg?.querySelector("path");
   if (!(svg instanceof SVGSVGElement) || !(from instanceof HTMLElement) || !(to instanceof HTMLElement) || !(path instanceof SVGPathElement)) return;
   const root = stage.getBoundingClientRect();
-  const a = from.getBoundingClientRect();
-  const b = to.getBoundingClientRect();
+  const a = rightmostGlyph(from);
+  const b = rightmostGlyph(to);
   const y1 = a.top + a.height / 2 - root.top;
   const y2 = b.top + b.height / 2 - root.top;
   const phone = stage.clientWidth < 700;
@@ -182,7 +223,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const rawH = sample?.cssH ?? 140;
     const fit = 1;
     const planeH = rawH * fit;
-    const gap0 = planeH * 1.04;
+    const gap0 = planeH * 0.78;
     const gap1 = planeH * 1.62;
     const gap = gap0 + progress * (gap1 - gap0);
     const x = phone ? 0 : width * 0.08;
@@ -232,6 +273,25 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     scene.updateMatrixWorld(true);
     renderer.render(scene, camera);
     css.render(scene, camera);
+    if (!phone) {
+      let fitted = gap;
+      for (let pass = 0; pass < 3; pass += 1) {
+        const root = stage.getBoundingClientRect();
+        const rects = [...stage.querySelectorAll<HTMLElement>(".sheet")].map((sheet) => sheet.getBoundingClientRect());
+        if (rects.length !== cards.length) break;
+        const overflow = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 12);
+        const topOverflow = root.top + 8 - Math.min(...rects.map((rect) => rect.top));
+        const excess = Math.max(overflow, topOverflow);
+        if (excess <= 1) break;
+        fitted = Math.max(gap0, fitted - excess / 1.5);
+        cards.forEach((item, index) => {
+          item.rig.position.y = (1.5 - index) * fitted;
+        });
+        scene.updateMatrixWorld(true);
+        renderer.render(scene, camera);
+        css.render(scene, camera);
+      }
+    }
     placeCallouts(stage);
     placeThread(stage);
   };

@@ -23,7 +23,7 @@ Paper `#F7F7F5`. Sheets `#FBFAF7`. Verdict sheet `#111111`. Ink `#111111`. Mute 
 
 Geist 200 for the sentence, Geist 300 for the support line and the sheet body, Geist Mono for labels and evidence, Instrument Serif italic on the word "check" only.
 
-The sentence is "I build AI answers you can check, sentence by sentence." The support line is "Each answer is built in layers, from the company's own documents up to a verdict on every sentence. Scroll pulls the layers apart." Links: "See CiteBot run" (scrolls the drawing) and "How it is built" (the CiteBot repository). Mono labels: `A · HANDBOOK`, `B · PASSAGES`, `C · SENTENCES`, `D · VERDICT`, `PATTERN 01 · CITEBOT · EXPLODED VIEW`, `DATA FROM A RECORDED RUN, 9 NOV 2026`.
+The sentence is "I build AI answers you can check, sentence by sentence." The support line is "Each answer is built in layers, from the company's own documents up to a verdict on every sentence. Scroll pulls the layers apart." The last sentence is hidden wherever the static stack is shown, because nothing moves there. Links: "See CiteBot run" (scrolls the drawing) and "How it is built" (the CiteBot repository). Mono labels: `A · HANDBOOK`, `B · PASSAGES`, `C · SENTENCES`, `D · VERDICT`, `PATTERN 01 · CITEBOT · EXPLODED VIEW`, `DATA FROM A RECORDED RUN, 9 NOV 2026`.
 
 A cropped `18` sits behind the sheets. The readable line is `18 of 18 · offline eval · 29 OCT 2026`.
 
@@ -34,7 +34,7 @@ One thread runs from the passing sentence to the passage span it rests on. The f
 | Situation | What you get |
 | --- | --- |
 | Desktop, motion allowed, WebGL on | Orthographic-feeling perspective camera. Four Three.js groups at different z. Scroll increases the separation. Text is HTML on `CSS3DRenderer` planes. The thread and the sheet edges are WebGL. |
-| Width at most 760, including 390×844 | The same four sheets, restacked front-on in a column. Labels sit on the left edge of each sheet. Type does not shrink with the desktop camera. |
+| Width at most 800, including 390×844 and 390×780 | The static tilted stack at full type size, with the label above each sheet. The scroll scene is desktop only: fitting four sheets into a phone stage scaled sheet type to 8 to 11px. |
 | `prefers-reduced-motion: reduce` | No scroll animation. The sheets are a static exploded stack in the page. The same words, the same thread, the same loop. |
 | WebGL missing or blocked | That same static stack. The stage is never an empty box. |
 | JavaScript off | The sheets are still in the HTML, stacked in the stage. |
@@ -63,13 +63,14 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | Exported strings pass the copy scan | `the run text passes the copy scan` | Pass |
 | Sentence, italic only on check | `the sentence and the two claims are on the page` | Pass, Chromium and WebKit |
 | Pass thread, no fail thread, pen loop | `the passing sentence has a thread and the failing sentence has a loop` | Pass, Chromium and WebKit |
+| Phone sheet type renders at 11px or more, the fail loop is centred on the claim, and the thread starts at the end of the passing sentence, at 390×844 and 390×780 | `phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence` | Pass, Chromium and WebKit |
 | Phone labels at least 11px, no sideways scroll | `phone type is at least 11px and the stage is not a shrunk desktop` | Pass, Chromium and WebKit |
 | Reduced motion is a static exploded stack | `reduced motion keeps the exploded stack and skips the scroll scene` | Pass, Chromium and WebKit |
 | WebGL blocked still shows the sheets | `a blocked WebGL context still shows the sheets` | Pass, Chromium and WebKit |
 | Canvas pixels are not blank | `the WebGL canvas draws ink` | Pass on Chromium. Skipped on WebKit |
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
 | Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on: 64 frames, median 16.70 ms, p95 16.80 ms, max 166.70 ms, share above 20 ms = 0.02 (one hitch). |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run build`, `npm run lint`, `npm test` | Pass. 15 unit tests. Copy scan ok. Playwright 61 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 69 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
 | Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |

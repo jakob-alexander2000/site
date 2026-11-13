@@ -4,7 +4,8 @@ export const HERO_AFTER = ", sentence by sentence.";
 export const HERO_LINE = `${HERO_BEFORE}${HERO_WORD}${HERO_AFTER}`;
 
 export const HERO_SUPPORT =
-  "Each answer is built in layers, from the company's own documents up to a verdict on every sentence. Scroll pulls the layers apart.";
+  "Each answer is built in layers, from the company's own documents up to a verdict on every sentence.";
+export const HERO_SCROLL = "Scroll pulls the layers apart.";
 
 export const RUN_LINK = "See CiteBot run";
 export const BUILT_LINK = "How it is built";
