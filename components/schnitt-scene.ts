@@ -223,7 +223,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const rawH = sample?.cssH ?? 140;
     const fit = 1;
     const planeH = rawH * fit;
-    const gap0 = planeH * 0.78;
+    const gap0 = planeH * 0.95;
     const gap1 = planeH * 1.62;
     const gap = gap0 + progress * (gap1 - gap0);
     const x = phone ? 0 : width * 0.08;
@@ -275,17 +275,19 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     css.render(scene, camera);
     if (!phone) {
       let fitted = gap;
-      for (let pass = 0; pass < 3; pass += 1) {
+      let lift = 0;
+      for (let pass = 0; pass < 4; pass += 1) {
         const root = stage.getBoundingClientRect();
         const rects = [...stage.querySelectorAll<HTMLElement>(".sheet")].map((sheet) => sheet.getBoundingClientRect());
         if (rects.length !== cards.length) break;
-        const overflow = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 12);
-        const topOverflow = root.top + 8 - Math.min(...rects.map((rect) => rect.top));
-        const excess = Math.max(overflow, topOverflow);
-        if (excess <= 1) break;
-        fitted = Math.max(gap0, fitted - excess / 1.5);
+        const below = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 12);
+        const above = root.top + 8 - Math.min(...rects.map((rect) => rect.top));
+        if (below <= 1 && above <= 1) break;
+        if (below > 1 && above < -1) lift += Math.min(below, -above);
+        else if (above > 1 && below < -1) lift -= Math.min(above, -below);
+        else fitted = Math.max(gap0, fitted - Math.max(below, above) / 1.5);
         cards.forEach((item, index) => {
-          item.rig.position.y = (1.5 - index) * fitted;
+          item.rig.position.y = (1.5 - index) * fitted + lift;
         });
         scene.updateMatrixWorld(true);
         renderer.render(scene, camera);

@@ -13,11 +13,11 @@
     "viewport": "1440x900",
     "webgl": "ready",
     "cpuThrottle": 4,
-    "frames": 64,
+    "frames": 73,
     "medianMs": 16.7,
     "p95Ms": 16.8,
-    "maxMs": 166.7,
-    "shareOver20ms": 0.02
+    "maxMs": 33.4,
+    "shareOver20ms": 0.014
   },
   "cls": 0,
   "consoleErrors": 0,

@@ -334,3 +334,42 @@ for (const height of [844, 780]) {
     expect(report.tie!.dy, JSON.stringify(report.tie)).toBeLessThanOrEqual(3);
   });
 }
+
+test("desktop sheet titles stay uncovered and the verdict stays in frame through the scroll", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  await page.evaluate(() => document.fonts.ready);
+  for (const share of [0, 0.5, 1]) {
+    await page.evaluate((value) => {
+      const node = document.querySelector(".schnitt");
+      const range = node ? node.clientHeight - window.innerHeight : 0;
+      window.scrollTo(0, range * value);
+    }, share);
+    await page.waitForTimeout(120);
+    const report = await page.evaluate(() => {
+      const covered: string[] = [];
+      for (const title of document.querySelectorAll<HTMLElement>(".sheet .file")) {
+        const words = title.firstChild;
+        if (!words?.textContent) continue;
+        const glyph = document.createRange();
+        const length = words.textContent.length;
+        const hidden = [0, Math.floor(length / 2), length - 1].some((index) => {
+          glyph.setStart(words, index);
+          glyph.setEnd(words, index + 1);
+          const box = glyph.getBoundingClientRect();
+          const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return !hit || !(title.contains(hit) || hit.contains(title));
+        });
+        if (hidden) covered.push((title.textContent ?? "").trim());
+      }
+      const stage = document.querySelector(".schnitt-stage")?.getBoundingClientRect();
+      const foot = document.querySelector(".schnitt-foot")?.getBoundingClientRect();
+      const verdict = document.querySelector(".sheet.verdict")?.getBoundingClientRect();
+      return { covered, below: stage && verdict ? verdict.bottom - stage.bottom : 99, foot: foot && verdict ? verdict.bottom - foot.top : 99 };
+    });
+    expect(report.covered, `scroll ${share}`).toEqual([]);
+    expect(report.below, `scroll ${share}`).toBeLessThanOrEqual(0);
+    expect(report.foot, `scroll ${share}`).toBeLessThanOrEqual(0);
+  }
+});

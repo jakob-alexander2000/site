@@ -69,8 +69,9 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | WebGL blocked still shows the sheets | `a blocked WebGL context still shows the sheets` | Pass, Chromium and WebKit |
 | Canvas pixels are not blank | `the WebGL canvas draws ink` | Pass on Chromium. Skipped on WebKit |
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
-| Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on: 64 frames, median 16.70 ms, p95 16.80 ms, max 166.70 ms, share above 20 ms = 0.02 (one hitch). |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 69 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
+| Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on, with the fit loop: 73 frames, median 16.70 ms, p95 16.80 ms, max 33.40 ms, share above 20 ms = 0.014. |
+| Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 71 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
 | Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |
