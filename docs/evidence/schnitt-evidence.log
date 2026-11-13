@@ -1,0 +1,8 @@
+45e5a7e42d1013a4d0dc835d4f36bf7178b5d2fc
+Screenshots: schnitt-desktop-1440x900-scroll-0.png, schnitt-desktop-1440x900-mid-scroll.png, schnitt-desktop-1440x900-end-scroll.png, schnitt-desktop-1440x900-reduced-motion.png, schnitt-phone-390x844-scroll-0.png, schnitt-phone-390x844-mid-scroll.png, schnitt-phone-390x844-end-scroll.png, schnitt-phone-390x844-reduced-motion.png, schnitt-phone-390x780-scroll-0.png.
+Desktop 1440x900 shots in that commit: scroll 0, mid-scroll, end-scroll, and reduced motion. Phone shots remain 390x844 at scroll 0, mid-scroll, end-scroll, and reduced motion, plus 390x780 at scroll 0.
+Frame timing is in schnitt-frame-timing.json. Chromium, software WebGL, 4x CPU throttle, scrolling the hero for 1.2s.
+390x844: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share of frames above 20 ms = 0.
+1440x900, with the fit loop: 73 frames, median 16.70 ms, p95 16.80 ms, max 33.40 ms, share of frames above 20 ms = 0.014.
+The earlier pair of numbers disagreed because a cutoff at 16.7 ms splits the 60 Hz cluster (frames land near 16.67 ms and a few at 16.8 ms) while a rounded p95 still prints 16.7. p95 here is the sample at ceil(0.95 n) - 1. Max is the slowest gap. Hero CLS 0. Console errors 0. Axe violations 0.
+Not checked: a physical iPhone, and frame rate on that phone.

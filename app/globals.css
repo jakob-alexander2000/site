@@ -129,6 +129,11 @@ h2 {
   line-height: 1.45;
 }
 
+.band {
+  padding: 28px 20px 8px;
+  background: #000000;
+}
+
 .copy,
 .fallback {
   max-width: 38rem;

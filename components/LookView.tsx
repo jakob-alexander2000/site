@@ -21,7 +21,7 @@ export function LookView({ look }: { look: Look }) {
     <section className="screen" id={look.id} aria-labelledby={`${look.id}-title`}>
       <div className="run">
         <a href="#top">Jakob Alex</a>
-        <nav aria-label="Looks">
+        <nav aria-label={`Look ${look.index}`}>
           <a href="#citebot" aria-label="01 CiteBot">
             01
           </a>

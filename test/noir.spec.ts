@@ -7,12 +7,12 @@ const sizes = {
   desktop: { width: 1280, height: 800 },
 } as const;
 
-const opening = "I build AI tools whose answers you can check, sentence by sentence.";
+const opening = "I build AI answers you can check, sentence by sentence.";
 
 async function readPage(page: Page) {
   return page.evaluate(() => {
     const skip = (node: Element) =>
-      node.closest("script, style, noscript, svg") !== null ||
+      node.closest("script, style, noscript, svg, [data-schnitt]") !== null ||
       node.tagName === "SCRIPT" ||
       node.tagName === "STYLE";
 
@@ -156,7 +156,7 @@ for (const [name, viewport] of Object.entries(sizes)) {
         { id: "autopsy", name: "02 Retrieval Autopsy", label: "02" },
         { id: "voice", name: "03 Voice check", label: "03" },
       ] as const) {
-        const link = page.locator(`#${look.id} nav[aria-label="Looks"]`).getByRole("link", { name: look.name });
+        const link = page.locator(`#${look.id} nav`).getByRole("link", { name: look.name });
         await expect(link).toHaveCount(1);
         await expect(link).toHaveText(look.label);
       }
@@ -189,9 +189,13 @@ for (const [name, viewport] of Object.entries(sizes)) {
       );
       await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
       await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute("href", "mailto:jdevacc2000@gmail.com");
-      await expect(page.getByRole("link", { name: "GitHub: https://github.com/jakob-alexander2000" })).toHaveAttribute(
+      await expect(page.getByRole("link", { name: "GitHub", exact: true })).toHaveAttribute(
         "href",
         "https://github.com/jakob-alexander2000",
+      );
+      await expect(page.getByRole("link", { name: "Email", exact: true })).toHaveAttribute(
+        "href",
+        "mailto:jdevacc2000@gmail.com",
       );
       const text = await page.locator("body").innerText();
       expect(text).not.toContain("Phone");
