@@ -185,7 +185,7 @@ export function Plates({ run }: { run: SchnittRun }) {
               <li className="rail-fail" data-hang="check">
                 <p className="kicker">Contradiction</p>
                 <p className="body">
-                  <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" aria-hidden="true">
+                  <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" role="img" aria-label="FAIL">
                     <text className="fail-word" x="39" y="21" textAnchor="middle" fill="#C6302A" fontSize="13" fontFamily="ui-monospace, monospace">FAIL</text>
                     <ellipse className="pen-loop" cx="39" cy="16" rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
                   </svg>
@@ -284,7 +284,7 @@ export function Plates({ run }: { run: SchnittRun }) {
                 <span>{check.detail}</span>
                 <span className={check.verdict === "fail" ? "mark fail" : "mark"}>
                   {check.verdict === "fail" ? (
-                    <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" aria-hidden="true">
+                    <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" role="img" aria-label="FAIL">
                       <text className="fail-word" x="39" y="21" textAnchor="middle" fill="#FF8A84" fontSize="13" fontFamily="ui-monospace, monospace">FAIL</text>
                       <ellipse className="pen-loop" cx="39" cy="16" rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
                     </svg>

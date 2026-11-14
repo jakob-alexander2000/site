@@ -1173,3 +1173,40 @@ article.verdict-sheet,
     display: none;
   }
 }
+
+/* Below these widths the drawing's viewBox would shrink its type under 11px,
+   so the plate shows its sheet stack instead. 1280 and 1120 are the viewBox
+   widths; the margin covers the 40px gutter and a 15px scrollbar. */
+@media (min-width: 801px) and (max-width: 1339px) {
+  #citebot svg.plate-drawing {
+    display: none;
+  }
+
+  #citebot .plate-stack {
+    display: block;
+    max-width: 44rem;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1099px) {
+  #style svg.plate-drawing {
+    display: none;
+  }
+
+  #style .plate-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 44rem;
+  }
+
+  #style .draft-sheet {
+    transform: none;
+  }
+}
+
+.plate svg.fail-mark {
+  display: inline-block;
+  width: 78px;
+  height: 32px;
+  vertical-align: middle;
+}
