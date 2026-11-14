@@ -1,0 +1,147 @@
+ec342aacb604a814288053001dea29365ffd2918
+
+> site@0.1.0 test:unit
+> node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/scan.test.ts test/schnitt-run.test.ts
+
+TAP version 13
+# Subtest: production contact shows the one address and GitHub
+ok 1 - production contact shows the one address and GitHub
+  ---
+  duration_ms: 5.181968
+  type: 'test'
+  ...
+# Subtest: null contact renders no phone and no email row
+ok 2 - null contact renders no phone and no email row
+  ---
+  duration_ms: 1.064852
+  type: 'test'
+  ...
+# Subtest: a set phone and email become links
+ok 3 - a set phone and email become links
+  ---
+  duration_ms: 0.859065
+  type: 'test'
+  ...
+# Subtest: opening line and reveal length are fixed
+ok 4 - opening line and reveal length are fixed
+  ---
+  duration_ms: 0.950796
+  type: 'test'
+  ...
+# Subtest: each shown sentence is backed by a proof excerpt
+ok 5 - each shown sentence is backed by a proof excerpt
+  ---
+  duration_ms: 0.23542
+  type: 'test'
+  ...
+# Subtest: the lookbook files are gone
+ok 6 - the lookbook files are gone
+  ---
+  duration_ms: 0.119618
+  type: 'test'
+  ...
+# Subtest: proof lines still match the repositories
+ok 7 - proof lines still match the repositories
+  ---
+  duration_ms: 181.305086
+  type: 'test'
+  ...
+# Subtest: plate copy is real and the scan is clean
+ok 8 - plate copy is real and the scan is clean
+  ---
+  duration_ms: 1.935842
+  type: 'test'
+  ...
+# Subtest: every rendered proof link returns 200
+ok 9 - every rendered proof link returns 200
+  ---
+  duration_ms: 1824.310651
+  type: 'test'
+  ...
+# Subtest: style figures are in the public readme
+ok 10 - style figures are in the public readme
+  ---
+  duration_ms: 6.152659
+  type: 'test'
+  ...
+# Subtest: the autopsy verdict sheet is the scorer's own output for the public sample
+ok 11 - the autopsy verdict sheet is the scorer's own output for the public sample
+  ---
+  duration_ms: 24.444971
+  type: 'test'
+  ...
+# Subtest: a caption only names what its drawing shows
+ok 12 - a caption only names what its drawing shows
+  ---
+  duration_ms: 0.310827
+  type: 'test'
+  ...
+# Subtest: the site carries only the contact address
+ok 13 - the site carries only the contact address
+  ---
+  duration_ms: 1.842352
+  type: 'test'
+  ...
+# Subtest: every banned rule fires on the fixture
+ok 14 - every banned rule fires on the fixture
+  ---
+  duration_ms: 0.637446
+  type: 'test'
+  ...
+# Subtest: case, lookalike, invisible and spacing tricks are folded
+ok 15 - case, lookalike, invisible and spacing tricks are folded
+  ---
+  duration_ms: 0.305513
+  type: 'test'
+  ...
+# Subtest: the public scan names no private figure
+ok 16 - the public scan names no private figure
+  ---
+  duration_ms: 0.264354
+  type: 'test'
+  ...
+# Subtest: approved copy stays clean
+ok 17 - approved copy stays clean
+  ---
+  duration_ms: 0.530658
+  type: 'test'
+  ...
+# Subtest: pinned fixture files match the manifest
+ok 18 - pinned fixture files match the manifest
+  ---
+  duration_ms: 3.006197
+  type: 'test'
+  ...
+# Subtest: the vendored fixtures regenerate from the pinned commits
+ok 19 - the vendored fixtures regenerate from the pinned commits
+  ---
+  duration_ms: 49.96713
+  type: 'test'
+  ...
+# Subtest: the run is the paid-leave fixture
+ok 20 - the run is the paid-leave fixture
+  ---
+  duration_ms: 0.653054
+  type: 'test'
+  ...
+# Subtest: the run text passes the copy scan
+ok 21 - the run text passes the copy scan
+  ---
+  duration_ms: 0.372022
+  type: 'test'
+  ...
+# Subtest: the phone frame-time record is the static stack
+ok 22 - the phone frame-time record is the static stack
+  ---
+  duration_ms: 0.422079
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2055.25723
