@@ -37,7 +37,7 @@ export function Plates() {
         <p className="body">{CITEBOT_PLATE.body}</p>
         <figure>
           <Rail />
-          <figcaption>Six sheets on a rail for the paid-leave question. Failure paths are dashed.</figcaption>
+          <figcaption>Six sheets on a rail, one for each step of the paid-leave question.</figcaption>
         </figure>
         <ol>
           {["Question", "Retrieve", "Draft", "Split", "Check", "Verdict"].map((step) => (
@@ -77,7 +77,7 @@ export function Plates() {
             <line x1="96" y1="20" x2="620" y2="20" stroke="#111111" />
             <line x1="96" y1="60" x2="420" y2="60" stroke="#C6302A" />
           </svg>
-          <figcaption>Kept words stay tied. Dropped words are struck and marked FAIL.</figcaption>
+          <figcaption>The passage above the shorter answer. The verdict sheet names the words that fell out.</figcaption>
         </figure>
         <p className="kicker">Passage</p>
         <p className="body">{DROPPED.passage}</p>

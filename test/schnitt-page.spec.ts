@@ -115,3 +115,88 @@ test("about returns home", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { name: "Jakob Alex" })).toBeVisible();
 });
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 390, height: 780 },
+  { width: 375, height: 667 },
+  { width: 390, height: 664 },
+  { width: 744, height: 1133 },
+  { width: 844, height: 390 },
+  { width: 844, height: 340 },
+  { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+]) {
+  test(`the limits kept from the old page hold at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const report = await page.evaluate(() => {
+      const parse = (color: string) => {
+        const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (!match || (match[4] !== undefined && Number(match[4]) < 0.2)) return null;
+        return [Number(match[1]), Number(match[2]), Number(match[3])];
+      };
+      const lin = (value: number) => {
+        const channel = value / 255;
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      };
+      const luminance = (rgb: number[]) => 0.2126 * lin(rgb[0] ?? 0) + 0.7152 * lin(rgb[1] ?? 0) + 0.0722 * lin(rgb[2] ?? 0);
+      const ratio = (a: number[], b: number[]) => {
+        const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+      };
+      const ground = (node: Element | null) => {
+        while (node) {
+          const rgb = parse(getComputedStyle(node).backgroundColor);
+          if (rgb) return rgb;
+          node = node.parentElement;
+        }
+        return [255, 255, 255];
+      };
+      const shown = (node: Element) => {
+        const style = getComputedStyle(node);
+        const box = node.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && box.width > 0 && box.height > 0;
+      };
+      const contrast: string[] = [];
+      const body: string[] = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+      let node = walker.currentNode as Element | null;
+      while (node) {
+        const text = [...node.childNodes].some((child) => child.nodeType === Node.TEXT_NODE && (child.textContent ?? "").trim());
+        if (text && shown(node) && !node.closest("script, style, noscript, svg, .schnitt-stage, .skip")) {
+          const ink = parse(getComputedStyle(node).color);
+          if (ink) {
+            const value = ratio(ink, ground(node));
+            const sample = `${value.toFixed(2)} ${(node.textContent ?? "").trim().slice(0, 32)}`;
+            if (value < 4.5) contrast.push(sample);
+            if (node.matches(".plate .body, .plate li") && value < 7) body.push(sample);
+          }
+        }
+        node = walker.nextNode() as Element | null;
+      }
+      const taps = [...document.querySelectorAll("a, button")]
+        .filter((item) => shown(item) && !item.classList.contains("skip"))
+        .map((item) => ({ box: item.getBoundingClientRect(), name: (item.getAttribute("aria-label") ?? item.textContent ?? "").trim().slice(0, 24) }))
+        .filter(({ box }) => box.width < 44 || box.height < 44)
+        .map(({ box, name }) => `${box.width.toFixed(0)}x${box.height.toFixed(0)} ${name}`);
+      const main = document.querySelector(".schnitt-copy .actions a")?.getBoundingClientRect();
+      return {
+        contrast,
+        body,
+        taps,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        iframes: document.querySelectorAll("iframe").length,
+        mainOnFirstScreen: !!main && main.top >= 0 && main.bottom <= window.innerHeight,
+      };
+    });
+    const where = `${viewport.width}x${viewport.height}`;
+    expect(report.contrast, where).toEqual([]);
+    expect(report.body, where).toEqual([]);
+    expect(report.taps, where).toEqual([]);
+    expect(report.overflow, where).toBe(false);
+    expect(report.iframes, where).toBe(0);
+    expect(report.mainOnFirstScreen, where).toBe(true);
+  });
+}

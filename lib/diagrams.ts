@@ -18,10 +18,13 @@ export const DROPPED = {
   answer: "In practice, employees receive 30 days of paid annual leave.",
   limits: "The checks match spans and do not judge meaning. The sample is not a policy.",
   flow: ["Paste passage and answer", "Align word by word", "Mark what fell out", "Score four checks"],
+  /** Verdicts and details are the scorer's own output for the public sample `leave-naive` at this commit. */
+  scorer: "https://raw.githubusercontent.com/jakob-alexander2000/retrieval-autopsy/584ac36beb3b337d46eb881ccaffd9c3ed10983e/src/score/score.ts",
+  sample: "https://raw.githubusercontent.com/jakob-alexander2000/retrieval-autopsy/584ac36beb3b337d46eb881ccaffd9c3ed10983e/fixtures/answers.jsonl",
   checks: [
-    { name: "Support", verdict: "pass", detail: "Every kept word is in the passage." },
-    { name: "Scope", verdict: "pass", detail: "The answer stays inside who the handbook covers." },
-    { name: "Qualifier", verdict: "fail", detail: "Full-time and only are gone, so the rule now reads as universal." },
+    { name: "Support", verdict: "pass", detail: "Every sentence is made of words from a retrieved passage." },
+    { name: "Scope", verdict: "pass", detail: "The answer stays inside who the handbook is for." },
+    { name: "Qualifier", verdict: "fail", detail: "The answer drops “full-time employees only” and “after the probation period”." },
     { name: "Omission", verdict: "pass", detail: "No condition that would change the result was dropped." },
   ],
   demo: "https://retrieval-autopsy.vercel.app/",

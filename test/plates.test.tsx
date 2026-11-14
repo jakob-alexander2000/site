@@ -51,3 +51,38 @@ test("style figures are in the public readme", { timeout: 30000 }, async () => {
   assert.equal(readme.includes(`${STYLE_DISTANCE.heldOut}`), true);
   assert.equal(readme.includes("Synthetic"), true);
 });
+
+test("the autopsy verdict sheet is the scorer's own output for the public sample", { timeout: 30000 }, async () => {
+  const [scorerResponse, sampleResponse] = await Promise.all([fetch(DROPPED.scorer), fetch(DROPPED.sample)]);
+  assert.equal(scorerResponse.status, 200, DROPPED.scorer);
+  assert.equal(sampleResponse.status, 200, DROPPED.sample);
+  const scorer = await scorerResponse.text();
+  const sample = (await sampleResponse.text())
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as { passages: string[]; answer: string; expect: Record<string, string> })
+    .find((row) => row.passages.includes(DROPPED.passage) && row.answer === DROPPED.answer);
+  assert.ok(sample, "the passage and the answer are a public sample");
+  for (const check of DROPPED.checks) {
+    assert.equal(sample.expect[check.name.toLowerCase()], check.verdict, check.name);
+    if (check.verdict === "pass") assert.equal(scorer.includes(`"${check.detail}"`), true, `${check.name}: ${check.detail}`);
+  }
+  const block = scorer.slice(scorer.indexOf("QUALIFIER_PATTERNS"), scorer.indexOf("OMISSION_PATTERNS"));
+  const patterns = [...block.matchAll(/^\s*\/(.+)\/([a-z]*),\s*$/gm)].map((match) => new RegExp(match[1] ?? "", match[2] ?? ""));
+  assert.ok(patterns.length > 3, "qualifier patterns parsed");
+  const dropped = patterns
+    .flatMap((pattern) => [...DROPPED.passage.matchAll(pattern)].map((match) => ({ at: match.index ?? 0, text: match[0].trim() })))
+    .filter((span) => !DROPPED.answer.toLowerCase().includes(span.text.toLowerCase()))
+    .sort((a, b) => a.at - b.at)
+    .map((span) => `“${span.text}”`);
+  const qualifier = DROPPED.checks.find((check) => check.name === "Qualifier");
+  assert.equal(qualifier?.detail, `The answer drops ${dropped.join(" and ")}.`);
+});
+
+test("a caption only names what its drawing shows", () => {
+  for (const figure of html.split("<figure>").slice(1).map((part) => part.slice(0, part.indexOf("</figure>")))) {
+    const caption = /<figcaption>(.*?)<\/figcaption>/.exec(figure)?.[1] ?? "";
+    if (/dashed/i.test(caption)) assert.match(figure, /stroke-dasharray/, caption);
+    if (/struck|strike/i.test(caption)) assert.match(figure, /line-through|<s>|<del>/, caption);
+  }
+});
