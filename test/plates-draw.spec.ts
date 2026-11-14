@@ -67,6 +67,34 @@ test("the style plate prints the synthetic demo once, with fins", async ({ page 
   await expect(plate).toContainText(STYLE_DISTANCE.heldOut);
   const driftedCount = await plate.locator(`text=${STYLE_DISTANCE.drifted}`).count();
   expect(driftedCount).toBe(1);
-  for (const word of STYLE_DISTANCE.fins) await expect(plate.locator(".fins")).toContainText(word);
+  for (const fin of STYLE_DISTANCE.fins) await expect(plate.locator(".fins")).toContainText(fin.word);
   await expect(plate.locator(".voice-sheet, .draft-sheet")).toHaveCount(2);
+});
+
+test("the style fins are drawn in true proportion, largest first", async ({ page }) => {
+  for (const size of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(size);
+    await page.goto("/");
+    const bars = await page.locator("#style .fins .fin-bar").evaluateAll((nodes) =>
+      nodes.map((node) => ({ width: node.getBoundingClientRect().width, z: Number((node as HTMLElement).dataset.z) })),
+    );
+    expect(bars.map((bar) => bar.z)).toEqual(STYLE_DISTANCE.fins.map((fin) => fin.z));
+    const first = bars[0];
+    if (!first) throw new Error("no fins");
+    for (const bar of bars) expect(Math.abs(bar.width / first.width - bar.z / first.z), JSON.stringify(bars)).toBeLessThan(0.02);
+  }
+});
+
+test("the style reading only ever shows a measured figure through the scroll", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const readings = new Set<string>();
+  const top = await page.locator("#style").evaluate((node) => node.getBoundingClientRect().top + window.scrollY);
+  for (let y = top - 900; y <= top + 900; y += 60) {
+    await page.evaluate((value) => window.scrollTo(0, value), y);
+    await page.waitForTimeout(60);
+    readings.add((await page.locator("#style .depth-read").textContent())?.trim() ?? "");
+  }
+  expect([...readings].sort()).toEqual([STYLE_DISTANCE.heldOut, STYLE_DISTANCE.drifted].sort());
 });

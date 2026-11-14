@@ -38,7 +38,8 @@ function offline(error: unknown) {
 }
 
 test("the vendored fixtures regenerate from the pinned commits", { timeout: 30000 }, async (t) => {
-  if (process.env.SKIP_FIXTURE_NETWORK === "1") {
+  const ci = Boolean(process.env.CI);
+  if (process.env.SKIP_FIXTURE_NETWORK === "1" && !ci) {
     t.skip("fixture regeneration is gated off");
     return;
   }
@@ -46,7 +47,7 @@ test("the vendored fixtures regenerate from the pinned commits", { timeout: 3000
   try {
     records = await vendoredRecords();
   } catch (error) {
-    if (offline(error)) {
+    if (offline(error) && !ci) {
       t.skip("fixture regeneration needs the network");
       return;
     }

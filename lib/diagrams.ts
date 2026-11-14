@@ -42,9 +42,17 @@ export const STYLE_DISTANCE = {
   heldOutReading: "close",
   live: "https://style-distance.vercel.app/",
   source: "https://github.com/jakob-alexander2000/style-distance",
-  readme: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/main/README.md",
-  sample: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/main/public/samples/brand.json",
-  fins: ["is", "you", "which", "the", "not", "don't"],
+  readme: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/37dbefaf34b8bf216fbe88ce65a9c856d24bc32b/README.md",
+  sample: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/37dbefaf34b8bf216fbe88ce65a9c856d24bc32b/public/samples/brand.json",
+  /** The six largest contributions |z| for the drifted drafts, N = 150, English, as computed by src/lib/delta.ts at the pinned commit. */
+  fins: [
+    { word: "which", z: 30.19 },
+    { word: "is", z: 21.92 },
+    { word: "you", z: 12.6 },
+    { word: "not", z: 9.42 },
+    { word: "don't", z: 6.14 },
+    { word: "was", z: 3.97 },
+  ],
 } as const;
 
 export const REVISION = "14 Nov 2026";

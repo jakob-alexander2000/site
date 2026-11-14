@@ -180,9 +180,12 @@ export function Plates({ run }: { run: SchnittRun }) {
               <p className="body">0</p>
             </article>
             <ol className="fins">
-              {STYLE_DISTANCE.fins.map((word, index) => (
-                <li key={word} style={{ width: `${100 - index * 12}%` }}>
-                  {word}
+              {STYLE_DISTANCE.fins.map((fin) => (
+                <li key={fin.word}>
+                  <span className="fin-word">
+                    {fin.word} · {fin.z.toFixed(1)}
+                  </span>
+                  <span className="fin-bar" data-z={fin.z} style={{ width: `${((fin.z / STYLE_DISTANCE.fins[0].z) * 100).toFixed(1)}%` }} />
                 </li>
               ))}
             </ol>

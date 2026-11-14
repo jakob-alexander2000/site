@@ -11,6 +11,7 @@ import {
 } from "three";
 import { CSS3DObject, CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import { placeThread } from "@/components/schnitt-fallback";
+import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 type Card = {
   rig: Group;
@@ -64,11 +65,11 @@ function layoutPlates() {
   const read = style?.querySelector<HTMLElement>(".depth-read");
   if (style && draft) {
     const progress = sectionProgress(style);
-    const value = 0.64 + progress * (1.33 - 0.64);
-    const span = (value - 0.64) / (1.33 - 0.64);
+    const span = progress;
     const depth = 48 + span * 170;
     draft.style.transform = `translateZ(${(-depth).toFixed(1)}px) scale(${(1 - span * 0.06).toFixed(3)})`;
-    if (read) read.textContent = value.toFixed(2);
+    // The sheet moves continuously, but the reading names only the two measured figures, never a value in between.
+    if (read) read.textContent = span < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
   }
 }
 

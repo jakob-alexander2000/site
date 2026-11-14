@@ -53,11 +53,67 @@ test("style figures are in the public readme", { timeout: 30000 }, async () => {
   assert.equal(readme.includes(`${STYLE_DISTANCE.drifted}`), true);
   assert.equal(readme.includes(`${STYLE_DISTANCE.heldOut}`), true);
   assert.equal(readme.includes("Synthetic"), true);
-  const sampleResponse = await fetch(STYLE_DISTANCE.sample);
-  assert.equal(sampleResponse.status, 200);
-  const sample = (await sampleResponse.json()) as { references: { text: string }[]; drafts: { text: string }[] };
-  const corpus = [...sample.references, ...sample.drafts].map((row) => row.text.toLowerCase()).join("\n");
-  for (const word of STYLE_DISTANCE.fins) assert.equal(corpus.includes(word), true, word);
+});
+
+/** Burrows' Delta as the style-distance README defines it (English, steps 1 to 7). */
+function tokens(text: string): string[] {
+  const value = text
+    .replace(/[\u2019\u2018\u02bc\u2032]/g, "'")
+    .replace(/[\u201c\u201d\u201e\u00ab\u00bb"\u2014\u2013\u2015\u00a0\u202f]/g, " ")
+    .replace(/_/g, "")
+    .toLowerCase();
+  return value.match(/[A-Za-zÀ-ÖØ-öø-ÿ]+(?:'[A-Za-zÀ-ÖØ-öø-ÿ]+)*/g) ?? [];
+}
+
+function relative(doc: string[]) {
+  const rel = new Map<string, number>();
+  for (const word of doc) rel.set(word, (rel.get(word) ?? 0) + 1 / doc.length);
+  return rel;
+}
+
+function delta(references: string[], drafts: string[], n = 150) {
+  const refs = references.map(tokens);
+  const counts = new Map<string, number>();
+  const spread = new Map<string, number>();
+  for (const doc of refs) {
+    for (const word of doc) counts.set(word, (counts.get(word) ?? 0) + 1);
+    for (const word of new Set(doc)) spread.set(word, (spread.get(word) ?? 0) + 1);
+  }
+  const words = [...counts.keys()]
+    .filter((word) => (spread.get(word) ?? 0) >= 2)
+    .sort((a, b) => (counts.get(b) ?? 0) - (counts.get(a) ?? 0) || (a < b ? -1 : 1))
+    .slice(0, n);
+  const refRel = refs.map(relative);
+  const draftRel = drafts.map((text) => relative(tokens(text)));
+  const rows: { word: string; z: number }[] = [];
+  for (const word of words) {
+    const values = refRel.map((rel) => rel.get(word) ?? 0);
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const sd = Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (values.length - 1));
+    if (!sd) continue;
+    const draft = draftRel.reduce((sum, rel) => sum + (rel.get(word) ?? 0), 0) / draftRel.length;
+    rows.push({ word, z: Math.abs((draft - mean) / sd) });
+  }
+  rows.sort((a, b) => b.z - a.z);
+  return { delta: rows.reduce((sum, row) => sum + row.z, 0) / rows.length, rows };
+}
+
+test("style figures and fins are recomputed from the pinned public sample", { timeout: 30000 }, async () => {
+  assert.match(STYLE_DISTANCE.sample, /\/style-distance\/[0-9a-f]{40}\//);
+  const response = await fetch(STYLE_DISTANCE.sample);
+  assert.equal(response.status, 200);
+  const sample = (await response.json()) as { synthetic: boolean; references: { text: string }[]; drafts: { text: string }[]; heldOut: { text: string } };
+  assert.equal(sample.synthetic, true);
+  const references = sample.references.map((row) => row.text);
+  const drifted = delta(references, sample.drafts.map((row) => row.text));
+  const held = delta(references, [sample.heldOut.text]);
+  assert.equal(drifted.delta.toFixed(2), STYLE_DISTANCE.drifted);
+  assert.equal(held.delta.toFixed(2), STYLE_DISTANCE.heldOut);
+  assert.deepEqual(
+    STYLE_DISTANCE.fins.map((fin) => fin.word),
+    drifted.rows.slice(0, STYLE_DISTANCE.fins.length).map((row) => row.word),
+  );
+  STYLE_DISTANCE.fins.forEach((fin, index) => assert.ok(Math.abs(fin.z - (drifted.rows[index]?.z ?? 0)) < 0.01, fin.word));
 });
 
 test("the autopsy verdict sheet is the scorer's own output for the public sample", { timeout: 30000 }, async () => {

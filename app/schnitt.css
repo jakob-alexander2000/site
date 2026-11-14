@@ -1002,13 +1002,21 @@ html[data-schnitt="flat"] .plane-slot {
 }
 
 .fins li {
-  background: var(--ink);
-  color: var(--paper);
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 12px;
   line-height: 1.4;
-  padding: 4px 8px;
   min-height: 28px;
+}
+
+.fin-bar {
+  display: block;
+  height: 14px;
+  background: var(--ink);
 }
 
 @media (min-width: 801px) {

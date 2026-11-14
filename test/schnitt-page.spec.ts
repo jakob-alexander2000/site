@@ -19,8 +19,10 @@ test("every plate is in the served html", async ({ page }) => {
   ]) {
     expect(html, line).toContain(line);
   }
-  await expect(page.locator("#autopsy")).toContainText(DROPPED.passage);
-  await expect(page.locator("#autopsy")).toContainText(DROPPED.answer);
+  const served = await (await page.request.get("/")).text();
+  const servedText = served.replace(/<[^>]+>/g, "").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
+  expect(servedText, "passage in the served html").toContain(DROPPED.passage);
+  expect(servedText, "answer in the served html").toContain(DROPPED.answer);
   expect(html).not.toContain("[Draft");
   expect(html).not.toContain("[Needs");
   expect(html).not.toContain("[Optional");
