@@ -65,7 +65,7 @@ export function handbookLines(markdown: string): { title: string; lines: string[
       if (cut === paragraph) return paragraph;
       return cut.endsWith(".") ? cut : `${cut}.`;
     });
-  const lines = paragraphs.filter((paragraph) => !paragraph.includes("Berlin")).slice(0, 2);
+  const lines = paragraphs.slice(0, 2);
   if (lines.length < 2) throw new Error("Handbook section did not yield two lines");
   return { title: "Paid time off", lines };
 }

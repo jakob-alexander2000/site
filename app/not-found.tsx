@@ -3,9 +3,9 @@ import { ContactBlock } from "@/components/ContactBlock";
 
 export default function NotFound() {
   return (
-    <main id="top" className="screen">
+    <main id="top" className="missing">
       <h1>This page is not on the site.</h1>
-      <p className="copy">
+      <p>
         <Link href="/">Jakob Alex</Link>
       </p>
       <ContactBlock />

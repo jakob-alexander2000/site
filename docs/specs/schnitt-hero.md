@@ -71,7 +71,7 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
 | Frame time, 4× CPU, hero method | `docs/evidence/schnitt-frame-timing.json` | 390×844, static HTML stack, WebGL off: 58 frames, median 16.7 ms, p95 16.7 ms, max 266.7 ms, share above 20 ms = 0.017. 1440×900, WebGL on, with the fit loop: 62 frames, median 16.7 ms, p95 16.7 ms, max 200 ms, share above 20 ms = 0.016. Phone is not a 73-frame WebGL run. The single long phone frame is recorded and explained before M7. |
 | Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 71 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on this branch after the hero fixes. The WebKit skips are the Chromium-only canvas-ink test and the frame-time test. |
 | Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |

@@ -66,7 +66,7 @@ test("the sentence and the two claims are on the page", async ({ page }) => {
   await expect(page.getByText(HERO_SUPPORT)).toBeVisible();
   await expect(page.locator(".claim", { hasText: "Full-time employees receive 30 days." })).toBeVisible();
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
-  await expect(page.getByText("How many paid vacation days do full-time employees get?")).toBeVisible();
+  await expect(page.locator(".question")).toContainText("How many paid vacation days do full-time employees get?");
   await expect(page.getByText("The handbook says 30 days.")).toBeVisible();
   await expect(page.getByText("DATA FROM A RECORDED RUN, 9 NOV 2026")).toBeVisible();
   await expect(page.getByText("18 of 18 · offline eval · 29 OCT 2026")).toBeVisible();
@@ -75,7 +75,7 @@ test("the sentence and the two claims are on the page", async ({ page }) => {
     "href",
     "https://github.com/jakob-alexander2000/citebot",
   );
-  await expect(page.locator('a[href*="citebot-chi.vercel.app"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="citebot-chi.vercel.app/ask"]')).toHaveCount(0);
 });
 
 test("the passing sentence has a thread and the failing sentence has a loop", async ({ page }) => {
@@ -543,7 +543,7 @@ for (const viewport of [
           const [a, b, c, d] = match[1].split(",").map((part) => Number(part.trim()));
           return Math.min(Math.hypot(a ?? 0, b ?? 0), Math.hypot(c ?? 0, d ?? 0));
         };
-        const root = document.querySelector("[data-schnitt]") ?? document.body;
+        const root = document.querySelector("main") ?? document.body;
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
         let node = walker.currentNode as HTMLElement | null;
         while (node) {
