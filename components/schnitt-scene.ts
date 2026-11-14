@@ -42,7 +42,7 @@ function placeCallouts(stage: HTMLElement) {
   const sheets = [...stage.querySelectorAll<HTMLElement>(".sheet")];
   const parked: DOMRect[] = [];
   const parts: string[] = [];
-  const gap = 12;
+  const gap = 20;
   for (const slot of stage.querySelectorAll<HTMLElement>(".plane-slot")) {
     const peg = stage.querySelector(`.peg[data-peg="${slot.dataset.plane}"]`);
     const callout = stage.querySelector<HTMLElement>(`.callout[data-for="${slot.dataset.plane}"]`);
@@ -120,15 +120,20 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
   const materials: MeshBasicMaterial[] = [];
   const geometries: BufferGeometry[] = [];
 
+  const labelLane = 188;
+  const maxSheet = Math.max(280, stage.clientWidth - labelLane - 28);
   slots.forEach((slot) => {
+    slot.style.boxSizing = "border-box";
+    slot.style.transformOrigin = "center center";
+    if (stage.clientWidth >= 700) slot.style.width = `${Math.min(slot.offsetWidth, maxSheet)}px`;
     const cssW = Math.max(slot.offsetWidth, 220);
     const cssH = Math.max(slot.offsetHeight, 96);
     const rig = new Group();
     const narrow = stage.clientWidth < 700;
     const sheet = new CSS3DObject(slot);
     sheet.rotation.order = "YXZ";
-    sheet.rotation.y = narrow ? Math.PI / 28 : Math.PI / 10;
-    sheet.rotation.x = narrow ? -Math.PI / 36 : -Math.PI / 7;
+    sheet.rotation.y = narrow ? Math.PI / 28 : Math.PI / 14;
+    sheet.rotation.x = narrow ? -Math.PI / 36 : -Math.PI / 12;
     rig.add(sheet);
 
     const fill = new MeshBasicMaterial({
@@ -182,10 +187,6 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const rawH = sample?.cssH ?? 140;
     const fit = 1;
     const planeH = rawH * fit;
-    const gap0 = planeH * 0.86;
-    const gap1 = planeH * 1.62;
-    const gap = gap0 + progress * (gap1 - gap0);
-    const x = phone ? 0 : width * 0.08;
 
     if (phone) {
       const tilt = 6;
@@ -218,40 +219,45 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
       camera.position.set(0, 0, dist);
       look.set(0, 0, 0);
     } else {
-      cards.forEach((item, index) => {
-        const y = (1.5 - index) * gap;
-        item.sheet.scale.set(fit, fit, fit);
-        item.card.scale.set(fit, fit, 1);
-        item.edge?.scale.set(fit, fit, 1);
-        item.rig.position.set(x, y, (index - 1.5) * (10 + progress * 48));
-      });
-      camera.position.set(dist * 0.04, dist * 0.02 + progress * 12, dist);
-      look.set(x * 0.35, progress * 8, 0);
-    }
-    camera.lookAt(look);
-    scene.updateMatrixWorld(true);
-    renderer.render(scene, camera);
-    css.render(scene, camera);
-    if (!phone) {
-      let fitted = gap;
-      let lift = 0;
-      for (let pass = 0; pass < 4; pass += 1) {
-        const root = stage.getBoundingClientRect();
-        const rects = [...stage.querySelectorAll<HTMLElement>(".sheet")].map((sheet) => sheet.getBoundingClientRect());
-        if (rects.length !== cards.length) break;
-        const below = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 12);
-        const above = root.top + 8 - Math.min(...rects.map((rect) => rect.top));
-        if (below <= 1 && above <= 1) break;
-        if (below > 1 && above < -1) lift += Math.min(below, -above);
-        else if (above > 1 && below < -1) lift -= Math.min(above, -below);
-        else fitted = Math.max(gap0, fitted - Math.max(below, above) / 1.5);
+      const placeDesktop = (gapValue: number) => {
         cards.forEach((item, index) => {
-          item.rig.position.y = (1.5 - index) * fitted + lift;
+          const y = (1.5 - index) * gapValue;
+          item.sheet.scale.set(fit, fit, fit);
+          item.card.scale.set(fit, fit, 1);
+          item.edge?.scale.set(fit, fit, 1);
+          const worldX = labelLane + item.cssW / 2 - width / 2;
+          item.rig.position.set(worldX, y, (index - 1.5) * 12);
         });
+        const anchorX = labelLane + (sample?.cssW ?? 0) / 2 - width / 2;
+        camera.position.set(anchorX * 0.04, 0, dist);
+        look.set(anchorX * 0.15, 0, 0);
+        camera.lookAt(look);
         scene.updateMatrixWorld(true);
         renderer.render(scene, camera);
         css.render(scene, camera);
+      };
+      const overflow = () => {
+        const root = stage.getBoundingClientRect();
+        const rects = [...stage.querySelectorAll<HTMLElement>(".sheet")].map((sheet) => sheet.getBoundingClientRect());
+        if (rects.length !== cards.length) return 0;
+        const below = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 16);
+        const above = root.top + 12 - Math.min(...rects.map((rect) => rect.top));
+        return Math.max(below, above, 0);
+      };
+      let maxGap = planeH * 1.7;
+      placeDesktop(maxGap);
+      for (let pass = 0; pass < 8 && overflow() > 1; pass += 1) {
+        maxGap = Math.max(planeH * 0.9, maxGap - overflow() / 2.2);
+        placeDesktop(maxGap);
       }
+      const gap = maxGap * (0.7 + 0.3 * progress);
+      placeDesktop(gap);
+    }
+    if (phone) {
+      camera.lookAt(look);
+      scene.updateMatrixWorld(true);
+      renderer.render(scene, camera);
+      css.render(scene, camera);
     }
     placeCallouts(stage);
     placeThread(stage);
@@ -286,6 +292,9 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
       if (!parent) return;
       slot.style.position = "";
       slot.style.transform = "";
+      slot.style.width = "";
+      slot.style.transformOrigin = "";
+      slot.style.boxSizing = "";
       slot.style.userSelect = "";
       parent.appendChild(slot);
     });

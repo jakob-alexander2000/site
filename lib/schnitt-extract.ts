@@ -79,7 +79,7 @@ function pinLabel(pinned: string): string {
 }
 
 function evalCount(report: string): SchnittRun["evalCount"] {
-  const score = /(\d+)\/(\d+) passed/.exec(report);
+  const score = /(\d+)\s+of\s+(\d+)\s+passed/.exec(report);
   if (!score || score[1] !== score[2]) throw new Error("Offline eval score is missing");
   const started = /Started:\*\*\s+(\d{1,2}) ([A-Za-z]+) (\d{4})/.exec(report);
   if (!started) throw new Error("Offline eval date is missing");

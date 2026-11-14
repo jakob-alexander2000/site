@@ -3,6 +3,11 @@
   "citebot": {
     "commit": "2ec2319dd9b3a75e45d5e7773b3841f4afe3fff9",
     "files": {
+      "tests/fixtures/verify-cases.json": "1a7f4ddb29941a368d5e71df4d156a53eea53000",
+      "examples/nordlicht-corpus/pto-and-leave.md": "5e7c7dffa882785a56ef6497a27cba7e5229c510",
+      "evals/golden.json": "f6a420be7eff179f8d2418c038f7cf5f9cbe6428"
+    },
+    "upstream": {
       "tests/fixtures/verify-cases.json": "914692a2350b8acf39a0de7a66da6eaba65b1895",
       "examples/nordlicht-corpus/pto-and-leave.md": "511f514b4742ebfc70af178224f59f1dd26543e5",
       "evals/golden.json": "9723431d89acb45874b33f369aeae85071cc4c5c"
@@ -11,6 +16,9 @@
   "citebotEvals": {
     "commit": "b9e2c8ba3c2b8f5f61a1a6e79d6af4470d9b3a45",
     "files": {
+      "reports/SAMPLE.md": "e0746bb76ab545d23a91c4ab87f1363872944570"
+    },
+    "upstream": {
       "reports/SAMPLE.md": "1db253014188239e23d1fa95a6c707359dce67bf"
     }
   }

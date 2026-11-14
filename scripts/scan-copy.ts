@@ -120,6 +120,7 @@ function main() {
     ...walk("lib"),
     ...walk("public"),
     ...walk("scripts"),
+    ...walk("content/fixtures"),
     ...["README.md", "DESIGN.md", "AGENTS.md"].filter((path) => existsSync(path)),
     ...builtFiles(),
   ];
