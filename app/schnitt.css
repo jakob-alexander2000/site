@@ -146,11 +146,23 @@ html[data-schnitt="gl"] .schnitt-sticky {
   overflow: hidden;
 }
 
-html[data-schnitt="gl"] .stage-spacer {
+html.is-rail .stage-spacer {
   display: block;
   grid-column: 2;
   grid-row: 2;
   min-height: 70vh;
+}
+
+html.is-rail .plate h2,
+html.is-rail .plate h3,
+html.is-rail .plate .body,
+html.is-rail .plate li,
+html.is-rail .plate p,
+html.is-rail .plate figcaption,
+html.is-rail .plate .skills,
+html.is-rail .plate .skill-strip {
+  position: relative;
+  z-index: 6;
 }
 
 html[data-schnitt="gl"] .schnitt-stage.is-rail,

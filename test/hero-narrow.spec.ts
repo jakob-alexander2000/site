@@ -42,7 +42,7 @@ for (const width of [801, 900, 1024]) {
         }),
         ...sheets.map((sheet) => {
           const box = sheet.getBoundingClientRect();
-          return `S ${(sheet.style.transform || "no-tf").slice(80, 180)}`;
+          return `S ${Math.round(box.right)} ${(sheet.style.transform || "no-tf").slice(80, 140)}`;
         }),
       ];
       return { overlaps, clips, cuts, boxes, inner: window.innerWidth };

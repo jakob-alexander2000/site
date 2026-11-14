@@ -1,4 +1,4 @@
-import {
+import type {
   BufferGeometry,
   Group,
   Mesh,
@@ -9,13 +9,12 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import { CSS3DObject, CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import { placeThread } from "@/components/schnitt-fallback";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 type Card = {
   rig: Group;
-  sheet: CSS3DObject;
+  sheet: CssObject;
   card: Mesh;
   edge?: Mesh;
   cssW: number;
@@ -43,12 +42,50 @@ function nextTask() {
   });
 }
 
+type CssObject = import("three").Object3D & { element: HTMLElement };
+
+type CssRenderer = {
+  domElement: HTMLElement;
+  setSize(width: number, height: number): void;
+  render(scene: Scene, camera: PerspectiveCamera): void;
+};
+
+/** Load three.js in separate chunks so no one evaluation owns the frame. */
+async function loadBits() {
+  const geometry = (await import("three/src/geometries/PlaneGeometry.js")) as {
+    PlaneGeometry: new (width: number, height: number) => PlaneGeometry;
+  };
+  await nextTask();
+  const material = (await import("three/src/materials/MeshBasicMaterial.js")) as {
+    MeshBasicMaterial: new (params?: object) => MeshBasicMaterial;
+  };
+  const mesh = (await import("three/src/objects/Mesh.js")) as { Mesh: new (geometry: PlaneGeometry, material: MeshBasicMaterial) => Mesh };
+  const group = (await import("three/src/objects/Group.js")) as { Group: new () => Group };
+  await nextTask();
+  const sceneMod = (await import("three/src/scenes/Scene.js")) as { Scene: new () => Scene };
+  const cameraMod = (await import("three/src/cameras/PerspectiveCamera.js")) as {
+    PerspectiveCamera: new (fov: number, aspect: number, near: number, far: number) => PerspectiveCamera;
+  };
+  const vector = (await import("three/src/math/Vector3.js")) as { Vector3: new () => Vector3 };
+  await nextTask();
+  const renderer = (await import("three/src/renderers/WebGLRenderer.js")) as {
+    WebGLRenderer: new (params?: object) => WebGLRenderer;
+  };
+  await nextTask();
+  const css = (await import("@/components/css3d.js")) as {
+    CSS3DObject: new (element?: HTMLElement) => CssObject;
+    CSS3DRenderer: new () => CssRenderer;
+  };
+  return { ...geometry, ...material, ...mesh, ...group, ...sceneMod, ...cameraMod, ...vector, ...renderer, ...css };
+}
+
 function cameraZFor(dist: number, depths: number[]) {
   const hero = document.querySelector(".schnitt");
   const bottom = hero instanceof HTMLElement ? hero.getBoundingClientRect().bottom : window.innerHeight;
-  if (bottom > window.innerHeight * 0.5 || depths.length === 0) return dist;
-  const t = clamp01((railProgress() - 0.08) / 0.92);
-  return dist + (depths[depths.length - 1] + 480 - dist) * t;
+  if (bottom > window.innerHeight * 0.25 || depths.length === 0) return dist;
+  const t = clamp01((railProgress() - 0.2) / 0.7);
+  // Stop in front of the last plane so the camera never flies through a sheet.
+  return dist + (depths[0] + 800 - dist) * t;
 }
 
 function sectionProgress(section: HTMLElement) {
@@ -64,10 +101,9 @@ function sectionProgress(section: HTMLElement) {
 function railProgress() {
   const skills = document.getElementById("skills");
   if (!skills) return 0;
-  const end = skills.getBoundingClientRect().bottom;
-  const travel = end - window.innerHeight;
-  if (travel <= 1) return 0;
-  return Math.min(1, Math.max(0, -document.documentElement.getBoundingClientRect().top / travel));
+  const end = skills.offsetTop + skills.offsetHeight - window.innerHeight;
+  if (end <= 1) return 0;
+  return Math.min(1, Math.max(0, window.scrollY / end));
 }
 
 /** Plate motion runs in the hero's render loop so the page keeps one WebGL renderer. */
@@ -80,8 +116,8 @@ function layoutPlates() {
   if (cite && sheets.length) {
     const progress = sectionProgress(cite);
     sheets.forEach((sheet, index) => {
-      const along = new Vector3(0, Math.round(progress * (sheets.length - 1)) === index ? -10 : 0, 0);
-      sheet.setAttribute("transform", `translate(${along.x.toFixed(1)} ${along.y.toFixed(1)})`);
+      const lift = Math.round(progress * (sheets.length - 1)) === index ? -10 : 0;
+      sheet.setAttribute("transform", `translate(0 ${lift.toFixed(1)})`);
     });
   }
   const autopsy = document.getElementById("autopsy");
@@ -189,9 +225,11 @@ function placeCallouts(stage: HTMLElement) {
 }
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
+  await nextTask();
   const slots = [...stage.querySelectorAll<HTMLElement>(".sheet")];
   if (slots.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const parents = slots.map((slot) => slot.parentElement);
+  const { Scene, PerspectiveCamera, Vector3, WebGLRenderer, Mesh, MeshBasicMaterial, PlaneGeometry, Group, CSS3DObject, CSS3DRenderer } = await loadBits();
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(40, 1, 1, 20000);
@@ -210,6 +248,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   });
   if (!renderer.getContext()) throw new Error("WebGL context is missing");
   renderer.setClearColor(0x000000, 0);
+  await nextTask();
 
   const css = new CSS3DRenderer();
   css.domElement.className = "schnitt-css";
@@ -266,24 +305,26 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   await nextTask();
   const planeZ: number[] = [];
-  const cuts: CSS3DObject[] = [];
+  const planes: CssObject[] = [];
+  const cuts: CssObject[] = [];
   ["citebot", "autopsy", "style", "skills"].forEach((id, index) => {
-    const depth = -1800 * (index + 1);
+    const depth = -1500 * (index + 1);
     const host = document.createElement("div");
     host.className = "rail-plane";
     host.dataset.plate = id;
     host.textContent = id;
-    host.style.cssText = "width:640px;height:280px;background:#FBFAF7;border:1px solid #111;pointer-events:none;";
+    host.style.cssText = "width:420px;height:240px;background:#FFFdf8;border:1px solid #111;box-shadow:inset 0 0 0 1px #111;box-sizing:border-box;pointer-events:none;font:18px ui-monospace,monospace;padding:18px;color:#111;";
     const plane = new CSS3DObject(host);
     plane.position.set(0, 0, depth);
     scene.add(plane);
+    planes.push(plane);
     planeZ.push(depth);
     const cutHost = document.createElement("div");
     cutHost.className = "rail-cut";
     cutHost.dataset.cut = id;
-    cutHost.style.cssText = "width:520px;height:300px;background:#FBFAF7;border:1px solid #111;pointer-events:none;";
+    cutHost.style.cssText = "width:420px;height:240px;background:#F7F7F5;border:1px solid #111;box-sizing:border-box;pointer-events:none;";
     const cut = new CSS3DObject(cutHost);
-    cut.position.set(0, 40, depth + 900);
+    cut.position.set(0, 0, depth + 750);
     scene.add(cut);
     cuts.push(cut);
   });
@@ -310,7 +351,42 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   let fittedWidth = 0;
   let fittedGap = 0;
   let drawnFrames = 0;
+  const pinRail = () => {
+    const hero = document.querySelector(".schnitt");
+    const skills = document.getElementById("skills");
+    const heroBottom = hero instanceof HTMLElement ? hero.getBoundingClientRect().bottom : window.innerHeight;
+    const skillsBottom = skills instanceof HTMLElement ? skills.getBoundingClientRect().bottom : 0;
+    const pin = window.innerWidth > 800 && heroBottom <= window.innerHeight * 0.25 && skillsBottom > 0;
+    document.documentElement.classList.toggle("is-rail", pin);
+    if (pin) {
+      if (stage.parentElement !== document.body) document.body.appendChild(stage);
+      const span = Math.round(window.innerWidth * 0.56);
+      stage.classList.add("is-rail");
+      stage.style.position = "fixed";
+      stage.style.top = "0";
+      stage.style.right = "0";
+      stage.style.left = "auto";
+      stage.style.width = `${span}px`;
+      stage.style.height = "100vh";
+      stage.style.zIndex = "4";
+      stage.style.margin = "0";
+      return;
+    }
+    const home = document.querySelector(".schnitt-sticky");
+    if (home instanceof HTMLElement && stage.parentElement !== home) home.appendChild(stage);
+    stage.classList.remove("is-rail");
+    stage.style.position = "";
+    stage.style.top = "";
+    stage.style.right = "";
+    stage.style.left = "";
+    stage.style.width = "";
+    stage.style.height = "";
+    stage.style.zIndex = "";
+    stage.style.margin = "";
+  };
+
   const render = () => {
+    pinRail();
     const width = Math.max(stage.clientWidth, 1);
     const height = Math.max(stage.clientHeight, 1);
     const progress = progressOf(stage);
@@ -403,12 +479,32 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       renderer.render(scene, camera);
       css.render(scene, camera);
     }
+    const heroBottom = document.querySelector(".schnitt")?.getBoundingClientRect().bottom ?? window.innerHeight;
+    const traveling = heroBottom <= window.innerHeight * 0.25;
+    for (const item of cards) {
+      item.card.visible = !traveling;
+      if (item.edge) item.edge.visible = !traveling;
+      item.sheet.element.style.visibility = traveling ? "hidden" : "visible";
+      item.sheet.element.style.display = traveling ? "none" : "";
+    }
+    for (const plane of planes) {
+      const behind = plane.position.z > camera.position.z - 80;
+      plane.element.style.visibility = traveling && !behind ? "visible" : "hidden";
+    }
     for (const cut of cuts) {
       const gapToCut = Math.abs(camera.position.z - cut.position.z);
-      cut.rotation.y = clamp01(1 - gapToCut / 1100) * (Math.PI / 2);
+      const behind = cut.position.z > camera.position.z - 80;
+      cut.element.style.visibility = traveling && !behind ? "visible" : "hidden";
+      cut.rotation.y = clamp01(1 - gapToCut / 900) * (Math.PI / 2);
     }
     css.domElement.style.pointerEvents = "none";
     placeCallouts(stage);
+    const leaders = stage.querySelector<SVGElement>(".leaders, .tie-svg, svg");
+    if (leaders && traveling) leaders.style.visibility = "hidden";
+    if (!traveling) stage.querySelectorAll<SVGElement>("svg").forEach((node) => (node.style.visibility = ""));
+    stage.querySelectorAll<HTMLElement>(".callout").forEach((node) => {
+      node.style.visibility = traveling ? "hidden" : "";
+    });
     placeThread(stage);
     layoutPlates();
     drawnFrames += 1;
@@ -433,17 +529,20 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     schedule();
   };
 
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", onResize);
   await nextTask();
   resize();
   render();
   stage.dataset.engine = "WebGLRenderer";
   stage.dataset.gl = "ready";
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", onResize);
 
   return () => {
     window.removeEventListener("scroll", schedule);
     window.removeEventListener("resize", onResize);
+    document.documentElement.classList.remove("is-rail");
+    const home = document.querySelector(".schnitt-sticky");
+    if (home instanceof HTMLElement && stage.parentElement !== home) home.appendChild(stage);
     if (frame) window.cancelAnimationFrame(frame);
     slots.forEach((slot, index) => {
       const parent = parents[index];

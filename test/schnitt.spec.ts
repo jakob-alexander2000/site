@@ -693,10 +693,15 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
   expect(before.triangles).toBeLessThanOrEqual(50000);
   expect(before.ratio).toBeGreaterThan(0);
   expect(before.ratio).toBeLessThanOrEqual(2);
+  await page.evaluate(() => window.scrollTo(0, document.getElementById("citebot")?.offsetTop ?? 0));
+  await page.waitForTimeout(200);
+  const mid = await read();
   await page.evaluate(() => window.scrollTo(0, document.getElementById("style")?.offsetTop ?? 0));
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(200);
   const after = await read();
-  expect(after.z).not.toBe(before.z);
+  expect(after.z).not.toBe(mid.z);
+  const pinned = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-stage")!).position);
+  expect(pinned).toBe("fixed");
   const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
   await page.waitForTimeout(2000);
   const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
