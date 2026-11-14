@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { findHits } from "../scripts/scan-copy";
+import { vendoredRecords } from "../scripts/vendor-fixtures";
 import { loadManifest, loadSchnittRun } from "../lib/schnitt-run";
 
 function blob(path: string): string {
@@ -15,6 +16,8 @@ test("pinned fixture files match the manifest", () => {
   assert.equal(manifest.pinned, "2026-11-09");
   assert.equal(manifest.citebot.commit, "2ec2319dd9b3a75e45d5e7773b3841f4afe3fff9");
   assert.equal(manifest.citebotEvals.commit, "b9e2c8ba3c2b8f5f61a1a6e79d6af4470d9b3a45");
+  assert.equal(manifest.citebot.upstream["tests/fixtures/verify-cases.json"], "914692a2350b8acf39a0de7a66da6eaba65b1895");
+  assert.equal(manifest.citebotEvals.upstream["reports/SAMPLE.md"], "1db253014188239e23d1fa95a6c707359dce67bf");
   const files: Record<string, string> = {
     "content/fixtures/citebot/tests/fixtures/verify-cases.json": manifest.citebot.files["tests/fixtures/verify-cases.json"] ?? "",
     "content/fixtures/citebot/examples/nordlicht-corpus/pto-and-leave.md":
@@ -25,6 +28,15 @@ test("pinned fixture files match the manifest", () => {
   for (const [path, sha] of Object.entries(files)) {
     assert.equal(sha.length, 40, path);
     assert.equal(blob(path), sha, path);
+    assert.deepEqual(findHits(readFileSync(path, "utf8")), [], path);
+  }
+});
+
+test("the vendored fixtures regenerate from the pinned commits", { timeout: 30000 }, async () => {
+  const records = await vendoredRecords();
+  for (const [path, text] of Object.entries(records)) {
+    assert.equal(readFileSync(path, "utf8"), text, path);
+    assert.deepEqual(findHits(text), [], path);
   }
 });
 
@@ -62,4 +74,24 @@ test("the run text passes the copy scan", () => {
   const hits = findHits(JSON.stringify(run));
   assert.deepEqual(hits, []);
   assert.equal(/\d+\/\d+/.test(JSON.stringify(run)), false);
+});
+
+test("the phone frame-time record is the static stack", () => {
+  const record = JSON.parse(readFileSync("docs/evidence/schnitt-frame-timing.json", "utf8")) as {
+    phone390: { viewport: string; webgl: string; method: string; frames: number; medianMs: number; p95Ms: number; maxMs: number; shareOver20ms: number };
+    desktop1440: { webgl: string; method: string; frames: number };
+  };
+  assert.equal(record.phone390.viewport, "390x844");
+  assert.equal(record.phone390.webgl, "off");
+  assert.equal(record.phone390.method, "static-stack");
+  assert.equal(record.desktop1440.webgl, "ready");
+  assert.equal(record.desktop1440.method, "fit-loop");
+  assert.notEqual(record.phone390.webgl, "ready");
+  const spec = readFileSync("docs/specs/schnitt-hero.md", "utf8");
+  assert.equal(spec.includes("WebGL on: 73 frames"), false);
+  assert.match(spec, /static HTML stack, WebGL off/);
+  assert.match(spec, new RegExp(`${record.phone390.frames} frames`));
+  assert.match(spec, new RegExp(`median ${record.phone390.medianMs} ms`));
+  assert.match(spec, new RegExp(`p95 ${record.phone390.p95Ms} ms`));
+  assert.match(spec, new RegExp(`max ${record.phone390.maxMs} ms`));
 });

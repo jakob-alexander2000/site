@@ -19,7 +19,7 @@ The place name, the currency case, and every slash ratio stay in `content/fixtur
 
 ## Picture
 
-Paper `#F7F7F5`. Sheets `#FBFAF7`. Verdict sheet `#111111`. Ink `#111111`. Mute `#3A3A36`. Fail red `#C6302A` on paper and `#FF8A84` on the verdict sheet. Red is the fail word and the pen loop only.
+Paper `#F7F7F5`. Sheets `#FBFAF7`. Verdict sheet `#111111`. Ink `#111111`. Mute `#3A3A36`. Fail red `#C6302A` on paper and `#FF8A84` on the verdict sheet. Red is the fail word and the pen loop only. The `theme-color` meta tag is paper `#F7F7F5`, and `color-scheme` is light. Body copy is 17px. Labels sit on leaders, including `D · VERDICT`, and do not meet a sheet.
 
 Geist 200 for the sentence, Geist 300 for the support line and the sheet body, Geist Mono for labels and evidence, Instrument Serif italic on the word "check" only.
 
@@ -34,9 +34,9 @@ One thread runs from the passing sentence to the passage span it rests on. The f
 | Situation | What you get |
 | --- | --- |
 | Desktop, motion allowed, WebGL on | Orthographic-feeling perspective camera. Four Three.js groups at different z. Scroll increases the separation. Text is HTML on `CSS3DRenderer` planes. The thread and the sheet edges are WebGL. |
-| Width at most 800, including 390×844 and 390×780 | The static tilted stack at full type size, with the label above each sheet. The scroll scene is desktop only: fitting four sheets into a phone stage scaled sheet type to 8 to 11px. |
-| `prefers-reduced-motion: reduce` | No scroll animation. The sheets are a static exploded stack in the page. The same words, the same thread, the same loop. |
-| WebGL missing or blocked | That same static stack. The stage is never an empty box. |
+| Width at most 800, including 390×844, 390×780, and 375×667 | The static tilted stack at full type size, with the label above each sheet. The tilt does not scale type below 1. The scroll scene is desktop only. No WebGL context is created and `three` is not requested. |
+| `prefers-reduced-motion: reduce` | No scroll animation. On a phone the sheets stay the static tilted stack. On desktop they are the flat still: sheets separated on leaders, not tilted. The same words, the same thread, the same loop. |
+| WebGL missing or blocked | Desktop shows that same flat reduced-motion still. The stage is never an empty canvas. The phone stack is unchanged. |
 | JavaScript off | The sheets are still in the HTML, stacked in the stage. |
 
 Labels are at least 11px. Links and buttons are at least 44px. The hero reserves its box before paint so the first screen does not shift.
@@ -69,9 +69,9 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | WebGL blocked still shows the sheets | `a blocked WebGL context still shows the sheets` | Pass, Chromium and WebKit |
 | Canvas pixels are not blank | `the WebGL canvas draws ink` | Pass on Chromium. Skipped on WebKit |
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
-| Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on, with the fit loop: 73 frames, median 16.70 ms, p95 16.80 ms, max 33.40 ms, share above 20 ms = 0.014. |
+| Frame time, 4× CPU, hero method | `docs/evidence/schnitt-frame-timing.json` | 390×844, static HTML stack, WebGL off: 58 frames, median 16.7 ms, p95 16.7 ms, max 266.7 ms, share above 20 ms = 0.017. 1440×900, WebGL on, with the fit loop: 62 frames, median 16.7 ms, p95 16.7 ms, max 200 ms, share above 20 ms = 0.016. Phone is not a 73-frame WebGL run. The single long phone frame is recorded and explained before M7. |
 | Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 71 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on this branch after the hero fixes. The WebKit skips are the Chromium-only canvas-ink test and the frame-time test. |
 | Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |

@@ -18,7 +18,7 @@ test("every banned rule fires on the fixture", () => {
   for (const rule of [
     "made-in-berlin", "guitar", "cost", "commit-count", "self-taught", "taught-himself", "taught-myself",
     "third-person", "ledger", "grounded-docs", "mittelstand", "white-label", "vierspur", "open-to-work",
-    "hiring", "income", "salary", "euro", "tape-brand", "slash-count", "email",
+    "hiring", "income", "salary", "euro", "tape-brand", "gear-brand", "currency-digit", "place-name", "slash-count", "email",
   ]) {
     assert.equal(found.has(rule), true, rule);
   }

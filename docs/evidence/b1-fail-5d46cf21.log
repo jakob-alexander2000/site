@@ -1,0 +1,65 @@
+5d46cf21807c4491e623c197fe6611c916e7cd68
+
+Running 2 tests using 2 workers
+
+(node:18640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(node:18639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/2] [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+[2/2] [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+  1) [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll 
+
+    Error: scroll 0
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   "A · HANDBOOKSour: 1845 card pixels",
+    +   "B · PASSAGESRetr: 2653 card pixels",
+    +   "C · SENTENCESRec: 3262 card pixels",
+    +   "D · VERDICTA res: 6075 card pixels",
+    + ]
+
+      43 |       return hits;
+      44 |     });
+    > 45 |     expect(covered, `scroll ${share}`).toEqual([]);
+         |                                        ^
+      46 |   }
+      47 | });
+      48 |
+        at /agent/repos/site/test/b1-drawn-cards.spec.ts:45:40
+
+    Error Context: test-results/b1-drawn-cards-desktop-lab-5d0da-wn-cards-through-the-scroll-chromium/error-context.md
+
+
+  2) [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll 
+
+    Error: spread 327.21185302734375 → 397.65919494628906 → 468.34153747558594 → 539.4421844482422 → 527.7763824462891
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 538.4421844482422
+    Received:    527.7763824462891
+
+      67 |   }
+      68 |   for (let index = 1; index < spreads.length; index += 1) {
+    > 69 |     expect(spreads[index], `spread ${spreads.join(" → ")}`).toBeGreaterThanOrEqual((spreads[index - 1] ?? 0) - 1);
+         |                                                             ^
+      70 |   }
+      71 |   expect(spreads[spreads.length - 1], spreads.join(" → ")).toBeGreaterThan(spreads[0] ?? 0);
+      72 | });
+        at /agent/repos/site/test/b1-drawn-cards.spec.ts:69:61
+
+    Error Context: test-results/b1-drawn-cards-desktop-she-cd7e8-ses-through-the-hero-scroll-chromium/error-context.md
+
+
+  2 failed
+    [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll 
+    [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll 

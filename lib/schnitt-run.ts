@@ -4,8 +4,8 @@ import { extractSchnittRun, type SchnittRun } from "@/lib/schnitt-extract";
 
 type Manifest = {
   pinned: string;
-  citebot: { commit: string; files: Record<string, string> };
-  citebotEvals: { commit: string; files: Record<string, string> };
+  citebot: { commit: string; upstream: Record<string, string>; files: Record<string, string> };
+  citebotEvals: { commit: string; upstream: Record<string, string>; files: Record<string, string> };
 };
 
 export function loadManifest(): Manifest {

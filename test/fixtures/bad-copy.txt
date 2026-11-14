@@ -18,8 +18,9 @@ name@example.com
 hiring
 income
 salary
-€
+€45
 Tascam
+TEAC
 Portastudio
 18/18
 mailto:

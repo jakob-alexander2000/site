@@ -29,6 +29,9 @@ const RULES: ReadonlyArray<readonly [string, RegExp]> = [
   ["salary", /salary|salaries|\bgehalt\b/i],
   ["euro", /€|\beur\b|\beuro\b/i],
   ["tape-brand", /tascam|portastudio/i],
+  ["gear-brand", /\b(teac|tascam|portastudio|sennheiser|neumann|focusrite)\b/i],
+  ["currency-digit", /(?:€|£|¥)\s?\d|\d\s?(?:€|£|¥)|(?<!["\\])\$\s?\d|\d\s?\$(?![{"])/],
+  ["place-name", /\bberlin\b/i],
   ["slash-count", /\b\d+\/\d+\b(?! ?(?:px|s|ms|%))/],
 ];
 
@@ -117,6 +120,7 @@ function main() {
     ...walk("lib"),
     ...walk("public"),
     ...walk("scripts"),
+    ...walk("content/fixtures"),
     ...["README.md", "DESIGN.md", "AGENTS.md"].filter((path) => existsSync(path)),
     ...builtFiles(),
   ];

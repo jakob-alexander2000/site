@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { LAYERS, type LayerId } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
-import { mountSchnittScene, showExplodedFallback } from "@/components/schnitt-scene";
+import { showExplodedFallback } from "@/components/schnitt-fallback";
 
 function splitSpan(text: string, span: string) {
   const index = text.indexOf(span);
@@ -54,12 +54,21 @@ export function SchnittStage({ run }: { run: SchnittRun }) {
     let cancelled = false;
     const start = () => {
       if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
-      try {
-        destroy = mountSchnittScene(stage, canvas);
-      } catch {
-        document.documentElement.dataset.schnitt = "flat";
-        showExplodedFallback(stage);
-      }
+      void import("@/components/schnitt-scene")
+        .then(({ mountSchnittScene }) => {
+          if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
+          try {
+            destroy = mountSchnittScene(stage, canvas);
+          } catch {
+            document.documentElement.dataset.schnitt = "flat";
+            showExplodedFallback(stage);
+          }
+        })
+        .catch(() => {
+          if (cancelled) return;
+          document.documentElement.dataset.schnitt = "flat";
+          showExplodedFallback(stage);
+        });
     };
     void document.fonts.ready.then(start);
     return () => {
