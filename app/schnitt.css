@@ -21,7 +21,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   column-gap: 20px;
   row-gap: 10px;
-  padding: 12px clamp(20px, 4vw, 72px) 12px;
+  padding: max(12px, env(safe-area-inset-top)) max(clamp(20px, 4vw, 72px), env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(clamp(20px, 4vw, 72px), env(safe-area-inset-left));
 }
 
 html[data-schnitt="gl"] .schnitt {
@@ -111,7 +111,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
   margin: 14px 0 0;
   max-width: 34rem;
   color: var(--mute);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 300;
   line-height: 1.45;
 }
@@ -165,7 +165,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
   color: var(--ink);
   border: 1px solid var(--ink);
   padding: 12px 14px 14px;
-  transform: matrix(0.866, 0.5, -0.866, 0.5, 0, 0);
+  transform: none;
   transform-origin: left center;
   overflow: visible;
 }
@@ -238,7 +238,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
 
 .body {
   margin: 0 0 6px;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 300;
   line-height: 1.35;
 }
@@ -492,7 +492,7 @@ html[data-schnitt="flat"] .plane-slot {
   .schnitt-sticky {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
-    padding: 4px 10px 8px;
+    padding: max(4px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
   }
 
   .schnitt-copy,
@@ -535,7 +535,7 @@ html[data-schnitt="flat"] .plane-slot {
   }
 
   .support {
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.35;
     margin-top: 6px;
   }
@@ -569,10 +569,14 @@ html[data-schnitt="flat"] .plane-slot {
     line-height: 1.25;
   }
 
-  .sheet-title,
-  .body {
-    font-size: 14px;
+  .sheet-title {
+    font-size: 18px;
     line-height: 1.2;
+  }
+
+  .body {
+    font-size: 17px;
+    line-height: 1.35;
   }
 
   .verdict-row {
@@ -619,7 +623,7 @@ html[data-schnitt="flat"] .plane-slot {
   .sheet {
     box-sizing: border-box;
     padding: 7px 10px 8px;
-    transform: matrix(0.96, 0.22, -0.18, 0.94, 0, 0);
+    transform: matrix(1, 0.08, -0.05, 1, 0, 0);
   }
 
   html[data-schnitt="gl"] .plane-slot {
@@ -651,10 +655,10 @@ html[data-schnitt="flat"] .plane-slot {
     width: 100%;
   }
 
-  html[data-schnitt="flat"] .sheet {
-    width: min(100%, 16.5rem);
-    transform: matrix(0.98, 0.08, -0.06, 0.98, 0, 0);
-  }
+html[data-schnitt="flat"] .sheet {
+  width: min(100%, 16.5rem);
+  transform: matrix(1, 0.08, -0.05, 1, 0, 0);
+}
 
   .schnitt-stage {
     position: relative;

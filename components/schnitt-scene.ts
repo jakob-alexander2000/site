@@ -10,6 +10,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { CSS3DObject, CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
+import { placeThread } from "@/components/schnitt-fallback";
 
 type Card = {
   rig: Group;
@@ -29,12 +30,19 @@ function progressOf(stage: HTMLElement) {
   return Math.min(1, Math.max(0, (window.scrollY - start) / range));
 }
 
+function intersects(a: DOMRect, b: DOMRect) {
+  return a.width > 0 && b.width > 0 && a.left < b.right + 2 && a.right > b.left - 2 && a.top < b.bottom + 2 && a.bottom > b.top - 2;
+}
+
 function placeCallouts(stage: HTMLElement) {
   const svg = stage.querySelector(".leaders");
   if (!(svg instanceof SVGSVGElement)) return;
   const root = stage.getBoundingClientRect();
   svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
+  const sheets = [...stage.querySelectorAll<HTMLElement>(".sheet")];
+  const parked: DOMRect[] = [];
   const parts: string[] = [];
+  const gap = 12;
   for (const slot of stage.querySelectorAll<HTMLElement>(".plane-slot")) {
     const peg = stage.querySelector(`.peg[data-peg="${slot.dataset.plane}"]`);
     const callout = stage.querySelector<HTMLElement>(`.callout[data-for="${slot.dataset.plane}"]`);
@@ -43,95 +51,46 @@ function placeCallouts(stage: HTMLElement) {
     if (!(sheet instanceof HTMLElement)) continue;
     const box = sheet.getBoundingClientRect();
     const pr = peg.getBoundingClientRect();
-    const width = 132;
-    const room = box.left - root.left;
-    if (stage.clientWidth < 700) {
-      const y = box.top - root.top;
-      callout.style.transform = `translate(0px, ${y}px)`;
-      const labelRight = callout.offsetWidth;
-      const sheetLeft = box.left - root.left;
-      const yLine = y + Math.min(11, callout.offsetHeight / 2);
-      parts.push(`<path d="M ${labelRight.toFixed(1)} ${yLine.toFixed(1)} L ${Math.max(labelRight + 4, sheetLeft).toFixed(1)} ${yLine.toFixed(1)}" />`);
-    } else if (room < width + 18) {
-      const lx = Math.max(4, box.left - root.left);
-      const ly = box.top - root.top - 34;
-      callout.style.transform = `translate(${lx}px, ${ly}px)`;
-      parts.push(`<path d="M ${(lx + 10).toFixed(1)} ${(ly + 30).toFixed(1)} L ${(pr.left - root.left).toFixed(1)} ${(pr.top - root.top).toFixed(1)}" />`);
-    } else {
-      const left = Math.max(4, room - width - 24);
-      const y1 = pr.top + pr.height / 2 - root.top;
-      callout.style.transform = `translate(${left}px, ${y1 - 16}px)`;
-      parts.push(`<path d="M ${(pr.left - root.left).toFixed(1)} ${y1.toFixed(1)} L ${(left + width).toFixed(1)} ${y1.toFixed(1)}" />`);
+    const labelW = callout.offsetWidth;
+    const labelH = callout.offsetHeight;
+    const pegY = pr.top + pr.height / 2 - root.top;
+    let x = box.left - root.left - labelW - gap;
+    let y = pegY - labelH / 2;
+    if (x < 4) {
+      x = Math.max(4, box.left - root.left);
+      y = box.top - root.top - labelH - gap;
     }
-    if (stage.clientWidth >= 700) {
-      const labelW = callout.offsetWidth;
-      const labelH = callout.offsetHeight;
+    x = Math.max(4, Math.min(x, stage.clientWidth - labelW - 4));
+    y = Math.max(4, Math.min(y, stage.clientHeight - labelH - 4));
+    for (let pass = 0; pass < 6; pass += 1) {
+      callout.style.transform = `translate(${x}px, ${y}px)`;
       const placed = callout.getBoundingClientRect();
-      const hits = !(placed.right < box.left + 1 || placed.left > box.right - 1 || placed.bottom < box.top + 1 || placed.top > box.bottom - 1);
-      if (hits) {
-        const sheetLeft = box.left - root.left;
-        const sheetTop = box.top - root.top;
-        const beside = sheetLeft - labelW - 16;
+      const hitSheet = sheets.find((item) => intersects(placed, item.getBoundingClientRect()));
+      const hitLabel = parked.find((item) => intersects(placed, item));
+      if (!hitSheet && !hitLabel) break;
+      if (hitSheet) {
+        const hit = hitSheet.getBoundingClientRect();
+        const beside = hit.left - root.left - labelW - gap;
         if (beside >= 4) {
-          const y1 = pr.top + pr.height / 2 - root.top;
-          const top = Math.max(4, Math.min(y1 - labelH / 2, root.height - labelH - 4));
-          callout.style.transform = `translate(${beside}px, ${top}px)`;
-          parts[parts.length - 1] = `<path d="M ${(beside + labelW).toFixed(1)} ${(top + labelH / 2).toFixed(1)} L ${sheetLeft.toFixed(1)} ${(top + labelH / 2).toFixed(1)}" />`;
+          x = beside;
+          y = Math.max(4, Math.min(pegY - labelH / 2, stage.clientHeight - labelH - 4));
         } else {
-          const lx = Math.max(4, sheetLeft);
-          const ly = Math.max(4, sheetTop - labelH - 8);
-          callout.style.transform = `translate(${lx}px, ${ly}px)`;
-          parts[parts.length - 1] = `<path d="M ${(lx + 12).toFixed(1)} ${(ly + labelH).toFixed(1)} L ${(pr.left - root.left).toFixed(1)} ${(pr.top - root.top).toFixed(1)}" />`;
+          y = Math.max(4, hit.top - root.top - labelH - gap);
         }
+      } else if (hitLabel) {
+        y = Math.max(4, hitLabel.top - root.top - labelH - 6);
       }
     }
+    callout.style.transform = `translate(${x}px, ${y}px)`;
+    const placed = callout.getBoundingClientRect();
+    parked.push(placed);
+    const yLine = placed.top + placed.height / 2 - root.top;
+    const xStart = placed.right - root.left;
+    const xEnd = pr.left - root.left;
+    const yEnd = pr.top + pr.height / 2 - root.top;
+    parts.push(`<path d="M ${xStart.toFixed(1)} ${yLine.toFixed(1)} L ${xEnd.toFixed(1)} ${yEnd.toFixed(1)}" />`);
   }
   svg.innerHTML = parts.join("");
-}
-
-function rightmostGlyph(node: HTMLElement) {
-  const text = node.firstChild;
-  if (!text || text.nodeType !== Node.TEXT_NODE || !text.textContent) return node.getBoundingClientRect();
-  const range = document.createRange();
-  let best = node.getBoundingClientRect();
-  let right = -Infinity;
-  for (let index = 0; index < text.textContent.length; index += 1) {
-    if (!text.textContent[index].trim()) continue;
-    range.setStart(text, index);
-    range.setEnd(text, index + 1);
-    const box = range.getBoundingClientRect();
-    if (box.width > 0 && box.right > right) {
-      right = box.right;
-      best = box;
-    }
-  }
-  return best;
-}
-
-function placeThread(stage: HTMLElement) {
-  const svg = stage.querySelector(".tie-svg");
-  const from = stage.querySelector("[data-anchor='sentence']");
-  const to = stage.querySelector("[data-anchor='passage']");
-  const path = svg?.querySelector("path");
-  if (!(svg instanceof SVGSVGElement) || !(from instanceof HTMLElement) || !(to instanceof HTMLElement) || !(path instanceof SVGPathElement)) return;
-  const root = stage.getBoundingClientRect();
-  const a = rightmostGlyph(from);
-  const b = rightmostGlyph(to);
-  const y1 = a.top + a.height / 2 - root.top;
-  const y2 = b.top + b.height / 2 - root.top;
-  const phone = stage.clientWidth < 700;
-  const limit = stage.clientWidth - 6;
-  const x1 = phone ? Math.min(a.right - root.left, limit) : a.right - root.left;
-  const x2 = phone ? Math.min(b.right - root.left, limit) : b.right - root.left;
-  const gutter = phone ? Math.min(limit, Math.max(x1, x2) + 8) : Math.min(stage.clientWidth - 10, Math.max(a.right, b.right) - root.left + 16);
-  svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
-  path.setAttribute("d", `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y2.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
-  stage.dataset.ties = "1";
-}
-
-export function showExplodedFallback(stage: HTMLElement) {
-  stage.dataset.gl = "off";
-  placeThread(stage);
 }
 
 export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): () => void {
@@ -223,7 +182,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const rawH = sample?.cssH ?? 140;
     const fit = 1;
     const planeH = rawH * fit;
-    const gap0 = planeH * 0.95;
+    const gap0 = planeH * 0.86;
     const gap1 = planeH * 1.62;
     const gap = gap0 + progress * (gap1 - gap0);
     const x = phone ? 0 : width * 0.08;
@@ -313,8 +272,8 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
   };
 
   resize();
-  render();
   stage.dataset.gl = "ready";
+  render();
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", onResize);
 

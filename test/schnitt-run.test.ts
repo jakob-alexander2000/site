@@ -63,3 +63,23 @@ test("the run text passes the copy scan", () => {
   assert.deepEqual(hits, []);
   assert.equal(/\d+\/\d+/.test(JSON.stringify(run)), false);
 });
+
+test("the phone frame-time record is the static stack", () => {
+  const record = JSON.parse(readFileSync("docs/evidence/schnitt-frame-timing.json", "utf8")) as {
+    phone390: { viewport: string; webgl: string; method: string; frames: number; medianMs: number; p95Ms: number; maxMs: number; shareOver20ms: number };
+    desktop1440: { webgl: string; method: string; frames: number };
+  };
+  assert.equal(record.phone390.viewport, "390x844");
+  assert.equal(record.phone390.webgl, "off");
+  assert.equal(record.phone390.method, "static-stack");
+  assert.equal(record.desktop1440.webgl, "ready");
+  assert.equal(record.desktop1440.method, "fit-loop");
+  assert.notEqual(record.phone390.webgl, "ready");
+  const spec = readFileSync("docs/specs/schnitt-hero.md", "utf8");
+  assert.equal(spec.includes("WebGL on: 73 frames"), false);
+  assert.match(spec, /static HTML stack, WebGL off/);
+  assert.match(spec, new RegExp(`${record.phone390.frames} frames`));
+  assert.match(spec, new RegExp(`median ${record.phone390.medianMs} ms`));
+  assert.match(spec, new RegExp(`p95 ${record.phone390.p95Ms} ms`));
+  assert.match(spec, new RegExp(`max ${record.phone390.maxMs} ms`));
+});
