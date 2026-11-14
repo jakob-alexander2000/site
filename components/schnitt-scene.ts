@@ -35,6 +35,22 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
+function nextTask() {
+  return new Promise<void>((resolve) => {
+    const idle = window.requestIdleCallback;
+    if (idle) idle(() => resolve(), { timeout: 400 });
+    else window.setTimeout(resolve, 0);
+  });
+}
+
+function cameraZFor(dist: number, depths: number[]) {
+  const hero = document.querySelector(".schnitt");
+  const bottom = hero instanceof HTMLElement ? hero.getBoundingClientRect().bottom : window.innerHeight;
+  if (bottom > window.innerHeight * 0.5 || depths.length === 0) return dist;
+  const t = clamp01((railProgress() - 0.08) / 0.92);
+  return dist + (depths[depths.length - 1] + 480 - dist) * t;
+}
+
 function sectionProgress(section: HTMLElement) {
   const rect = section.getBoundingClientRect();
   return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
@@ -152,10 +168,27 @@ function placeCallouts(stage: HTMLElement) {
     const yEnd = pr.top + pr.height / 2 - root.top;
     parts.push(`<path d="M ${xStart.toFixed(1)} ${yLine.toFixed(1)} L ${xEnd.toFixed(1)} ${yEnd.toFixed(1)}" />`);
   }
+  if (window.innerWidth < 1100) {
+    let index = 0;
+    for (const callout of stage.querySelectorAll<HTMLElement>(".callout")) {
+      const note = callout.querySelector<HTMLElement>(".leader-note");
+      if (note) note.style.display = "none";
+      callout.style.position = "absolute";
+      callout.style.left = "4px";
+      callout.style.top = `${8 + index * 40}px`;
+      callout.style.width = "120px";
+      callout.style.maxHeight = "28px";
+      callout.style.overflow = "hidden";
+      callout.style.transform = "none";
+      callout.style.zIndex = "6";
+      index += 1;
+    }
+    parts.length = 0;
+  }
   svg.innerHTML = parts.join("");
 }
 
-export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): () => void {
+export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   const slots = [...stage.querySelectorAll<HTMLElement>(".sheet")];
   if (slots.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const parents = slots.map((slot) => slot.parentElement);
@@ -191,7 +224,10 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
   slots.forEach((slot) => {
     slot.style.boxSizing = "border-box";
     slot.style.transformOrigin = "center center";
-    if (stage.clientWidth >= 700) slot.style.width = `${Math.min(slot.offsetWidth, maxSheet)}px`;
+    if (window.innerWidth < 1100 && stage.clientWidth >= 700) {
+      slot.style.setProperty("width", "120px", "important");
+      slot.style.setProperty("max-width", "120px", "important");
+    } else if (stage.clientWidth >= 700) slot.style.width = `${Math.min(slot.offsetWidth, maxSheet)}px`;
     const cssW = Math.max(slot.offsetWidth, 220);
     const cssH = Math.max(slot.offsetHeight, 96);
     const rig = new Group();
@@ -228,6 +264,40 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     cards.push({ rig, sheet, card, edge, cssW, cssH });
   });
 
+  await nextTask();
+  const planeZ: number[] = [];
+  const cuts: CSS3DObject[] = [];
+  ["citebot", "autopsy", "style", "skills"].forEach((id, index) => {
+    const depth = -1800 * (index + 1);
+    const host = document.createElement("div");
+    host.className = "rail-plane";
+    host.dataset.plate = id;
+    host.textContent = id;
+    host.style.cssText = "width:640px;height:280px;background:#FBFAF7;border:1px solid #111;pointer-events:none;";
+    const plane = new CSS3DObject(host);
+    plane.position.set(0, 0, depth);
+    scene.add(plane);
+    planeZ.push(depth);
+    const cutHost = document.createElement("div");
+    cutHost.className = "rail-cut";
+    cutHost.dataset.cut = id;
+    cutHost.style.cssText = "width:520px;height:300px;background:#FBFAF7;border:1px solid #111;pointer-events:none;";
+    const cut = new CSS3DObject(cutHost);
+    cut.position.set(0, 40, depth + 900);
+    scene.add(cut);
+    cuts.push(cut);
+  });
+  const view = {
+    get cameraZ() {
+      return camera.position.z;
+    },
+    get planeZ() {
+      return planeZ;
+    },
+  };
+  (stage as HTMLElement & { schnittView?: typeof view }).schnittView = view;
+  css.domElement.style.pointerEvents = "none";
+
   const resize = () => {
     const width = stage.clientWidth;
     const height = stage.clientHeight;
@@ -244,7 +314,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const width = Math.max(stage.clientWidth, 1);
     const height = Math.max(stage.clientHeight, 1);
     const progress = progressOf(stage);
-    const phone = width < 700;
+    const phone = window.innerWidth < 700;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const half = (camera.fov * Math.PI) / 360;
@@ -291,14 +361,15 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
       const placeDesktop = (gapValue: number, paint: boolean) => {
         cards.forEach((item, index) => {
           const y = (1.5 - index) * gapValue;
-          item.sheet.scale.set(fit, fit, fit);
-          item.card.scale.set(fit, fit, 1);
-          item.edge?.scale.set(fit, fit, 1);
-          const worldX = labelLane + item.cssW / 2 - width / 2;
+          const sheetFit = window.innerWidth < 1100 ? 0.55 : fit;
+          item.sheet.scale.set(sheetFit, sheetFit, sheetFit);
+          item.card.scale.set(sheetFit, sheetFit, 1);
+          item.edge?.scale.set(sheetFit, sheetFit, 1);
+          const worldX = window.innerWidth < 1100 ? -width * 0.48 : labelLane + item.cssW / 2 - width / 2;
           item.rig.position.set(worldX, y, (index - 1.5) * 12);
         });
         const anchorX = labelLane + (sample?.cssW ?? 0) / 2 - width / 2;
-        camera.position.set(anchorX * 0.04, 0, dist);
+        camera.position.set(anchorX * 0.04, 0, cameraZFor(dist, planeZ));
         look.set(anchorX * 0.15, 0, 0);
         camera.lookAt(look);
         scene.updateMatrixWorld(true);
@@ -332,6 +403,11 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
       renderer.render(scene, camera);
       css.render(scene, camera);
     }
+    for (const cut of cuts) {
+      const gapToCut = Math.abs(camera.position.z - cut.position.z);
+      cut.rotation.y = clamp01(1 - gapToCut / 1100) * (Math.PI / 2);
+    }
+    css.domElement.style.pointerEvents = "none";
     placeCallouts(stage);
     placeThread(stage);
     layoutPlates();
@@ -357,9 +433,11 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     schedule();
   };
 
+  await nextTask();
   resize();
-  stage.dataset.gl = "ready";
   render();
+  stage.dataset.engine = "WebGLRenderer";
+  stage.dataset.gl = "ready";
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", onResize);
 

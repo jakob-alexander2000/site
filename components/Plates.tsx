@@ -1,3 +1,4 @@
+import { CopyAddress } from "@/components/CopyAddress";
 import { BACKGROUND } from "@/lib/looks";
 import { contact } from "@/lib/contact";
 import { CITEBOT_PLATE, DROPPED, REVISION, STYLE_DISTANCE } from "@/lib/diagrams";
@@ -37,13 +38,16 @@ function wrapLines(text: string, max = 46) {
   return lines;
 }
 
-function Strip({ count }: { count: number }) {
+function SheetRule({ index }: { index: string }) {
   return (
-    <svg className="strip" viewBox="0 0 220 36" aria-hidden="true">
-      {Array.from({ length: count }, (_, index) => (
-        <rect key={index} x={8 + index * 28} y={18 - index * 3} width="36" height="14" fill="#FBFAF7" stroke="#111111" />
-      ))}
-    </svg>
+    <div className="sheet-rule" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+      <span className="sheet-no">{index}</span>
+      <span className="cut-mark" />
+    </div>
   );
 }
 
@@ -176,7 +180,7 @@ export function Plates({ run }: { run: SchnittRun }) {
               );
             })}
           </svg>
-          <div className="sheet-labels" aria-hidden="true">
+          <div className="sheet-labels">
             {steps.map((step, index) => {
               const box = sheetBox(index);
               const labelX = box.x + box.w - dx + 8;
@@ -373,7 +377,7 @@ export function Plates({ run }: { run: SchnittRun }) {
               Held-out pages {STYLE_DISTANCE.heldOut}, {STYLE_DISTANCE.heldOutReading}
             </text>
           </svg>
-          <div className="sheet-labels" aria-hidden="true">
+          <div className="sheet-labels">
             <p className="leader-name" style={{ left: "1.43%", top: "19.44%" }}>HOUSE VOICE</p>
             <p className="leader-name" style={{ left: "80.36%", top: "3.33%" }}>DRAFT</p>
           </div>
@@ -401,8 +405,7 @@ export function Plates({ run }: { run: SchnittRun }) {
             </article>
             <article className="verdict-sheet">
               <p className="kicker">Verdict</p>
-              <p className="figure-prose body">Drifted drafts {STYLE_DISTANCE.drifted}, {STYLE_DISTANCE.driftedReading}</p>
-              <p className="figure-prose body">Held-out pages {STYLE_DISTANCE.heldOut}, {STYLE_DISTANCE.heldOutReading}</p>
+              <p className="body">Both measured figures are printed on the draft sheet.</p>
             </article>
           </div>
           <figcaption>House voice at zero, the draft set back, fins largest first. Synthetic demo is printed on the draft sheet. The black sheet names both measured figures.</figcaption>
@@ -422,12 +425,21 @@ export function Plates({ run }: { run: SchnittRun }) {
             <li key={skill.id} id={skill.id}>
               <h3>{skill.name}</h3>
               <p className="body">{skill.line}</p>
-              <Strip count={skill.steps.length} />
-              <ol>
-                {skill.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
+              <details className="skill-strip">
+                <summary>
+                  <span className="strip-sheets" aria-hidden="true">
+                    {skill.steps.map((step) => (
+                      <span key={step} className="strip-sheet" />
+                    ))}
+                  </span>
+                  <span className="kicker">{skill.name}</span>
+                </summary>
+                <ol className="strip-steps">
+                  {skill.steps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </details>
               <p className="actions">
                 <a href={skill.proof.href}>{skill.proof.label}</a>
               </p>
@@ -437,6 +449,7 @@ export function Plates({ run }: { run: SchnittRun }) {
       </section>
 
       <section className="plate" id="about" aria-labelledby="about-title">
+        <SheetRule index="05" />
         <p className="kicker">05 · ABOUT</p>
         <h2 id="about-title">About</h2>
         <p className="body">{BACKGROUND}</p>
@@ -444,20 +457,18 @@ export function Plates({ run }: { run: SchnittRun }) {
       </section>
 
       <section className="plate" id="contact" aria-labelledby="contact-title">
+        <SheetRule index="06" />
         <p className="kicker">06 · CONTACT</p>
         <h2 id="contact-title">Contact</h2>
         <p className="kicker">Email</p>
-        {contact.email ? (
-          <a className="address" href={`mailto:${contact.email}`}>
-            {contact.email}
-          </a>
-        ) : null}
+        {contact.email ? <CopyAddress email={contact.email} /> : null}
         <p className="actions">
           <a href={contact.github}>GitHub</a>
         </p>
       </section>
 
       <section className="plate" id="footer" aria-labelledby="footer-title">
+        <SheetRule index="07" />
         <p className="kicker">07 · FOOTER</p>
         <h2 id="footer-title">Sheet index</h2>
         <nav className="sheet-index" aria-label="Sheet index">

@@ -1,5 +1,6 @@
 import { RunLink } from "@/components/RunLink";
-import { SchnittStage } from "@/components/SchnittStage";
+import { SchnittMount } from "@/components/SchnittStage";
+import { SchnittSheets } from "@/components/SchnittSheets";
 import { contact } from "@/lib/contact";
 import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PATTERN_LABEL, RUN_LINK } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
@@ -42,7 +43,11 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
             {run.evalCount.passed}
           </p>
         </div>
-        <SchnittStage run={run} />
+        <div className="stage-spacer" aria-hidden="true" />
+        <div className="schnitt-stage" id="schnitt-layers">
+          <SchnittSheets run={run} />
+          <SchnittMount />
+        </div>
         <footer className="schnitt-foot">
           <p>{PATTERN_LABEL}</p>
           <p>

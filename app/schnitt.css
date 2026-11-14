@@ -133,6 +133,10 @@ html[data-schnitt="gl"] .schnitt-sticky {
   color: var(--ink);
 }
 
+.stage-spacer {
+  display: none;
+}
+
 .schnitt-stage {
   grid-column: 2;
   grid-row: 2;
@@ -140,6 +144,18 @@ html[data-schnitt="gl"] .schnitt-sticky {
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+}
+
+html[data-schnitt="gl"] .stage-spacer {
+  display: block;
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 70vh;
+}
+
+html[data-schnitt="gl"] .schnitt-stage.is-rail,
+html[data-schnitt="gl"] .schnitt-stage.is-rail * {
+  pointer-events: none;
 }
 
 .stack {
@@ -389,6 +405,13 @@ html[data-schnitt="gl"] .stack {
   inset: 0;
   height: auto;
   overflow: visible;
+}
+
+html[data-schnitt="gl"] .plane-slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 160px;
 }
 
 html[data-schnitt="gl"] .sheet,
@@ -1224,4 +1247,167 @@ article.verdict-sheet,
   width: 78px;
   height: 32px;
   vertical-align: middle;
+}
+
+
+@media (max-width: 1100px) {
+  .schnitt-stage[data-gl="ready"] .sheet {
+    width: 28% !important;
+    max-width: 28% !important;
+    justify-self: end;
+  }
+
+  .schnitt-stage[data-gl="ready"] .callout {
+    width: 7.4rem;
+  }
+
+  .schnitt-stage[data-gl="ready"] .callout .leader-note {
+    display: none;
+  }
+
+  .autopsy-draw {
+    grid-template-columns: 6.2rem minmax(0, 1fr);
+  }
+
+  .pair .offcut {
+    white-space: normal;
+    max-width: 8.5rem;
+  }
+}
+
+html[data-schnitt="gl"] .plate {
+  background: transparent;
+}
+
+html[data-schnitt="gl"] .plate .drawing-frame {
+  opacity: 0;
+}
+
+.skill-strip {
+  border: 1px solid var(--ink);
+  background: var(--sheet);
+  padding: 10px 12px;
+}
+
+.skill-strip summary {
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.strip-sheets {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.strip-sheet {
+  width: 36px;
+  height: 18px;
+  border: 1px solid var(--ink);
+  background: var(--sheet);
+}
+
+.strip-steps {
+  display: none;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-strip[open] .strip-steps,
+.skill-strip:hover .strip-steps,
+.skill-strip:focus-within .strip-steps {
+  display: grid;
+  gap: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-strip .strip-steps {
+    display: grid;
+    gap: 4px;
+  }
+}
+
+.sheet-rule {
+  position: relative;
+  height: 18px;
+  margin-bottom: 8px;
+}
+
+.sheet-rule i {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+}
+
+.sheet-rule i::before,
+.sheet-rule i::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+
+.sheet-rule i::before {
+  left: 0;
+  top: 6px;
+  width: 13px;
+  height: 1px;
+}
+
+.sheet-rule i::after {
+  left: 6px;
+  top: 0;
+  width: 1px;
+  height: 13px;
+}
+
+.sheet-rule i:nth-child(1) { left: 0; top: 0; }
+.sheet-rule i:nth-child(2) { right: 0; top: 0; }
+.sheet-rule i:nth-child(3) { left: 0; bottom: 0; }
+.sheet-rule i:nth-child(4) { right: 0; bottom: 0; }
+
+.sheet-no {
+  position: absolute;
+  left: 22px;
+  top: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.cut-mark {
+  position: absolute;
+  left: 52px;
+  right: 22px;
+  top: 8px;
+  height: 1px;
+  background: var(--ink);
+}
+
+.address-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.pen-line {
+  box-shadow: inset 0 -1.5px 0 var(--ink);
+}
+
+.copy-address {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.copy-status {
+  min-height: 1.2em;
+  font-size: 15px;
 }

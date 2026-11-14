@@ -78,6 +78,20 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |
 
+## Declared reasons
+
+1. Canvas ink is Chromium-only because headless WebKit does not return WebGL pixels.
+2. Frame time is Chromium-only because headless WebKit cannot time WebGL reliably: it has no CPU-throttle session.
+3. The drawn-card label pixel read is Chromium-only for the same readback limit.
+4. The paper-on-card pixel read is Chromium-only for the same readback limit.
+5. The three.js paint-order test is Chromium-only because headless WebKit's resource timing is not comparable to the Chromium paint clock.
+6. The rail-budget test is Chromium-only because headless WebKit cannot time WebGL reliably, and the draw counters are read from the Chromium context.
+7. Separation stays on WebKit because it reads element boxes, not pixels.
+8. The inline probe checks for a WebGL constructor and does not create a context, so a phone never counts one.
+9. Evidence scripts live in `tools/evidence` and no page imports them.
+10. The hero fit loop runs once per width, then later frames place the sheets a single time.
+11. Initial JavaScript is the sum of the module scripts, without the `noModule` polyfill.
+
 ## Not checked
 
 - Real iPhone Safari. Playwright WebKit on Linux is the stand-in.
