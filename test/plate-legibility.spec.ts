@@ -35,6 +35,13 @@ for (const width of [801, 1024, 1099, 1100, 1280, 1339, 1340, 1440]) {
             if (size < 11) small.push(`${id}: "${text.textContent?.trim().slice(0, 24)}" ${size.toFixed(2)}px`);
           }
         }
+        for (const label of plate.querySelectorAll(".leader-name")) {
+          if (!shown(label) || !(label.textContent ?? "").trim()) continue;
+          const svg = label.closest("svg");
+          const scale = svg instanceof SVGSVGElement ? svg.getBoundingClientRect().width / svg.viewBox.baseVal.width : 1;
+          const size = parseFloat(getComputedStyle(label).fontSize) * scale;
+          if (size < 11) small.push(`${id} label: "${label.textContent?.trim().slice(0, 24)}" ${size.toFixed(2)}px`);
+        }
         if (stacked && stack) {
           for (const node of stack.querySelectorAll("p, li, span")) {
             if (!shown(node) || !(node.textContent ?? "").trim() || node.querySelector("p, li, span")) continue;

@@ -40,9 +40,25 @@ function sectionProgress(section: HTMLElement) {
   return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
 }
 
+/**
+ * One scroll position drives the hero camera and plates 00–04.
+ * The value is 0 at the top of the page and 1 when the skills plate
+ * has reached the bottom of the viewport.
+ */
+function railProgress() {
+  const skills = document.getElementById("skills");
+  if (!skills) return 0;
+  const end = skills.getBoundingClientRect().bottom;
+  const travel = end - window.innerHeight;
+  if (travel <= 1) return 0;
+  return Math.min(1, Math.max(0, -document.documentElement.getBoundingClientRect().top / travel));
+}
+
 /** Plate motion runs in the hero's render loop so the page keeps one WebGL renderer. */
 function layoutPlates() {
   if (document.documentElement.dataset.schnitt !== "gl") return;
+  const rail = railProgress();
+  document.documentElement.dataset.rail = rail.toFixed(4);
   const cite = document.getElementById("citebot");
   const sheets = [...document.querySelectorAll<SVGElement>("#citebot .draw-sheet")];
   if (cite && sheets.length) {
@@ -212,11 +228,14 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     const width = stage.clientWidth;
     const height = stage.clientHeight;
     if (width < 2 || height < 2) return;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 700 ? 1.25 : 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2, width < 700 ? 1.25 : 1.5));
     renderer.setSize(width, height, false);
     css.setSize(width, height);
   };
 
+  let fittedWidth = 0;
+  let fittedGap = 0;
+  let drawnFrames = 0;
   const render = () => {
     const width = Math.max(stage.clientWidth, 1);
     const height = Math.max(stage.clientHeight, 1);
@@ -265,7 +284,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
       camera.position.set(0, 0, dist);
       look.set(0, 0, 0);
     } else {
-      const placeDesktop = (gapValue: number) => {
+      const placeDesktop = (gapValue: number, paint: boolean) => {
         cards.forEach((item, index) => {
           const y = (1.5 - index) * gapValue;
           item.sheet.scale.set(fit, fit, fit);
@@ -279,8 +298,8 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
         look.set(anchorX * 0.15, 0, 0);
         camera.lookAt(look);
         scene.updateMatrixWorld(true);
-        renderer.render(scene, camera);
         css.render(scene, camera);
+        if (paint) renderer.render(scene, camera);
       };
       const overflow = () => {
         const root = stage.getBoundingClientRect();
@@ -290,14 +309,18 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
         const above = root.top + 12 - Math.min(...rects.map((rect) => rect.top));
         return Math.max(below, above, 0);
       };
-      let maxGap = planeH * 1.7;
-      placeDesktop(maxGap);
-      for (let pass = 0; pass < 8 && overflow() > 1; pass += 1) {
-        maxGap = Math.max(planeH * 0.9, maxGap - overflow() / 2.2);
-        placeDesktop(maxGap);
+      if (fittedWidth !== width) {
+        let maxGap = planeH * 1.7;
+        placeDesktop(maxGap, false);
+        for (let pass = 0; pass < 8 && overflow() > 1; pass += 1) {
+          maxGap = Math.max(planeH * 0.9, maxGap - overflow() / 2.2);
+          placeDesktop(maxGap, false);
+        }
+        fittedGap = maxGap;
+        fittedWidth = width;
       }
-      const gap = maxGap * (0.7 + 0.3 * progress);
-      placeDesktop(gap);
+      const gap = fittedGap * (0.7 + 0.3 * progress);
+      placeDesktop(gap, true);
     }
     if (phone) {
       camera.lookAt(look);
@@ -308,6 +331,12 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     placeCallouts(stage);
     placeThread(stage);
     layoutPlates();
+    drawnFrames += 1;
+    const info = renderer.info.render;
+    stage.dataset.draws = String(info.calls);
+    stage.dataset.triangles = String(info.triangles);
+    stage.dataset.ratio = String(renderer.getPixelRatio());
+    stage.dataset.frames = String(drawnFrames);
   };
 
   let frame = 0;

@@ -646,3 +646,52 @@ for (const viewport of [
     }
   });
 }
+
+test("three.js starts after first paint", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Paint timing is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-schnitt", "gl");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const report = await page.evaluate(async () => {
+    const paint = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? Number.POSITIVE_INFINITY;
+    const scripts = performance.getEntriesByType("resource").filter((entry) => entry.name.includes(".js"));
+    const hits: number[] = [];
+    for (const script of scripts) {
+      const text = await fetch(script.name).then((response) => response.text()).catch(() => "");
+      if (text.includes("WebGLRenderer")) hits.push(script.startTime);
+    }
+    return { paint, hits };
+  });
+  expect(report.hits.length).toBeGreaterThan(0);
+  for (const start of report.hits) expect(start).toBeGreaterThan(report.paint);
+});
+
+test("one rail, one renderer, and the draw stays inside the budget", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Renderer counters are read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const before = await page.evaluate(() => ({
+    contexts: document.querySelectorAll("canvas").length,
+    rail: document.documentElement.dataset.rail ?? "",
+    draws: Number(document.querySelector(".schnitt-stage")?.getAttribute("data-draws") ?? "0"),
+    triangles: Number(document.querySelector(".schnitt-stage")?.getAttribute("data-triangles") ?? "0"),
+    ratio: Number(document.querySelector(".schnitt-stage")?.getAttribute("data-ratio") ?? "0"),
+    frames: Number(document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0"),
+  }));
+  expect(before.contexts).toBe(1);
+  expect(before.draws).toBeGreaterThan(0);
+  expect(before.draws).toBeLessThanOrEqual(120);
+  expect(before.triangles).toBeLessThanOrEqual(50000);
+  expect(before.ratio).toBeGreaterThan(0);
+  expect(before.ratio).toBeLessThanOrEqual(2);
+  await page.evaluate(() => window.scrollTo(0, document.getElementById("skills")?.offsetTop ?? 0));
+  await page.waitForTimeout(400);
+  const after = await page.evaluate(() => document.documentElement.dataset.rail ?? "");
+  expect(Number(after)).toBeGreaterThan(Number(before.rail || "0"));
+  const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
+  await page.waitForTimeout(2000);
+  const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
+  expect(idle).toBe(settled);
+});

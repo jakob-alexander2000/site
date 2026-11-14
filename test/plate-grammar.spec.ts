@@ -26,7 +26,7 @@ test("leaders sit off the sheets", async ({ page }) => {
   await page.goto("/");
   const hits = await page.evaluate(() => {
     const overlaps: string[] = [];
-    for (const root of document.querySelectorAll("#citebot .plate-drawing, #style .plate-drawing, #autopsy .drawing-grid")) {
+    for (const root of document.querySelectorAll("#citebot figure, #style figure, #autopsy .autopsy-draw")) {
       const labels = [...root.querySelectorAll(".leader-name")];
       const sheets = [...root.querySelectorAll(".sheet-face")];
       for (const label of labels) {
@@ -136,4 +136,11 @@ test("the pen loop encloses the word FAIL", async ({ page }) => {
     return misses;
   });
   expect(outside).toEqual([]);
+  const gap = await page.evaluate(() => {
+    const loop = document.querySelector("#citebot .plate-drawing .pen-loop");
+    const reason = document.querySelector("#citebot .verdict-fail-reason");
+    if (!loop || !reason) return 0;
+    return reason.getBoundingClientRect().top - loop.getBoundingClientRect().bottom;
+  });
+  expect(gap).toBeGreaterThanOrEqual(4);
 });

@@ -39,17 +39,21 @@ test("the autopsy plate strikes only the dropped spans and names four checks", a
     await expect(page.locator("#autopsy")).toContainText(check.name);
     await expect(page.locator("#autopsy")).toContainText(check.verdict === "fail" ? "FAIL" : "PASS");
   }
-  const struckText = (await page.locator("#autopsy .offcut:visible").allTextContents()).join("");
-  for (const span of DROPPED.spans) expect(struckText).toContain(span.replace(/\.$/, ""));
+  const struck = [
+    ...new Set(
+      (await page.locator("#autopsy .offcut:visible").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim()),
+    ),
+  ].sort();
+  expect(struck).toEqual([...DROPPED.spans].map((span) => span.replace(/\s+/g, " ").trim()).sort());
   await expect(page.locator("#autopsy .hair:visible")).toHaveCount(0);
   const answer = await page.locator("#autopsy .answer-line:visible").first().evaluate((node) => getComputedStyle(node).color);
-  const struck = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).color);
+  const struckColor = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).color);
   expect(answer).toBe("rgb(17, 17, 17)");
-  expect(struck).toBe("rgb(198, 48, 42)");
+  expect(struckColor).toBe("rgb(198, 48, 42)");
   const decoration = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).textDecorationLine);
   expect(decoration).toContain("line-through");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(10);
+  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(9);
 });
 
 test("phone verdict names sit clear of the row above", async ({ page }) => {

@@ -1124,7 +1124,8 @@ article.verdict-sheet,
     margin-bottom: 4px;
   }
 
-  .plate svg.plate-drawing {
+  .plate svg.plate-drawing,
+  .sheet-labels {
     display: none;
   }
 
@@ -1174,29 +1175,43 @@ article.verdict-sheet,
   }
 }
 
-/* Below these widths the drawing's viewBox would shrink its type under 11px,
-   so the plate shows its sheet stack instead. 1280 and 1120 are the viewBox
-   widths; the margin covers the 40px gutter and a 15px scrollbar. */
-@media (min-width: 801px) and (max-width: 1339px) {
-  #citebot svg.plate-drawing {
-    display: none;
-  }
-
-  #citebot .plate-stack {
-    display: block;
-    max-width: 44rem;
-  }
+.drawing-frame {
+  position: relative;
 }
 
+.sheet-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sheet-labels .leader-name {
+  position: absolute;
+  margin: 0;
+  color: var(--ink);
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Under 1100px the drawing's own type would fall under 11px, so those widths
+   keep the sheet stack. 1280 and 1366 stay on the drawing. */
 @media (min-width: 801px) and (max-width: 1099px) {
-  #style svg.plate-drawing {
+  #citebot svg.plate-drawing,
+  #style svg.plate-drawing,
+  .sheet-labels {
     display: none;
+  }
+
+  #citebot .plate-stack,
+  #style .plate-stack {
+    display: block;
+    max-width: 44rem;
   }
 
   #style .plate-stack {
     display: grid;
     grid-template-columns: 1fr;
-    max-width: 44rem;
   }
 
   #style .draft-sheet {

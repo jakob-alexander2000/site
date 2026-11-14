@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Plates } from "../components/Plates";
+import { contact } from "../lib/contact";
 import { CITEBOT_PLATE, DROPPED, STYLE_DISTANCE } from "../lib/diagrams";
+import { BACKGROUND } from "../lib/looks";
+import { FOOTER_SHEETS } from "../lib/plates";
 import { SKILLS } from "../lib/skills";
 import { loadSchnittRun } from "../lib/schnitt-run";
 import { findHits } from "../scripts/scan-copy";
@@ -25,6 +28,17 @@ test("plate copy is real and the scan is clean", () => {
   assert.deepEqual(findHits(html), []);
   assert.equal(SKILLS.some((skill) => skill.name === "MCP"), false);
   assert.equal(SKILLS.length, 5);
+  assert.equal(html.includes(BACKGROUND), true);
+  assert.equal(typeof contact.email, "string");
+  assert.equal((html.match(/mailto:/g) ?? []).length, 1);
+  assert.equal(contact.email ? html.includes(`mailto:${contact.email}`) : false, true);
+  assert.equal(contact.phone, null);
+  assert.equal(html.includes('href="#footer"'), false);
+  assert.deepEqual(
+    FOOTER_SHEETS.map((sheet) => sheet.index),
+    ["00", "01", "02", "03", "04", "05", "06"],
+  );
+  for (const sheet of FOOTER_SHEETS) assert.equal(html.includes(`aria-label="${sheet.label}"`), true);
 });
 
 test("every rendered proof link returns 200", { timeout: 30000 }, async () => {

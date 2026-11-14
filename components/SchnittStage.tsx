@@ -70,7 +70,11 @@ export function SchnittStage({ run }: { run: SchnittRun }) {
           showExplodedFallback(stage);
         });
     };
-    void document.fonts.ready.then(start);
+    const afterFirstPaint = (go: () => void) => {
+      if (performance.getEntriesByType("paint").length) go();
+      else requestAnimationFrame(() => requestAnimationFrame(go));
+    };
+    void document.fonts.ready.then(() => afterFirstPaint(start));
     return () => {
       cancelled = true;
       destroy();
