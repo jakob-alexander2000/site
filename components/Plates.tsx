@@ -34,7 +34,7 @@ function wrapLines(text: string, max = 46) {
     } else line = next;
   }
   if (line) lines.push(line);
-  return lines.slice(0, 3);
+  return lines;
 }
 
 function Strip({ count }: { count: number }) {
@@ -70,7 +70,7 @@ export function Plates({ run }: { run: SchnittRun }) {
   const dy = 56;
   const sw = 340;
   const sh = 68;
-  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 98 : sh });
+  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 124 : sh });
   return (
     <div className="plates">
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
@@ -98,15 +98,22 @@ export function Plates({ run }: { run: SchnittRun }) {
                         </text>
                       ))
                     : step.name === "Verdict"
-                      ? run.sentences.flatMap((sentence, sentenceIndex) => {
-                          const y = box.y + 28 + sentenceIndex * 34;
+                      ? (() => {
+                        // Rows stack from a cursor so a wrapped pass line never runs into the FAIL loop below it.
+                        let cursor = box.y + 28;
+                        return run.sentences.flatMap((sentence, sentenceIndex) => {
                           if (sentence.verdict !== "fail") {
-                            return wrapLines(`S${sentenceIndex + 1} · PASS · ${sentence.text}`, 32).map((line, lineIndex) => (
-                              <text key={line} x={box.x + 12} y={y + lineIndex * 16} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
+                            const lines = wrapLines(`S${sentenceIndex + 1} · PASS · ${sentence.text}`, 32);
+                            const top = cursor;
+                            cursor += lines.length * 18 + 12;
+                            return lines.map((line, lineIndex) => (
+                              <text key={line} x={box.x + 12} y={top + lineIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
                                 {line}
                               </text>
                             ));
                           }
+                          const y = cursor + 6;
+                          cursor = y + 46;
                           return [
                             <g key="mark" className="fail-mark">
                               <text className="fail-word" x={box.x + 12} y={y} fill="#FF8A84" fontSize="15" fontFamily="ui-monospace, monospace">
@@ -121,9 +128,10 @@ export function Plates({ run }: { run: SchnittRun }) {
                               {sentence.evidence}
                             </text>,
                           ];
-                        })
+                        });
+                      })()
                       : step.lines.flatMap((line) => wrapLines(line, 42)).map((line, lineIndex) => (
-                          <text key={line} x={box.x + 12} y={box.y + 26 + lineIndex * 16} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
+                          <text key={line} x={box.x + 12} y={box.y + 26 + lineIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
                             {line}
                           </text>
                         ))}
@@ -133,14 +141,20 @@ export function Plates({ run }: { run: SchnittRun }) {
             {(["retrieve", "check"] as const).map((id) => {
               const index = id === "retrieve" ? 1 : 4;
               const box = sheetBox(index);
-              const hang = { x: box.x, y: box.y + box.h + 16, w: dx - 14, h: 78 };
+              // Hang text is 15 units on an 18-unit line, and each sheet is as tall as its text.
+              const refusalLines = wrapLines(CITEBOT_PLATE.refusal, 12);
+              const failLines = wrapLines(fail?.text ?? "", 12);
+              const reasonLines = wrapLines(fail?.evidence ?? "", 12);
+              const reasonTop = 42 + failLines.length * 18 + 6;
+              const hangHeight = id === "retrieve" ? 22 + (refusalLines.length - 1) * 18 + 12 : reasonTop + (reasonLines.length - 1) * 18 + 12;
+              const hang = { x: box.x, y: box.y + box.h + 16, w: dx - 14, h: hangHeight };
               return (
                 <g key={id} data-hang={id}>
                   <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={box.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
                   <rect className="sheet-face hang-sheet" x={hang.x} y={hang.y} width={hang.w} height={hang.h} fill="#FBFAF7" stroke="#111111" strokeDasharray="6 4" />
                   {id === "retrieve" ? (
-                    wrapLines(CITEBOT_PLATE.refusal, 12).map((line, lineIndex) => (
-                      <text key={line} x={hang.x + 8} y={hang.y + 22 + lineIndex * 15} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">
+                    refusalLines.map((line, lineIndex) => (
+                      <text key={line} x={hang.x + 8} y={hang.y + 22 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">
                         {line}
                       </text>
                     ))
@@ -150,11 +164,11 @@ export function Plates({ run }: { run: SchnittRun }) {
                         <text className="fail-word" x={hang.x + 28} y={hang.y + 16} textAnchor="middle" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
                         <ellipse className="pen-loop" cx={hang.x + 28} cy={hang.y + 12} rx="24" ry="11" fill="none" stroke="#C6302A" strokeWidth="1.4" />
                       </g>
-                      {wrapLines(fail?.text ?? "", 12).map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 8} y={hang.y + 36 + lineIndex * 13} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
+                      {failLines.map((line, lineIndex) => (
+                        <text key={line} x={hang.x + 8} y={hang.y + 42 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
                       ))}
-                      {wrapLines(fail?.evidence ?? "", 12).map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 8} y={hang.y + 58 + lineIndex * 13} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
+                      {reasonLines.map((line, lineIndex) => (
+                        <text key={line} x={hang.x + 8} y={hang.y + reasonTop + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
                       ))}
                     </>
                   )}

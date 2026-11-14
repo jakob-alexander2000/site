@@ -58,7 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              '(function(){try{var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var narrow=window.matchMedia("(max-width: 800px)").matches;if(reduce||narrow){document.documentElement.dataset.schnitt="flat";return;}var c=document.createElement("canvas");var o={failIfMajorPerformanceCaveat:false};var gl=c.getContext("webgl2",o)||c.getContext("webgl",o);if(gl){try{var lose=gl.getExtension("WEBGL_lose_context");if(lose)lose.loseContext();}catch(err){}}document.documentElement.dataset.schnitt=gl?"gl":"flat";}catch(e){document.documentElement.dataset.schnitt="flat";}})();',
+              '(function(){try{var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var narrow=window.matchMedia("(max-width: 800px)").matches;if(reduce||narrow){document.documentElement.dataset.schnitt="flat";return;}var gl=!!(window.WebGL2RenderingContext||window.WebGLRenderingContext);document.documentElement.dataset.schnitt=gl?"gl":"flat";}catch(e){document.documentElement.dataset.schnitt="flat";}})();',
           }}
         />
         <a className="skip" href="#top">

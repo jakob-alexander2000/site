@@ -163,8 +163,12 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
   const scene = new Scene();
   const camera = new PerspectiveCamera(40, 1, 1, 20000);
   const look = new Vector3();
+  // Reuse the context SchnittStage already made on this canvas, so three.js never asks for a second one.
+  const context = canvas.getContext("webgl2");
+  if (!context) throw new Error("WebGL2 context is missing");
   const renderer = new WebGLRenderer({
     canvas,
+    context,
     alpha: true,
     antialias: false,
     powerPreference: "low-power",
