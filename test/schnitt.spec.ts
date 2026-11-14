@@ -86,6 +86,31 @@ test("the passing sentence has a thread and the failing sentence has a loop", as
   await expect(stage.locator("[data-thread='pass'] path")).toHaveAttribute("d", /.+/);
   await expect(page.locator("[data-thread='fail']")).toHaveCount(0);
   await expect(stage.locator("[data-fail='loop']")).toBeVisible();
+  const clearsPer = await page.evaluate(() => {
+    const passage = document.querySelector("[data-anchor='passage']")?.parentElement;
+    const path = document.querySelector(".tie-svg path");
+    if (!passage || !(path instanceof SVGPathElement)) return false;
+    const word = [...passage.childNodes].find((node) => node.textContent?.includes(" per "));
+    if (!word?.textContent) return false;
+    const range = document.createRange();
+    const start = word.textContent.indexOf("per");
+    range.setStart(word, start);
+    range.setEnd(word, start + 3);
+    const box = range.getBoundingClientRect();
+    const length = path.getTotalLength();
+    for (let index = 0; index <= 24; index += 1) {
+      const point = path.getPointAtLength((length * index) / 24);
+      const svg = path.ownerSVGElement;
+      const root = svg?.getBoundingClientRect();
+      if (!root) return false;
+      const x = root.left + point.x;
+      const y = root.top + point.y;
+      const inside = x > box.left + 1 && x < box.right - 1 && y > box.top + 1 && y < box.bottom - 1;
+      if (inside) return false;
+    }
+    return true;
+  });
+  expect(clearsPer).toBe(true);
   const failInk = await stage.locator(".is-fail .mark").evaluate((node) => getComputedStyle(node).color);
   expect(failInk).toBe("rgb(198, 48, 42)");
 });

@@ -32,8 +32,26 @@ test("pinned fixture files match the manifest", () => {
   }
 });
 
-test("the vendored fixtures regenerate from the pinned commits", { timeout: 30000 }, async () => {
-  const records = await vendoredRecords();
+function offline(error: unknown) {
+  const message = error instanceof Error ? `${error.message} ${"cause" in error ? String(error.cause) : ""}` : String(error);
+  return /fetch failed|ENOTFOUND|ECONNREFUSED|EAI_AGAIN|network|aborted/i.test(message);
+}
+
+test("the vendored fixtures regenerate from the pinned commits", { timeout: 30000 }, async (t) => {
+  if (process.env.SKIP_FIXTURE_NETWORK === "1") {
+    t.skip("fixture regeneration is gated off");
+    return;
+  }
+  let records: Awaited<ReturnType<typeof vendoredRecords>>;
+  try {
+    records = await vendoredRecords();
+  } catch (error) {
+    if (offline(error)) {
+      t.skip("fixture regeneration needs the network");
+      return;
+    }
+    throw error;
+  }
   for (const [path, text] of Object.entries(records)) {
     assert.equal(readFileSync(path, "utf8"), text, path);
     assert.deepEqual(findHits(text), [], path);

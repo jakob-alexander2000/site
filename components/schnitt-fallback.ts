@@ -28,13 +28,21 @@ export function placeThread(stage: HTMLElement) {
   const b = rightmostGlyph(to);
   const y1 = a.top + a.height / 2 - root.top;
   const y2 = b.top + b.height / 2 - root.top;
+  const above = b.top - root.top - 8;
   const phone = stage.clientWidth < 700;
   const limit = stage.clientWidth - 6;
   const x1 = phone ? Math.min(a.right - root.left, limit) : a.right - root.left;
   const x2 = phone ? Math.min(b.right - root.left, limit) : b.right - root.left;
-  const gutter = phone ? Math.min(limit, Math.max(x1, x2) + 8) : Math.min(stage.clientWidth - 10, Math.max(a.right, b.right) - root.left + 16);
+  const line = to.closest("p");
+  const lineRight = line ? line.getBoundingClientRect().right - root.left : x2;
+  const gutter = phone
+    ? Math.min(limit, Math.max(x1, lineRight) + 8)
+    : Math.min(stage.clientWidth - 10, Math.max(x1, lineRight) + 14);
   svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
-  path.setAttribute("d", `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y2.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+  path.setAttribute(
+    "d",
+    `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${above.toFixed(1)} L ${x2.toFixed(1)} ${above.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+  );
   stage.dataset.ties = "1";
 }
 

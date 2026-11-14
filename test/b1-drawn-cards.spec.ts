@@ -46,8 +46,7 @@ test("desktop label boxes stay off the drawn cards through the scroll", async ({
   }
 });
 
-test("desktop sheet separation only increases through the hero scroll", async ({ page, browserName }) => {
-  test.skip(browserName !== "chromium", "Measured with the drawn-card scroll in Chromium.");
+test("desktop sheet separation only increases through the hero scroll", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
@@ -69,4 +68,59 @@ test("desktop sheet separation only increases through the hero scroll", async ({
     expect(spreads[index], `spread ${spreads.join(" → ")}`).toBeGreaterThanOrEqual((spreads[index - 1] ?? 0) - 1);
   }
   expect(spreads[spreads.length - 1], spreads.join(" → ")).toBeGreaterThan(spreads[0] ?? 0);
+});
+
+test("at the end of the scroll the paper sits on its drawn card", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Reads back WebGL pixels in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => {
+    const hero = document.querySelector<HTMLElement>(".schnitt");
+    if (hero) window.scrollTo(0, hero.clientHeight - window.innerHeight);
+  });
+  await page.waitForTimeout(400);
+  const missed = await page.evaluate(() => {
+    const gl = document.querySelector<HTMLCanvasElement>(".schnitt-stage canvas");
+    if (!gl) return ["no canvas"];
+    const frame = gl.getBoundingClientRect();
+    const copy = document.createElement("canvas");
+    copy.width = gl.width;
+    copy.height = gl.height;
+    const context = copy.getContext("2d");
+    if (!context) return ["no 2d context"];
+    context.drawImage(gl, 0, 0);
+    const sx = gl.width / frame.width;
+    const sy = gl.height / frame.height;
+    const hits: string[] = [];
+    for (const sheet of document.querySelectorAll<HTMLElement>(".sheet")) {
+      const probe = document.createElement("div");
+      probe.style.cssText = "position:absolute;width:1px;height:1px;pointer-events:none;";
+      const local = [[sheet.offsetWidth / 2, sheet.offsetHeight / 2]];
+      const samples: number[][] = [];
+      for (const [x, y] of local) {
+        probe.style.left = `${x}px`;
+        probe.style.top = `${y}px`;
+        sheet.appendChild(probe);
+        const at = probe.getBoundingClientRect();
+        samples.push([at.left, at.top]);
+      }
+      probe.remove();
+      for (const [x, y] of samples) {
+        const px = Math.floor((x - frame.left) * sx);
+        const py = Math.floor((y - frame.top) * sy);
+        if (px < 0 || py < 0 || px >= copy.width || py >= copy.height) {
+          hits.push("outside");
+          continue;
+        }
+        const pixel = context.getImageData(px, py, 1, 1).data;
+        const want = sheet.classList.contains("verdict") ? [17, 17, 17] : [251, 250, 247];
+        const off = want.some((channel, index) => Math.abs(channel - (pixel[index] ?? 0)) > 12);
+        if (off) hits.push(`${(sheet.querySelector(".file")?.textContent ?? "").trim().slice(0, 12)} ${pixel[0]},${pixel[1]},${pixel[2]}`);
+      }
+    }
+    return hits;
+  });
+  expect(missed).toEqual([]);
 });

@@ -741,10 +741,12 @@ html[data-schnitt="flat"] .plane-slot {
 
 .plate figcaption {
   color: var(--ink);
+  margin-top: 14px;
 }
 
 .plate figure {
-  margin: 8px 0;
+  margin: 8px 0 16px;
+  overflow-x: auto;
 }
 
 .plate svg {
@@ -764,7 +766,12 @@ html[data-schnitt="flat"] .plane-slot {
   list-style: none;
   padding: 0;
   display: grid;
-  gap: 8px;
+  gap: 12px;
+}
+
+.cases li {
+  display: grid;
+  gap: 2px;
 }
 
 .skills {
@@ -856,13 +863,208 @@ html[data-schnitt="flat"] .plane-slot {
   outline-offset: 3px;
 }
 
+.plate-viewport {
+  position: relative;
+  perspective: 1400px;
+}
+
+.plate .rail-steps,
+.plate .rail-fails,
+.plate .fins,
+.plate .cases {
+  padding: 0;
+}
+
+.rail-steps,
+.rail-fails {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rail-sheet,
+.rail-fail {
+  background: var(--sheet);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 12px 14px;
+  width: min(100%, 28rem);
+}
+
+.rail-fail {
+  margin-left: 1.75rem;
+  width: calc(100% - 1.75rem);
+  max-width: 26rem;
+  border-style: dashed;
+  background: transparent;
+}
+
+.word-align {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 0 12px;
+  width: max-content;
+}
+
+.word-read {
+  display: none;
+}
+
+.pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.pair .offcut {
+  max-width: 14rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.passage-line,
+.answer-line {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.word-align svg.hair {
+  display: block;
+  width: 1px;
+  height: 18px;
+  background: var(--ink);
+}
+
+.hair-gap {
+  width: 1px;
+  height: 18px;
+  background: transparent;
+}
+
+.offcut {
+  color: var(--fail);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.distance-sheets {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  perspective: 900px;
+}
+
+.voice-sheet,
+.draft-sheet {
+  background: var(--sheet);
+  border: 1px solid var(--ink);
+  padding: 14px 16px;
+  min-height: 8rem;
+}
+
+.dimension {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.dimension::before {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ink);
+}
+
+.fins {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.fins li {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 4px 8px;
+  min-height: 28px;
+}
+
+@media (min-width: 801px) {
+  html[data-schnitt="flat"] .draft-sheet {
+    transform: translateZ(-80px);
+  }
+
+  .rail-sheet:nth-child(1) { --step: 0; }
+  .rail-sheet:nth-child(2) { --step: 1; }
+  .rail-sheet:nth-child(3) { --step: 2; }
+  .rail-sheet:nth-child(4) { --step: 3; }
+  .rail-sheet:nth-child(5) { --step: 4; }
+  .rail-sheet:nth-child(6) { --step: 5; }
+
+  html[data-schnitt="flat"] .rail-sheet,
+  html[data-schnitt="gl"] .rail-sheet {
+    margin-left: calc(var(--step, 0) * 1.5rem);
+  }
+}
+
 @media (max-width: 800px) {
   .verdict-sheet li {
     grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #3a3a36;
+  }
+
+  .verdict-sheet li:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 
   .verdict-sheet li .kicker {
     grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
+  .word-align {
+    display: none;
+  }
+
+  .word-read {
+    display: grid;
+    gap: 12px;
+  }
+
+  .word-read .passage-line,
+  .word-read .answer-line {
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+    padding: 12px 14px;
+  }
+
+  .distance-sheets {
+    grid-template-columns: 1fr;
+  }
+
+  .draft-sheet {
+    transform: none;
   }
 
   .plates {

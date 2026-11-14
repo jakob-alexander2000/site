@@ -4,9 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Plates } from "../components/Plates";
 import { CITEBOT_PLATE, DROPPED, STYLE_DISTANCE } from "../lib/diagrams";
 import { SKILLS } from "../lib/skills";
+import { loadSchnittRun } from "../lib/schnitt-run";
 import { findHits } from "../scripts/scan-copy";
 
-const html = renderToStaticMarkup(<Plates />);
+const html = renderToStaticMarkup(<Plates run={loadSchnittRun()} />);
 
 test("plate copy is real and the scan is clean", () => {
   assert.equal(html.includes(CITEBOT_PLATE.headline), true);
@@ -19,6 +20,8 @@ test("plate copy is real and the scan is clean", () => {
   assert.equal(html.includes("MCP"), false);
   assert.equal(html.includes("/ask"), false);
   assert.equal(html.includes("Voice check"), false);
+  assert.equal(html.includes("Recorded fixture"), false);
+  assert.equal(html.includes(loadSchnittRun().recordedLabel), true);
   assert.deepEqual(findHits(html), []);
   assert.equal(SKILLS.some((skill) => skill.name === "MCP"), false);
   assert.equal(SKILLS.length, 5);
@@ -50,6 +53,11 @@ test("style figures are in the public readme", { timeout: 30000 }, async () => {
   assert.equal(readme.includes(`${STYLE_DISTANCE.drifted}`), true);
   assert.equal(readme.includes(`${STYLE_DISTANCE.heldOut}`), true);
   assert.equal(readme.includes("Synthetic"), true);
+  const sampleResponse = await fetch(STYLE_DISTANCE.sample);
+  assert.equal(sampleResponse.status, 200);
+  const sample = (await sampleResponse.json()) as { references: { text: string }[]; drafts: { text: string }[] };
+  const corpus = [...sample.references, ...sample.drafts].map((row) => row.text.toLowerCase()).join("\n");
+  for (const word of STYLE_DISTANCE.fins) assert.equal(corpus.includes(word), true, word);
 });
 
 test("the autopsy verdict sheet is the scorer's own output for the public sample", { timeout: 30000 }, async () => {

@@ -21,6 +21,7 @@ export const DROPPED = {
   /** Verdicts and details are the scorer's own output for the public sample `leave-naive` at this commit. */
   scorer: "https://raw.githubusercontent.com/jakob-alexander2000/retrieval-autopsy/584ac36beb3b337d46eb881ccaffd9c3ed10983e/src/score/score.ts",
   sample: "https://raw.githubusercontent.com/jakob-alexander2000/retrieval-autopsy/584ac36beb3b337d46eb881ccaffd9c3ed10983e/fixtures/answers.jsonl",
+  spans: ["full-time employees only", "after the probation period"],
   checks: [
     { name: "Support", verdict: "pass", detail: "Every sentence is made of words from a retrieved passage." },
     { name: "Scope", verdict: "pass", detail: "The answer stays inside who the handbook is for." },
@@ -42,6 +43,8 @@ export const STYLE_DISTANCE = {
   live: "https://style-distance.vercel.app/",
   source: "https://github.com/jakob-alexander2000/style-distance",
   readme: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/main/README.md",
+  sample: "https://raw.githubusercontent.com/jakob-alexander2000/style-distance/main/public/samples/brand.json",
+  fins: ["is", "you", "which", "the", "not", "don't"],
 } as const;
 
 export const REVISION = "14 Nov 2026";

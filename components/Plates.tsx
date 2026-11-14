@@ -1,22 +1,24 @@
 import { BACKGROUND } from "@/lib/looks";
 import { contact } from "@/lib/contact";
-import { CITEBOT_PLATE, DROPPED, REVISION, STYLE_DISTANCE } from "@/lib/diagrams";
+import { CITEBOT_PLATE, DROPPED, PIPELINE, REVISION, STYLE_DISTANCE } from "@/lib/diagrams";
 import { FLAGSHIP_CASES } from "@/lib/flagship";
 import { FOOTER_SHEETS } from "@/lib/plates";
+import type { SchnittRun } from "@/lib/schnitt-extract";
 import { SKILLS } from "@/lib/skills";
 
-function Rail() {
-  return (
-    <svg className="rail" viewBox="0 0 640 120" aria-hidden="true">
-      <line x1="36" y1="96" x2="600" y2="24" stroke="#111111" strokeWidth="1" />
-      {Array.from({ length: 6 }, (_, index) => {
-        const x = 36 + index * 104;
-        const y = 96 - index * 14;
-        return <rect key={index} x={x} y={y - 28} width="72" height="36" fill="#FBFAF7" stroke="#111111" />;
-      })}
-    </svg>
-  );
-}
+const ALIGNED = [
+  { top: "In ", bottom: "In " },
+  { top: "practice, ", bottom: "practice, " },
+  { drop: "full-time employees only ", bottom: "employees " },
+  { top: "receive ", bottom: "receive " },
+  { top: "30 ", bottom: "30 " },
+  { top: "days ", bottom: "days " },
+  { top: "of ", bottom: "of " },
+  { top: "paid ", bottom: "paid " },
+  { top: "annual ", bottom: "annual " },
+  { top: "leave ", bottom: "leave." },
+  { drop: "after the probation period." },
+] as const;
 
 function Strip({ count }: { count: number }) {
   return (
@@ -28,7 +30,16 @@ function Strip({ count }: { count: number }) {
   );
 }
 
-export function Plates() {
+export function Plates({ run }: { run: SchnittRun }) {
+  const fail = run.sentences.find((sentence) => sentence.verdict === "fail");
+  const steps = [
+    { name: "Question", lines: [run.question] },
+    { name: "Retrieve", lines: [run.handbook.file, run.passage.span] },
+    { name: "Draft", lines: run.sentences.map((sentence) => sentence.text) },
+    { name: "Split", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.text}`) },
+    { name: "Check", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.verdict === "fail" ? "FAIL" : "PASS"}`) },
+    { name: "Verdict", lines: run.sentences.map((sentence) => `${sentence.verdict === "fail" ? "FAIL" : "PASS"} · ${sentence.evidence}`) },
+  ];
   return (
     <div className="plates">
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
@@ -36,11 +47,34 @@ export function Plates() {
         <h2 id="citebot-title">{CITEBOT_PLATE.headline}</h2>
         <p className="body">{CITEBOT_PLATE.body}</p>
         <figure>
-          <Rail />
-          <figcaption>Six sheets on a rail, one for each step of the paid-leave question.</figcaption>
+          <div className="plate-viewport">
+            <ol className="rail-steps">
+              {steps.map((step) => (
+                <li key={step.name} className="rail-sheet" data-rail="citebot">
+                  <p className="kicker">{step.name}</p>
+                  {step.lines.map((line) => (
+                    <p className="body" key={line}>
+                      {line}
+                    </p>
+                  ))}
+                </li>
+              ))}
+            </ol>
+          </div>
+          <figcaption>Six sheets on a diagonal rail, one step of the paid-leave question on each.</figcaption>
         </figure>
+        <ul className="rail-fails">
+          <li className="rail-fail">
+            <p className="kicker">Nothing retrieved</p>
+            <p className="body">{CITEBOT_PLATE.refusal}</p>
+          </li>
+          <li className="rail-fail">
+            <p className="kicker">Contradiction</p>
+            <p className="body">FAIL · {fail?.evidence}</p>
+          </li>
+        </ul>
         <ol>
-          {["Question", "Retrieve", "Draft", "Split", "Check", "Verdict"].map((step) => (
+          {PIPELINE.map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>
@@ -59,7 +93,7 @@ export function Plates() {
           <a href={CITEBOT_PLATE.source}>Source</a>
           <a href={CITEBOT_PLATE.harness}>Harness</a>
         </p>
-        <p className="plate-meta">Recorded fixture · 9 Nov 2026</p>
+        <p className="plate-meta">{run.recordedLabel}</p>
       </section>
 
       <section className="plate" id="autopsy" aria-labelledby="autopsy-title">
@@ -67,22 +101,50 @@ export function Plates() {
         <h2 id="autopsy-title">{DROPPED.headline}</h2>
         <p className="body">{DROPPED.body}</p>
         <figure>
-          <svg className="align" viewBox="0 0 640 80" aria-hidden="true">
-            <text x="0" y="24" fill="#111111" fontSize="14">
-              Passage
-            </text>
-            <text x="0" y="64" fill="#111111" fontSize="14">
-              Answer
-            </text>
-            <line x1="96" y1="20" x2="620" y2="20" stroke="#111111" />
-            <line x1="96" y1="60" x2="420" y2="60" stroke="#C6302A" />
-          </svg>
-          <figcaption>The passage above the shorter answer. The verdict sheet names the words that fell out.</figcaption>
+          <div className="word-align">
+            {ALIGNED.map((column) => {
+              const dropped = "drop" in column;
+              const top = dropped ? column.drop : "top" in column ? column.top : "";
+              const bottom = "bottom" in column ? column.bottom : "";
+              return (
+                <span className="pair" key={`${top}|${bottom}`}>
+                  {dropped ? (
+                    <s className="offcut" style={{ textDecoration: "line-through" }}>
+                      {top}
+                    </s>
+                  ) : (
+                    <span className="passage-line">{top}</span>
+                  )}
+                  {top && bottom && !dropped ? (
+                    <svg className="hair" viewBox="0 0 2 18" width="2" height="18" aria-hidden="true">
+                      <line x1="1" y1="0" x2="1" y2="18" stroke="#111111" strokeWidth="1" />
+                    </svg>
+                  ) : (
+                    <span className="hair hair-gap" />
+                  )}
+                  <span className="answer-line">{bottom}</span>
+                </span>
+              );
+            })}
+          </div>
+          <div className="word-read">
+            <p className="passage-line">
+              {ALIGNED.map((column) =>
+                "drop" in column ? (
+                  <s className="offcut" key={column.drop} style={{ textDecoration: "line-through" }}>
+                    {column.drop}
+                  </s>
+                ) : "top" in column ? (
+                  <span key={column.top}>{column.top}</span>
+                ) : null,
+              )}
+            </p>
+            <p className="answer-line">
+              {ALIGNED.map((column) => ("bottom" in column ? <span key={column.bottom}>{column.bottom}</span> : null))}
+            </p>
+          </div>
+          <figcaption>Kept words are tied. Dropped spans are struck.</figcaption>
         </figure>
-        <p className="kicker">Passage</p>
-        <p className="body">{DROPPED.passage}</p>
-        <p className="kicker">Answer</p>
-        <p className="body">{DROPPED.answer}</p>
         <article className="verdict-sheet">
           <p className="kicker">Verdict on this answer</p>
           <ol>
@@ -112,27 +174,29 @@ export function Plates() {
         <h2 id="style-title">{STYLE_DISTANCE.headline}</h2>
         <p className="body">{STYLE_DISTANCE.body}</p>
         <figure>
-          <svg className="depth" viewBox="0 0 640 160" aria-hidden="true">
-            <rect x="40" y="36" width="220" height="88" fill="#FBFAF7" stroke="#111111" />
-            <rect x="360" y="16" width="220" height="88" fill="#FBFAF7" stroke="#111111" />
-            <line x1="260" y1="80" x2="360" y2="60" stroke="#111111" />
-          </svg>
-          <figcaption>House voice at zero. The draft sits back by its distance. Synthetic demo.</figcaption>
+          <div className="distance-sheets">
+            <article className="voice-sheet">
+              <p className="kicker">House voice</p>
+              <p className="body">0</p>
+            </article>
+            <ol className="fins">
+              {STYLE_DISTANCE.fins.map((word, index) => (
+                <li key={word} style={{ width: `${100 - index * 12}%` }}>
+                  {word}
+                </li>
+              ))}
+            </ol>
+            <article className="draft-sheet">
+              <p className="kicker">{STYLE_DISTANCE.label}</p>
+              <p className="dimension">
+                <span className="depth-read">{STYLE_DISTANCE.heldOut}</span>
+              </p>
+              <p className="body">Drifted drafts {STYLE_DISTANCE.drifted}, {STYLE_DISTANCE.driftedReading}</p>
+              <p className="body">Held-out pages {STYLE_DISTANCE.heldOut}, {STYLE_DISTANCE.heldOutReading}</p>
+            </article>
+          </div>
+          <figcaption>House voice at zero, the draft set back, fins largest first. Synthetic demo is printed on the draft sheet.</figcaption>
         </figure>
-        <p className="kicker">{STYLE_DISTANCE.label}</p>
-        <p className="figure-row">
-          <span>Drifted drafts {STYLE_DISTANCE.drifted}</span>
-          <span>{STYLE_DISTANCE.driftedReading}</span>
-        </p>
-        <p className="figure-row">
-          <span>Held-out pages {STYLE_DISTANCE.heldOut}</span>
-          <span>{STYLE_DISTANCE.heldOutReading}</span>
-        </p>
-        <ol>
-          <li>House voice at zero</li>
-          <li>Held-out pages {STYLE_DISTANCE.heldOut}, {STYLE_DISTANCE.heldOutReading}</li>
-          <li>Drifted drafts {STYLE_DISTANCE.drifted}, {STYLE_DISTANCE.driftedReading}</li>
-        </ol>
         <p className="actions">
           <a href={STYLE_DISTANCE.live}>Live</a>
           <a href={STYLE_DISTANCE.source}>Source</a>

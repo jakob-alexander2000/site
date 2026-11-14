@@ -30,6 +30,48 @@ function progressOf(stage: HTMLElement) {
   return Math.min(1, Math.max(0, (window.scrollY - start) / range));
 }
 
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function sectionProgress(section: HTMLElement) {
+  const rect = section.getBoundingClientRect();
+  return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
+}
+
+/** Plate motion runs in the hero's render loop so the page keeps one WebGL renderer. */
+function layoutPlates() {
+  if (document.documentElement.dataset.schnitt !== "gl") return;
+  const cite = document.getElementById("citebot");
+  const sheets = [...document.querySelectorAll<HTMLElement>("#citebot .rail-sheet")];
+  if (cite && sheets.length) {
+    const progress = sectionProgress(cite);
+    sheets.forEach((sheet, index) => {
+      const along = new Vector3(index * progress * 18, 0, -index * (14 + progress * 20));
+      const lift = Math.round(progress * (sheets.length - 1)) === index ? 12 : 0;
+      sheet.style.transform = `translate3d(${along.x.toFixed(1)}px, ${(along.y - lift).toFixed(1)}px, ${along.z.toFixed(1)}px)`;
+    });
+  }
+  const autopsy = document.getElementById("autopsy");
+  if (autopsy) {
+    const drop = sectionProgress(autopsy) * 28;
+    autopsy.querySelectorAll<HTMLElement>(".offcut").forEach((node) => {
+      node.style.transform = `translateY(${drop.toFixed(1)}px)`;
+    });
+  }
+  const style = document.getElementById("style");
+  const draft = style?.querySelector<HTMLElement>(".draft-sheet");
+  const read = style?.querySelector<HTMLElement>(".depth-read");
+  if (style && draft) {
+    const progress = sectionProgress(style);
+    const value = 0.64 + progress * (1.33 - 0.64);
+    const span = (value - 0.64) / (1.33 - 0.64);
+    const depth = 48 + span * 170;
+    draft.style.transform = `translateZ(${(-depth).toFixed(1)}px) scale(${(1 - span * 0.06).toFixed(3)})`;
+    if (read) read.textContent = value.toFixed(2);
+  }
+}
+
 function intersects(a: DOMRect, b: DOMRect) {
   return a.width > 0 && b.width > 0 && a.left < b.right + 2 && a.right > b.left - 2 && a.top < b.bottom + 2 && a.bottom > b.top - 2;
 }
@@ -143,7 +185,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     });
     const card = new Mesh(new PlaneGeometry(cssW, cssH), fill);
     card.rotation.copy(sheet.rotation);
-    card.position.z = -4;
+    card.position.z = 0;
     rig.add(card);
     materials.push(fill);
     geometries.push(card.geometry);
@@ -151,9 +193,9 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     let edge: Mesh | undefined;
     if (!slot.classList.contains("verdict")) {
       const ink = new MeshBasicMaterial({ color: 0x111111, toneMapped: false });
-      edge = new Mesh(new PlaneGeometry(cssW + 8, cssH + 8), ink);
+      edge = new Mesh(new PlaneGeometry(cssW, cssH), ink);
       edge.rotation.copy(sheet.rotation);
-      edge.position.z = -8;
+      edge.position.z = -0.4;
       rig.add(edge);
       materials.push(ink);
       geometries.push(edge.geometry);
@@ -261,6 +303,7 @@ export function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement)
     }
     placeCallouts(stage);
     placeThread(stage);
+    layoutPlates();
   };
 
   let frame = 0;
