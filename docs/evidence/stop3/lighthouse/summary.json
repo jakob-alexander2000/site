@@ -1,0 +1,77 @@
+{
+  "mobile": {
+    "runs": [
+      {
+        "performance": 99,
+        "lcpMs": 1002.2810000000001,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 924.15,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 952.2780000000001,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 960.0790000000001,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 914.033,
+        "cls": 0
+      }
+    ],
+    "median": {
+      "performance": 100,
+      "lcpMs": 952,
+      "cls": 0
+    }
+  },
+  "desktop": {
+    "runs": [
+      {
+        "performance": 100,
+        "lcpMs": 267.207,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 272.401,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 265.311,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 265.478,
+        "cls": 0
+      },
+      {
+        "performance": 100,
+        "lcpMs": 266.321,
+        "cls": 0
+      }
+    ],
+    "median": {
+      "performance": 100,
+      "lcpMs": 266,
+      "cls": 0
+    }
+  },
+  "plateCls": {
+    "hero": 0,
+    "citebot": 0,
+    "autopsy": 0,
+    "style": 0,
+    "skills": 0
+  }
+}
