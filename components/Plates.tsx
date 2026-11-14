@@ -37,19 +37,6 @@ function wrapLines(text: string, max = 46) {
   return lines.slice(0, 3);
 }
 
-function PenLoop({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
-  return (
-    <path
-      className="pen-loop"
-      d={`M ${x + w * 0.15} ${y + 2} C ${x + w} ${y - 2}, ${x + w + 8} ${y + h * 0.45}, ${x + w - 2} ${y + h} C ${x + w * 0.4} ${y + h + 6}, ${x - 6} ${y + h * 0.7}, ${x + 2} ${y + h * 0.35} C ${x - 2} ${y + 6}, ${x + w * 0.2} ${y - 1}, ${x + w * 0.2} ${y + 3}`}
-      fill="none"
-      stroke="#C6302A"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-    />
-  );
-}
-
 function Strip({ count }: { count: number }) {
   return (
     <svg className="strip" viewBox="0 0 220 36" aria-hidden="true">
@@ -68,8 +55,22 @@ export function Plates({ run }: { run: SchnittRun }) {
     { name: "Draft", lines: run.sentences.map((sentence) => sentence.text) },
     { name: "Split", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.text}`) },
     { name: "Check", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.verdict === "fail" ? "FAIL" : "PASS"}`) },
-    { name: "Verdict", lines: run.sentences.map((sentence) => `${sentence.verdict === "fail" ? "FAIL" : "PASS"} · ${sentence.evidence}`) },
+    {
+      name: "Verdict",
+      lines: run.sentences.flatMap((sentence, index) =>
+        sentence.verdict === "fail"
+          ? [`S${index + 1} · FAIL · ${sentence.text}`, sentence.evidence]
+          : [`S${index + 1} · PASS · ${sentence.text}`],
+      ),
+    },
   ];
+  const x0 = 150;
+  const y0 = 28;
+  const dx = 156;
+  const dy = 56;
+  const sw = 340;
+  const sh = 68;
+  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 98 : sh });
   return (
     <div className="plates">
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
@@ -77,48 +78,91 @@ export function Plates({ run }: { run: SchnittRun }) {
         <h2 id="citebot-title">{CITEBOT_PLATE.headline}</h2>
         <p className="body">{CITEBOT_PLATE.body}</p>
         <figure>
-          <svg className="plate-drawing" viewBox="0 0 1120 860" role="img" aria-labelledby="citebot-drawing">
+          <svg className="plate-drawing" viewBox="0 0 1280 520" role="img" aria-labelledby="citebot-drawing">
             <title id="citebot-drawing">Six sheets on a diagonal rail for the paid-leave question.</title>
             {steps.map((step, index) => {
-              const x = 210 + index * 64;
-              const y = 28 + index * 108;
-              const w = 500;
-              const h = 86;
+              const box = sheetBox(index);
               const verdict = step.name === "Verdict";
               const ink = verdict ? "#F7F7F5" : "#111111";
-              const lines = step.lines.flatMap((line) => wrapLines(line));
+              const labelX = box.x + box.w - dx + 8;
               return (
                 <g key={step.name} className="draw-sheet" data-step={step.name.toLowerCase()}>
-                  <text className="leader-name" x="16" y={y + 36} fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">
+                  <text className="leader-name" x={labelX} y={box.y - 10} fill="#111111" fontSize="12" fontFamily="ui-monospace, monospace">
                     {step.name.toUpperCase()}
                   </text>
-                  <line x1="132" y1={y + 32} x2={x} y2={y + 32} stroke="#111111" strokeWidth="1" />
-                  <rect className={`sheet-face${verdict ? " verdict-sheet" : ""}`} x={x} y={y} width={w} height={h} fill={verdict ? "#111111" : "#FBFAF7"} stroke="#111111" />
-                  {lines.map((line, lineIndex) => (
-                    <text key={line} x={x + 14} y={y + 28 + lineIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
-                      {line}
-                    </text>
-                  ))}
+                  <line className="leader-line" x1={labelX + 28} y1={box.y - 6} x2={labelX + 28} y2={box.y} stroke="#111111" strokeWidth="1" />
+                  <rect className={`sheet-face${verdict ? " verdict-sheet" : ""}`} x={box.x} y={box.y} width={box.w} height={box.h} fill={verdict ? "#111111" : "#FBFAF7"} stroke="#111111" />
+                  {step.name === "Split"
+                    ? run.sentences.map((sentence, sentenceIndex) => (
+                        <text key={sentence.text} x={box.x + 12} y={box.y + 28 + sentenceIndex * 18} fill={ink} fontSize="14" fontFamily="Geist, sans-serif">
+                          {`S${sentenceIndex + 1} · `}
+                          <tspan className={sentence.verdict === "fail" ? "split-fail-sentence" : undefined}>{sentence.text}</tspan>
+                        </text>
+                      ))
+                    : step.name === "Verdict"
+                      ? run.sentences.flatMap((sentence, sentenceIndex) => {
+                          const y = box.y + 28 + sentenceIndex * 34;
+                          if (sentence.verdict !== "fail") {
+                            return [
+                              <text key={sentence.text} x={box.x + 12} y={y} fill={ink} fontSize="14" fontFamily="Geist, sans-serif">
+                                {`S${sentenceIndex + 1} · PASS · ${sentence.text}`}
+                              </text>,
+                            ];
+                          }
+                          return [
+                            <g key="mark" className="fail-mark">
+                              <text className="fail-word" x={box.x + 12} y={y} fill="#FF8A84" fontSize="14" fontFamily="ui-monospace, monospace">
+                                {`S${sentenceIndex + 1} · FAIL`}
+                              </text>
+                              <ellipse className="pen-loop" cx={box.x + 52} cy={y - 4} rx="48" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
+                            </g>,
+                            <text key="sentence" className="verdict-fail-sentence" x={box.x + 112} y={y} fill={ink} fontSize="14" fontFamily="Geist, sans-serif">
+                              {sentence.text}
+                            </text>,
+                            <text key="why" className="verdict-fail-reason" x={box.x + 12} y={y + 18} fill="#F7F7F5" fontSize="13" fontFamily="Geist, sans-serif">
+                              {sentence.evidence}
+                            </text>,
+                          ];
+                        })
+                      : step.lines.flatMap((line) => wrapLines(line, 42)).map((line, lineIndex) => (
+                          <text key={line} x={box.x + 12} y={box.y + 26 + lineIndex * 16} fill={ink} fontSize="14" fontFamily="Geist, sans-serif">
+                            {line}
+                          </text>
+                        ))}
                 </g>
               );
             })}
-            <g data-hang="retrieve">
-              <line className="hang-leader" data-leader="retrieve" x1="274" y1="156" x2="188" y2="156" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="188" y1="156" x2="188" y2="748" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="188" y1="748" x2="210" y2="748" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <rect className="sheet-face hang-sheet" x="210" y="712" width="420" height="78" fill="none" stroke="#111111" strokeDasharray="6 4" />
-              <text x="224" y="742" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">NOTHING RETRIEVED</text>
-              <text x="224" y="766" fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{CITEBOT_PLATE.refusal}</text>
-            </g>
-            <g data-hang="check">
-              <line className="hang-leader" data-leader="check" x1="466" y1="492" x2="176" y2="492" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="176" y1="492" x2="176" y2="808" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="176" y1="808" x2="660" y2="808" stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-              <rect className="sheet-face hang-sheet" x="660" y="772" width="420" height="72" fill="none" stroke="#111111" strokeDasharray="6 4" />
-              <text x="674" y="802" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
-              <PenLoop x={668} y={786} w={52} h={22} />
-              <text x="740" y="802" fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{fail?.evidence}</text>
-            </g>
+            {(["retrieve", "check"] as const).map((id) => {
+              const index = id === "retrieve" ? 1 : 4;
+              const box = sheetBox(index);
+              const hang = { x: box.x, y: box.y + box.h + 16, w: dx - 14, h: 78 };
+              return (
+                <g key={id} data-hang={id}>
+                  <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={box.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
+                  <rect className="sheet-face hang-sheet" x={hang.x} y={hang.y} width={hang.w} height={hang.h} fill="#FBFAF7" stroke="#111111" strokeDasharray="6 4" />
+                  {id === "retrieve" ? (
+                    wrapLines(CITEBOT_PLATE.refusal, 16).map((line, lineIndex) => (
+                      <text key={line} x={hang.x + 8} y={hang.y + 22 + lineIndex * 15} fill="#111111" fontSize="12" fontFamily="Geist, sans-serif">
+                        {line}
+                      </text>
+                    ))
+                  ) : (
+                    <>
+                      <g className="fail-mark">
+                        <text className="fail-word" x={hang.x + 28} y={hang.y + 16} textAnchor="middle" fill="#C6302A" fontSize="12" fontFamily="ui-monospace, monospace">FAIL</text>
+                        <ellipse className="pen-loop" cx={hang.x + 28} cy={hang.y + 12} rx="24" ry="11" fill="none" stroke="#C6302A" strokeWidth="1.4" />
+                      </g>
+                      {wrapLines(fail?.text ?? "", 22).map((line, lineIndex) => (
+                        <text key={line} x={hang.x + 8} y={hang.y + 36 + lineIndex * 13} fill="#111111" fontSize="11" fontFamily="Geist, sans-serif">{line}</text>
+                      ))}
+                      {wrapLines(fail?.evidence ?? "", 22).map((line, lineIndex) => (
+                        <text key={line} x={hang.x + 8} y={hang.y + 58 + lineIndex * 13} fill="#111111" fontSize="11" fontFamily="Geist, sans-serif">{line}</text>
+                      ))}
+                    </>
+                  )}
+                </g>
+              );
+            })}
           </svg>
           <div className="plate-stack">
             <ol className="rail-steps">
@@ -141,10 +185,11 @@ export function Plates({ run }: { run: SchnittRun }) {
               <li className="rail-fail" data-hang="check">
                 <p className="kicker">Contradiction</p>
                 <p className="body">
-                  <span className="mark fail">FAIL</span> {fail?.evidence}
-                  <svg className="pen-loop" viewBox="0 0 64 28" width="64" height="28" aria-hidden="true">
-                    <PenLoop x={2} y={4} w={52} h={18} />
+                  <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" aria-hidden="true">
+                    <text className="fail-word" x="39" y="21" textAnchor="middle" fill="#C6302A" fontSize="13" fontFamily="ui-monospace, monospace">FAIL</text>
+                    <ellipse className="pen-loop" cx="39" cy="16" rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
                   </svg>
+                  <span className="verdict-fail-sentence">{fail?.text}</span> {fail?.evidence}
                 </p>
               </li>
             </ul>
@@ -172,15 +217,19 @@ export function Plates({ run }: { run: SchnittRun }) {
         <h2 id="autopsy-title">{DROPPED.headline}</h2>
         <p className="body">{DROPPED.body}</p>
         <figure>
-          <div className="drawing-grid">
-            <p className="leader-name">Passage</p>
+          <div className="autopsy-draw">
+            <div className="label-rail">
+              <p className="leader-name">Passage</p>
+              <p className="leader-name">Answer</p>
+            </div>
             <div className="word-align sheet-face" aria-hidden="true">
               {ALIGNED.map((column) => {
                 const dropped = "drop" in column && column.drop;
                 const top = column.top;
                 const bottom = "bottom" in column ? column.bottom : "";
+                const twin = dropped && Boolean(bottom);
                 return (
-                  <span className="pair" key={`${top}|${bottom}`}>
+                  <span className={`pair${twin ? " is-twin" : ""}`} key={`${top}|${bottom}`}>
                     {dropped ? (
                       <s className="offcut" style={{ textDecoration: "line-through" }}>
                         {top}
@@ -189,9 +238,15 @@ export function Plates({ run }: { run: SchnittRun }) {
                       <span className="passage-line">{top}</span>
                     )}
                     {top && bottom ? (
-                      <svg className="hair" viewBox="0 0 2 18" width="2" height="18" aria-hidden="true">
-                        <line x1="1" y1="0" x2="1" y2="18" stroke="#111111" strokeWidth="1" />
-                      </svg>
+                      twin ? (
+                        <svg className="hair hair-around" viewBox="0 0 18 20" width="18" height="20" aria-hidden="true">
+                          <polyline points="1,1 1,10 9,10 9,20" fill="none" stroke="#111111" strokeWidth="1" />
+                        </svg>
+                      ) : (
+                        <svg className="hair" viewBox="0 0 2 18" width="2" height="18" aria-hidden="true">
+                          <line x1="1" y1="0" x2="1" y2="18" stroke="#111111" strokeWidth="1" />
+                        </svg>
+                      )
                     ) : (
                       <span className="hair hair-gap" />
                     )}
@@ -200,9 +255,8 @@ export function Plates({ run }: { run: SchnittRun }) {
                 );
               })}
             </div>
-            <p className="leader-name">Answer</p>
-            <p className="leader-note">The hairline under employees ties the answer word to its twin inside the struck span.</p>
           </div>
+          <p className="leader-note">The hairline steps around the strike on employees and ties it to the same word in the answer.</p>
           <div className="word-read">
             <p className="passage-line">
               {ALIGNED.map((column) =>
@@ -229,12 +283,14 @@ export function Plates({ run }: { run: SchnittRun }) {
                 <span className="kicker">{check.name}</span>
                 <span>{check.detail}</span>
                 <span className={check.verdict === "fail" ? "mark fail" : "mark"}>
-                  {check.verdict === "fail" ? "FAIL" : "PASS"}
                   {check.verdict === "fail" ? (
-                    <svg className="pen-loop" viewBox="0 0 64 28" width="64" height="28" aria-hidden="true">
-                      <PenLoop x={2} y={4} w={54} h={18} />
+                    <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" aria-hidden="true">
+                      <text className="fail-word" x="39" y="21" textAnchor="middle" fill="#FF8A84" fontSize="13" fontFamily="ui-monospace, monospace">FAIL</text>
+                      <ellipse className="pen-loop" cx="39" cy="16" rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
                     </svg>
-                  ) : null}
+                  ) : (
+                    "PASS"
+                  )}
                 </span>
               </li>
             ))}
@@ -257,38 +313,40 @@ export function Plates({ run }: { run: SchnittRun }) {
         <h2 id="style-title">{STYLE_DISTANCE.headline}</h2>
         <p className="body">{STYLE_DISTANCE.body}</p>
         <figure>
-          <svg className="plate-drawing" viewBox="0 0 1120 560" role="img" aria-labelledby="style-drawing">
+          <svg className="plate-drawing" viewBox="0 0 1120 360" role="img" aria-labelledby="style-drawing">
             <title id="style-drawing">House voice at zero, the draft set back, fins largest first.</title>
-            <text className="leader-name" x="16" y="78" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">HOUSE VOICE</text>
-            <line x1="132" y1="74" x2="200" y2="74" stroke="#111111" />
-            <rect className="sheet-face voice-sheet" x="200" y="36" width="250" height="120" fill="#FBFAF7" stroke="#111111" />
-            <text x="216" y="100" fill="#111111" fontSize="28" fontFamily="Geist, sans-serif">0</text>
+            <text className="leader-name" x="16" y="86" fill="#111111" fontSize="12" fontFamily="ui-monospace, monospace">HOUSE VOICE</text>
+            <line className="leader-line" x1="118" y1="82" x2="150" y2="82" stroke="#111111" />
+            <rect className="sheet-face voice-sheet" x="150" y="28" width="160" height="120" fill="#FBFAF7" stroke="#111111" />
+            <text x="206" y="98" textAnchor="middle" fill="#111111" fontSize="36" fontFamily="Geist, sans-serif">0</text>
             <g className="fins">
               {STYLE_DISTANCE.fins.map((fin, index) => {
-                const width = (fin.z / STYLE_DISTANCE.fins[0].z) * 200;
-                const y = 36 + index * 28;
+                const gap = 476;
+                const width = (fin.z / STYLE_DISTANCE.fins[0].z) * gap;
+                const y = 28 + index * 20;
                 return (
                   <g key={fin.word}>
-                    <text x="470" y={y + 16} fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">{fin.word}</text>
-                    <rect className="fin-bar" data-z={fin.z} x="560" y={y + 4} width={width} height="14" fill="#111111" />
+                    <text x="324" y={y + 13} fill="#111111" fontSize="12" fontFamily="ui-monospace, monospace">{fin.word}</text>
+                    <rect className="fin-bar" data-z={fin.z} x="392" y={y + 2} width={width} height="12" fill="#111111" />
                   </g>
                 );
               })}
             </g>
-            <text className="leader-name" x="790" y="48" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">DRAFT</text>
-            <line x1="860" y1="44" x2="900" y2="90" stroke="#111111" />
-            <g>
-              <rect className="sheet-face draft-sheet" x="900" y="70" width="190" height="130" fill="#FBFAF7" stroke="#111111" />
-              <text x="914" y="98" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">{STYLE_DISTANCE.label}</text>
-              <line x1="914" y1="118" x2="1070" y2="118" stroke="#111111" />
-              <text className="depth-read" x="1000" y="112" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">{STYLE_DISTANCE.heldOut}</text>
-            </g>
-            <rect className="sheet-face verdict-sheet" x="16" y="400" width="1088" height="130" fill="#111111" />
-            <text x="36" y="438" fill="#F7F7F5" fontSize="13" fontFamily="ui-monospace, monospace">VERDICT</text>
-            <text className="figure-prose" x="36" y="472" fill="#F7F7F5" fontSize="18" fontFamily="Geist, sans-serif">
+            <text className="leader-name" x="900" y="28" fill="#111111" fontSize="12" fontFamily="ui-monospace, monospace">DRAFT</text>
+            <line className="leader-line" x1="924" y1="32" x2="960" y2="44" stroke="#111111" />
+            <rect x="888" y="62" width="200" height="108" fill="none" stroke="#111111" strokeOpacity="0.35" />
+            <rect className="sheet-face draft-sheet" x="868" y="44" width="200" height="108" fill="#FBFAF7" stroke="#111111" />
+            <text x="882" y="72" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">{STYLE_DISTANCE.label}</text>
+            <line x1="310" y1="168" x2="310" y2="184" stroke="#111111" />
+            <line x1="868" y1="168" x2="868" y2="184" stroke="#111111" />
+            <line x1="310" y1="184" x2="868" y2="184" stroke="#111111" />
+            <text className="depth-read" x="589" y="176" textAnchor="middle" fill="#111111" fontSize="13" fontFamily="ui-monospace, monospace">{STYLE_DISTANCE.heldOut}</text>
+            <rect className="sheet-face verdict-sheet" x="16" y="208" width="1088" height="132" fill="#111111" />
+            <text x="36" y="242" fill="#F7F7F5" fontSize="13" fontFamily="ui-monospace, monospace">VERDICT</text>
+            <text className="figure-prose" x="36" y="276" fill="#F7F7F5" fontSize="18" fontFamily="Geist, sans-serif">
               Drifted drafts {STYLE_DISTANCE.drifted}, {STYLE_DISTANCE.driftedReading}
             </text>
-            <text className="figure-prose" x="36" y="500" fill="#F7F7F5" fontSize="18" fontFamily="Geist, sans-serif">
+            <text className="figure-prose" x="36" y="306" fill="#F7F7F5" fontSize="18" fontFamily="Geist, sans-serif">
               Held-out pages {STYLE_DISTANCE.heldOut}, {STYLE_DISTANCE.heldOutReading}
             </text>
           </svg>

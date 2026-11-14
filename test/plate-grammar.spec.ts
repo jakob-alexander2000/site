@@ -12,7 +12,7 @@ test("each plate drawing spans the plate and keeps one verdict sheet", async ({ 
   await page.goto("/");
   for (const id of ["citebot", "autopsy", "style"]) {
     const share = await page.locator(`#${id}`).evaluate((plate) => {
-      const drawing = plate.querySelector(".plate-drawing, .drawing-grid");
+      const drawing = plate.querySelector(".plate-drawing, .autopsy-draw");
       if (!(drawing instanceof Element)) return 0;
       return drawing.getBoundingClientRect().width / plate.getBoundingClientRect().width;
     });
@@ -82,4 +82,58 @@ test("failure sheets hang from their step", async ({ page }) => {
     return found;
   });
   expect(misses).toEqual([]);
+});
+
+test("the verdict FAIL sentence is the split sentence that failed", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const verdict = (await page.locator("#citebot .verdict-fail-sentence").first().textContent())?.trim();
+  const split = (await page.locator("#citebot .split-fail-sentence").first().textContent())?.trim();
+  expect(verdict).toBe(split);
+  expect(verdict).not.toBe((await page.locator("#citebot .verdict-fail-reason").first().textContent())?.trim());
+});
+
+test("a dashed hang does not cross a leader", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const crosses = await page.locator("#citebot .plate-drawing").evaluate((node) => {
+    const lines = [...node.querySelectorAll("line")].map((line) => ({
+      dashed: line.hasAttribute("stroke-dasharray"),
+      leader: line.classList.contains("leader-line"),
+      x1: line.x1.baseVal.value,
+      y1: line.y1.baseVal.value,
+      x2: line.x2.baseVal.value,
+      y2: line.y2.baseVal.value,
+    }));
+    const hit = (a: (typeof lines)[number], b: (typeof lines)[number]) => {
+      const det = (p: number, q: number, r: number, s: number) => p * s - q * r;
+      const d = det(a.x2 - a.x1, b.x1 - b.x2, a.y2 - a.y1, b.y1 - b.y2);
+      if (d === 0) return false;
+      const t = det(b.x1 - a.x1, b.x1 - b.x2, b.y1 - a.y1, b.y1 - b.y2) / d;
+      const u = det(a.x2 - a.x1, b.x1 - a.x1, a.y2 - a.y1, b.y1 - a.y1) / d;
+      return t > 0.02 && t < 0.98 && u > 0.02 && u < 0.98;
+    };
+    const dashed = lines.filter((line) => line.dashed);
+    const leaders = lines.filter((line) => line.leader);
+    return dashed.filter((line) => leaders.some((leader) => hit(line, leader))).length;
+  });
+  expect(crosses).toBe(0);
+});
+
+test("the pen loop encloses the word FAIL", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const outside = await page.evaluate(() => {
+    const misses: string[] = [];
+    for (const mark of document.querySelectorAll(".fail-mark")) {
+      const word = mark.querySelector(".fail-word")?.getBoundingClientRect();
+      const loop = mark.querySelector(".pen-loop")?.getBoundingClientRect();
+      const style = getComputedStyle(mark);
+      if (style.display === "none" || style.visibility === "hidden" || !word || !loop || word.width === 0) continue;
+      const contains = loop.left <= word.left + 0.5 && loop.top <= word.top + 0.5 && loop.right >= word.right - 0.5 && loop.bottom >= word.bottom - 0.5;
+      if (!contains) misses.push(mark.closest("section")?.id ?? "fail");
+    }
+    return misses;
+  });
+  expect(outside).toEqual([]);
 });

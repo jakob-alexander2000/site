@@ -934,12 +934,42 @@ article.verdict-sheet,
   white-space: nowrap;
 }
 
-.drawing-grid {
+.autopsy-draw {
   display: grid;
   grid-template-columns: 8.5rem minmax(0, 1fr);
-  gap: 10px 18px;
+  align-items: stretch;
   width: 100%;
-  align-items: center;
+  gap: 0 10px;
+}
+
+.label-rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.label-rail .leader-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.label-rail .leader-name::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ink);
+}
+
+.pair.is-twin .offcut {
+  position: relative;
+  top: -12px;
+}
+
+.word-align svg.hair-around {
+  width: 18px;
+  height: 20px;
+  background: none;
 }
 
 .drawing-grid .leader-name,
