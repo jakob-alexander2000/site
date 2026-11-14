@@ -9,8 +9,6 @@ test("every plate is in the served html", async ({ page }) => {
     CITEBOT_PLATE.headline,
     CITEBOT_PLATE.body,
     DROPPED.headline,
-    DROPPED.passage,
-    DROPPED.answer,
     "FAIL",
     STYLE_DISTANCE.headline,
     STYLE_DISTANCE.label,
@@ -21,6 +19,8 @@ test("every plate is in the served html", async ({ page }) => {
   ]) {
     expect(html, line).toContain(line);
   }
+  await expect(page.locator("#autopsy")).toContainText(DROPPED.passage);
+  await expect(page.locator("#autopsy")).toContainText(DROPPED.answer);
   expect(html).not.toContain("[Draft");
   expect(html).not.toContain("[Needs");
   expect(html).not.toContain("[Optional");

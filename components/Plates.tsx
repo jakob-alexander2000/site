@@ -101,7 +101,7 @@ export function Plates({ run }: { run: SchnittRun }) {
         <h2 id="autopsy-title">{DROPPED.headline}</h2>
         <p className="body">{DROPPED.body}</p>
         <figure>
-          <div className="word-align">
+          <div className="word-align" tabIndex={0} aria-label="Passage and answer, word by word">
             {ALIGNED.map((column) => {
               const dropped = "drop" in column;
               const top = dropped ? column.drop : "top" in column ? column.top : "";

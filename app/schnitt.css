@@ -746,7 +746,6 @@ html[data-schnitt="flat"] .plane-slot {
 
 .plate figure {
   margin: 8px 0 16px;
-  overflow-x: auto;
 }
 
 .plate svg {
@@ -908,6 +907,13 @@ html[data-schnitt="flat"] .plane-slot {
   align-items: flex-end;
   gap: 0 12px;
   width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.word-align:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .word-read {
