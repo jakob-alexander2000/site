@@ -34,12 +34,13 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
-function nextTask() {
-  return new Promise<void>((resolve) => {
-    const idle = window.requestIdleCallback;
-    if (idle) idle(() => resolve(), { timeout: 400 });
-    else window.setTimeout(resolve, 0);
-  });
+/**
+ * End the animation frame before the next module evaluates.
+ * scheduler.yield continues in the same frame when the machine is idle,
+ * so the loader uses setTimeout(0), which returns to the event loop first.
+ */
+function yieldTurn(): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, 0));
 }
 
 type CssObject = import("three").Object3D & { element: HTMLElement };
@@ -50,28 +51,33 @@ type CssRenderer = {
   render(scene: Scene, camera: PerspectiveCamera): void;
 };
 
-/** Load three.js in separate chunks so no one evaluation owns the frame. */
+/** Load three.js one module per task so no evaluation owns the frame. */
 async function loadBits() {
+  await yieldTurn();
   const geometry = (await import("three/src/geometries/PlaneGeometry.js")) as {
     PlaneGeometry: new (width: number, height: number) => PlaneGeometry;
   };
-  await nextTask();
+  await yieldTurn();
   const material = (await import("three/src/materials/MeshBasicMaterial.js")) as {
     MeshBasicMaterial: new (params?: object) => MeshBasicMaterial;
   };
+  await yieldTurn();
   const mesh = (await import("three/src/objects/Mesh.js")) as { Mesh: new (geometry: PlaneGeometry, material: MeshBasicMaterial) => Mesh };
+  await yieldTurn();
   const group = (await import("three/src/objects/Group.js")) as { Group: new () => Group };
-  await nextTask();
+  await yieldTurn();
   const sceneMod = (await import("three/src/scenes/Scene.js")) as { Scene: new () => Scene };
+  await yieldTurn();
   const cameraMod = (await import("three/src/cameras/PerspectiveCamera.js")) as {
     PerspectiveCamera: new (fov: number, aspect: number, near: number, far: number) => PerspectiveCamera;
   };
+  await yieldTurn();
   const vector = (await import("three/src/math/Vector3.js")) as { Vector3: new () => Vector3 };
-  await nextTask();
+  await yieldTurn();
   const renderer = (await import("three/src/renderers/WebGLRenderer.js")) as {
     WebGLRenderer: new (params?: object) => WebGLRenderer;
   };
-  await nextTask();
+  await yieldTurn();
   const css = (await import("@/components/css3d.js")) as {
     CSS3DObject: new (element?: HTMLElement) => CssObject;
     CSS3DRenderer: new () => CssRenderer;
@@ -225,7 +231,7 @@ function placeCallouts(stage: HTMLElement) {
 }
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
-  await nextTask();
+  await yieldTurn();
   const slots = [...stage.querySelectorAll<HTMLElement>(".sheet")];
   if (slots.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const parents = slots.map((slot) => slot.parentElement);
@@ -248,7 +254,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   });
   if (!renderer.getContext()) throw new Error("WebGL context is missing");
   renderer.setClearColor(0x000000, 0);
-  await nextTask();
+  await yieldTurn();
 
   const css = new CSS3DRenderer();
   css.domElement.className = "schnitt-css";
@@ -303,7 +309,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     cards.push({ rig, sheet, card, edge, cssW, cssH });
   });
 
-  await nextTask();
+  await yieldTurn();
   const planeZ: number[] = [];
   const planes: CssObject[] = [];
   const cuts: CssObject[] = [];
@@ -531,7 +537,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", onResize);
-  await nextTask();
+  await yieldTurn();
   resize();
   render();
   stage.dataset.engine = "WebGLRenderer";

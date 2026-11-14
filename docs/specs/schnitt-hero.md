@@ -91,6 +91,7 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 9. Evidence scripts live in `tools/evidence` and no page imports them.
 10. The hero fit loop runs once per width, then later frames place the sheets a single time.
 11. Initial JavaScript is the sum of the module scripts, without the `noModule` polyfill.
+12. The loader frame budget is Chromium-only because long-animation-frame entries and the CPU throttle are read in Chromium. Headless WebKit cannot time that work.
 
 ## Not checked
 

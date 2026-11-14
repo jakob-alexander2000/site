@@ -4,8 +4,21 @@ import { useEffect, useLayoutEffect } from "react";
 import { showExplodedFallback } from "@/components/schnitt-fallback";
 
 function kick(task: () => void) {
-  if (window.requestIdleCallback) window.requestIdleCallback(() => task(), { timeout: 800 });
-  else window.setTimeout(task, 1);
+  const idle = window.requestIdleCallback;
+  if (!idle) {
+    window.setTimeout(task, 0);
+    return;
+  }
+  const run = (deadline: IdleDeadline) => {
+    // A short idle slice cannot hold a module evaluation. Come back later.
+    if (deadline.timeRemaining() < 12 && !deadline.didTimeout) {
+      idle(run, { timeout: 800 });
+      return;
+    }
+    // setTimeout leaves this idle callback. The import then runs as its own task.
+    window.setTimeout(task, 0);
+  };
+  idle(run, { timeout: 800 });
 }
 
 export function SchnittMount() {

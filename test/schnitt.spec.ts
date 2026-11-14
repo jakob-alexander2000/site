@@ -707,3 +707,66 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
   const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
   expect(idle).toBe(settled);
 });
+
+test("our code stays under 50ms a frame after first paint", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Long animation frames and the CPU throttle are read in Chromium.");
+  await page.addInitScript(() => {
+    const host = window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string }[] }[] };
+    host.__loaf = [];
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const scripts = (entry as PerformanceEntry & { scripts?: { duration: number; sourceURL?: string }[] }).scripts ?? [];
+        host.__loaf?.push({
+          startTime: entry.startTime,
+          duration: entry.duration,
+          scripts: scripts.map((script) => ({ dur: script.duration, url: script.sourceURL ?? "" })),
+        });
+      }
+    }).observe({ type: "long-animation-frame", buffered: true });
+  });
+  const client = await page.context().newCDPSession(page);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
+  await page.waitForTimeout(300);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  const report = await page.evaluate(async () => {
+    const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
+    const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string }[] }[] }).__loaf ?? [];
+    const kindOf = new Map<string, "framework" | "ours" | "other">();
+    const kind = async (url: string) => {
+      const known = kindOf.get(url);
+      if (known) return known;
+      const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
+      const ours = /WebGLRenderer|mountSchnittScene|PlaneGeometry|cameraZFor|MeshBasicMaterial/.test(text);
+      const framework = /rendererPackageName|reconcilerVersion|"app-page"/.test(text);
+      const value = ours ? "ours" : framework ? "framework" : "other";
+      kindOf.set(url, value);
+      return value;
+    };
+    const frames = [];
+    for (const entry of loaf) {
+      let framework = 0;
+      let ours = 0;
+      let other = 0;
+      for (const script of entry.scripts) {
+        const which = await kind(script.url);
+        if (which === "framework") framework += script.dur;
+        else if (which === "ours") ours += script.dur;
+        else other += script.dur;
+      }
+      const script = framework + ours + other;
+      frames.push({
+        startTime: Math.round(entry.startTime),
+        duration: Math.round(entry.duration),
+        ours: Math.round(ours),
+        frameworkShare: script > 0 ? Number((framework / script).toFixed(2)) : 0,
+        afterPaint: entry.startTime >= fcp,
+      });
+    }
+    return { fcp: Math.round(fcp), frames };
+  });
+  const counted = report.frames.filter((frame) => frame.afterPaint && frame.frameworkShare < 0.8 && frame.ours > 50);
+  expect(counted, JSON.stringify(report)).toEqual([]);
+});
