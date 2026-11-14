@@ -1,22 +1,135 @@
 {
-  "method": "requestAnimationFrame gaps, Chromium, 4x CPU throttle, SwiftShader",
-  "phone": {
-    "viewport": "390x844",
-    "cause": "One-time first layout. The 217 ms frame lands at scrollY 2657, the bottom of CiteBot, on the first pass only. Fonts have already finished (three woff2 files, responseEnd 14 ms). The trace's longest events are LayerTreeHost destructor and ProxyImpl::FinishGLOnImplThread, 242 ms, with no script on the long-animation-frame. A second pass through the same scroll has no frame over 40 ms.",
-    "firstPass": { "frames": 62, "medianMs": 16.7, "p95Ms": 16.8, "maxMs": 216.7, "maxAt": 56, "shareOver20ms": 0.0161, "scrollY": 2657 },
-    "secondPassMaxOver40ms": []
-  },
+  "commit": "56b97b2f8336dced46a1782ade66d9a20e3dcfac",
   "desktop": {
-    "viewport": "1440x900",
-    "sceneChunk": "The 133 ms frame is the one-time evaluation of the three.js chunk. A long-animation-frame of 154 ms attributes 145 ms to that chunk and 6 ms to the frame callback. It is on the hero, before data-gl=ready.",
-    "beforeReady": { "frames": 351, "medianMs": 16.7, "p95Ms": 16.7, "maxMs": 133.4, "shareOver20ms": 0.0057 },
-    "afterReady": { "frames": 360, "maxMs": 49.9, "maxAt": 19, "shareOver20ms": 0.0028 }
+    "name": "desktop",
+    "limit": 50,
+    "paint": [
+      {
+        "name": "first-paint",
+        "startTime": 260
+      },
+      {
+        "name": "first-contentful-paint",
+        "startTime": 348
+      }
+    ],
+    "maxAll": 108,
+    "maxAfter1s": 67,
+    "over": [
+      {
+        "startTime": 160,
+        "duration": 69,
+        "scripts": []
+      },
+      {
+        "startTime": 230,
+        "duration": 89,
+        "scripts": []
+      },
+      {
+        "startTime": 326,
+        "duration": 108,
+        "scripts": [
+          {
+            "dur": 105,
+            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
+            "fn": "",
+            "url": "13nbymvcsh4g8.js"
+          }
+        ]
+      },
+      {
+        "startTime": 1014,
+        "duration": 67,
+        "scripts": [
+          {
+            "dur": 63,
+            "invoker": "IdleRequestCallback",
+            "fn": "",
+            "url": "2p5ihxjgr-cil.js"
+          }
+        ]
+      }
+    ],
+    "loaf": [
+      {
+        "startTime": 160,
+        "duration": 69,
+        "scripts": []
+      },
+      {
+        "startTime": 230,
+        "duration": 89,
+        "scripts": []
+      },
+      {
+        "startTime": 326,
+        "duration": 108,
+        "scripts": [
+          {
+            "dur": 105,
+            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
+            "fn": "",
+            "url": "13nbymvcsh4g8.js"
+          }
+        ]
+      },
+      {
+        "startTime": 1014,
+        "duration": 67,
+        "scripts": [
+          {
+            "dur": 63,
+            "invoker": "IdleRequestCallback",
+            "fn": "",
+            "url": "2p5ihxjgr-cil.js"
+          }
+        ]
+      }
+    ]
   },
-  "plates": {
-    "citebot": { "frames": 89, "medianMs": 16.7, "maxMs": 50, "shareOver20ms": 0.0112 },
-    "autopsy": { "frames": 89, "medianMs": 16.7, "maxMs": 49.9, "shareOver20ms": 0.0112 },
-    "style": { "frames": 89, "medianMs": 16.7, "maxMs": 49.9, "shareOver20ms": 0.0112 },
-    "skills": { "frames": 89, "medianMs": 16.7, "maxMs": 50, "shareOver20ms": 0.0111 }
-  },
-  "counters": { "draws": 7, "triangles": 14, "pixelRatio": 1, "drawCallBudget": 120, "triangleBudget": 50000, "pixelRatioBudget": 2 }
+  "phone": {
+    "name": "phone",
+    "limit": 100,
+    "paint": [
+      {
+        "name": "first-paint",
+        "startTime": 340
+      },
+      {
+        "name": "first-contentful-paint",
+        "startTime": 340
+      }
+    ],
+    "maxAll": 208,
+    "maxAfter1s": 0,
+    "over": [
+      {
+        "startTime": 54,
+        "duration": 208,
+        "scripts": [
+          {
+            "dur": 108,
+            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
+            "fn": "",
+            "url": "13nbymvcsh4g8.js"
+          }
+        ]
+      }
+    ],
+    "loaf": [
+      {
+        "startTime": 54,
+        "duration": 208,
+        "scripts": [
+          {
+            "dur": 108,
+            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
+            "fn": "",
+            "url": "13nbymvcsh4g8.js"
+          }
+        ]
+      }
+    ]
+  }
 }

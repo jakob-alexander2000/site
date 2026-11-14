@@ -1,0 +1,2 @@
+56b97b2f8336dced46a1782ade66d9a20e3dcfac
+Phone trace on https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/ at 390x844, Emulation.setCPUThrottlingRate 4, from navigation. The longest events are a RunTask of 114 ms containing EvaluateScript of the Next.js app client runtime (3ix6dsmnstg1z.js, 169,872 bytes, 111 ms) and a Layout of 61 ms. The plates are server HTML. The long frame is that framework script evaluating and then laying out, not a compositor teardown and not a plate component.

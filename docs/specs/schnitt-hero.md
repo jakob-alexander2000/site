@@ -73,8 +73,8 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
 | Frame time, 4× CPU, hero method | `docs/evidence/schnitt-frame-timing.json` | 390×844, static HTML stack, WebGL off: 58 frames, median 16.7 ms, p95 16.7 ms, max 266.7 ms, share above 20 ms = 0.017. 1440×900, WebGL on, with the fit loop: 62 frames, median 16.7 ms, p95 16.7 ms, max 200 ms, share above 20 ms = 0.016. Phone is not a 73-frame WebGL run. The single long phone frame is recorded and explained before M7. |
 | Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on `7e4723e`. Unit 24 passed. Copy scan 141 files. Playwright 118 passed and 6 skipped. Chromium 62 passed. WebKit 56 passed and 6 skipped: the canvas-ink test, the frame-time test, the two drawn-card pixel reads, the three.js paint-order test, and the rail-budget test. Separation runs on WebKit. |
-| Screenshots at 1280, 1366, and 1440, and at 390×844, scroll 0, mid, end, and reduced motion, for the hero and plates 01–03 | `docs/evidence/stop3/` | Pass on `7e4723e` |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on `56b97b2`. Unit 24 passed. Copy scan 174 files. Playwright 138 passed and 6 skipped. The six skips are WebKit: canvas ink, frame time, the two drawn-card pixel reads, three.js paint order, and the rail budget. Separation runs on WebKit. |
+| Screenshots at 1280, 1366, and 1440, and at 390×844, scroll 0, mid, end, and reduced motion, for the hero and plates 01–03. Rail stills at 1440, 16 frames | `docs/evidence/stop3/` | Pass on `56b97b2` |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |
 
