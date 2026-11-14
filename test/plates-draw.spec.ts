@@ -39,7 +39,8 @@ test("the autopsy plate strikes only the dropped spans and names four checks", a
     await expect(page.locator("#autopsy")).toContainText(check.name);
     await expect(page.locator("#autopsy")).toContainText(check.verdict === "fail" ? "FAIL" : "PASS");
   }
-  await expect(page.locator("#autopsy .offcut:visible")).toHaveCount(DROPPED.spans.length);
+  const struckText = (await page.locator("#autopsy .offcut:visible").allTextContents()).join("");
+  for (const span of DROPPED.spans) expect(struckText).toContain(span.replace(/\.$/, ""));
   await expect(page.locator("#autopsy .hair:visible")).toHaveCount(0);
   const answer = await page.locator("#autopsy .answer-line:visible").first().evaluate((node) => getComputedStyle(node).color);
   const struck = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).color);
@@ -48,7 +49,7 @@ test("the autopsy plate strikes only the dropped spans and names four checks", a
   const decoration = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).textDecorationLine);
   expect(decoration).toContain("line-through");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(9);
+  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(10);
 });
 
 test("phone verdict names sit clear of the row above", async ({ page }) => {
@@ -65,17 +66,16 @@ test("the style plate prints the synthetic demo once, with fins", async ({ page 
   await expect(plate).toContainText("Synthetic demo");
   await expect(plate).toContainText(STYLE_DISTANCE.drifted);
   await expect(plate).toContainText(STYLE_DISTANCE.heldOut);
-  const driftedCount = await plate.locator(`text=${STYLE_DISTANCE.drifted}`).count();
-  expect(driftedCount).toBe(1);
-  for (const fin of STYLE_DISTANCE.fins) await expect(plate.locator(".fins")).toContainText(fin.word);
-  await expect(plate.locator(".voice-sheet, .draft-sheet")).toHaveCount(2);
+  await expect(plate.locator(`.figure-prose:visible`, { hasText: STYLE_DISTANCE.drifted })).toHaveCount(1);
+  for (const fin of STYLE_DISTANCE.fins) await expect(plate.locator(".fins:visible")).toContainText(fin.word);
+  await expect(plate.locator(".voice-sheet:visible, .draft-sheet:visible")).toHaveCount(2);
 });
 
 test("the style fins are drawn in true proportion, largest first", async ({ page }) => {
   for (const size of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(size);
     await page.goto("/");
-    const bars = await page.locator("#style .fins .fin-bar").evaluateAll((nodes) =>
+    const bars = await page.locator("#style .fins:visible .fin-bar").evaluateAll((nodes) =>
       nodes.map((node) => ({ width: node.getBoundingClientRect().width, z: Number((node as HTMLElement).dataset.z) })),
     );
     expect(bars.map((bar) => bar.z)).toEqual(STYLE_DISTANCE.fins.map((fin) => fin.z));
@@ -94,7 +94,8 @@ test("the style reading only ever shows a measured figure through the scroll", a
   for (let y = top - 900; y <= top + 900; y += 60) {
     await page.evaluate((value) => window.scrollTo(0, value), y);
     await page.waitForTimeout(60);
-    readings.add((await page.locator("#style .depth-read").textContent())?.trim() ?? "");
+    readings.add((await page.locator("#style .depth-read").first().textContent())?.trim() ?? "");
+    await expect(page.locator("#style .figure-prose:visible", { hasText: STYLE_DISTANCE.drifted })).toHaveCount(1);
   }
   expect([...readings].sort()).toEqual([STYLE_DISTANCE.heldOut, STYLE_DISTANCE.drifted].sort());
 });

@@ -696,7 +696,7 @@ html[data-schnitt="flat"] .plane-slot {
 .plate {
   display: grid;
   gap: 12px;
-  max-width: 72rem;
+  max-width: none;
   margin: 0 auto;
   width: 100%;
   scroll-margin-top: 16px;
@@ -745,6 +745,7 @@ html[data-schnitt="flat"] .plane-slot {
 }
 
 .plate figure {
+  position: relative;
   margin: 8px 0 16px;
 }
 
@@ -752,6 +753,13 @@ html[data-schnitt="flat"] .plane-slot {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.plate svg.pen-loop {
+  display: inline;
+  width: 64px;
+  height: 28px;
+  vertical-align: middle;
 }
 
 .plate ol,
@@ -785,7 +793,8 @@ html[data-schnitt="flat"] .plane-slot {
   gap: 8px;
 }
 
-.verdict-sheet {
+article.verdict-sheet,
+.plate-stack .verdict-sheet {
   background: var(--verdict);
   color: var(--verdict-ink);
   padding: 16px 18px;
@@ -903,12 +912,11 @@ html[data-schnitt="flat"] .plane-slot {
 
 .word-align {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0 12px;
-  width: max-content;
-  max-width: 100%;
-  overflow-x: auto;
+  gap: 8px 14px;
+  width: 100%;
+  max-width: none;
 }
 
 .word-align:focus-visible {
@@ -917,6 +925,39 @@ html[data-schnitt="flat"] .plane-slot {
 }
 
 .word-read {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.drawing-grid {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 10px 18px;
+  width: 100%;
+  align-items: center;
+}
+
+.drawing-grid .leader-name,
+.plate-stack .leader-name {
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.leader-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  max-width: 40rem;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.plate-stack {
   display: none;
 }
 
@@ -1031,10 +1072,6 @@ html[data-schnitt="flat"] .plane-slot {
   .rail-sheet:nth-child(5) { --step: 4; }
   .rail-sheet:nth-child(6) { --step: 5; }
 
-  html[data-schnitt="flat"] .rail-sheet,
-  html[data-schnitt="gl"] .rail-sheet {
-    margin-left: calc(var(--step, 0) * 1.5rem);
-  }
 }
 
 @media (max-width: 800px) {
@@ -1057,11 +1094,26 @@ html[data-schnitt="flat"] .plane-slot {
     margin-bottom: 4px;
   }
 
+  .plate svg.plate-drawing {
+    display: none;
+  }
+
+  .plate-stack {
+    display: block;
+  }
+
   .word-align {
     display: none;
   }
 
   .word-read {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
     display: grid;
     gap: 12px;
   }
@@ -1083,5 +1135,11 @@ html[data-schnitt="flat"] .plane-slot {
 
   .plates {
     gap: 48px;
+  }
+}
+
+@media (min-width: 801px) {
+  .plate-stack {
+    display: none;
   }
 }

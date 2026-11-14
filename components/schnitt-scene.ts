@@ -44,13 +44,12 @@ function sectionProgress(section: HTMLElement) {
 function layoutPlates() {
   if (document.documentElement.dataset.schnitt !== "gl") return;
   const cite = document.getElementById("citebot");
-  const sheets = [...document.querySelectorAll<HTMLElement>("#citebot .rail-sheet")];
+  const sheets = [...document.querySelectorAll<SVGElement>("#citebot .draw-sheet")];
   if (cite && sheets.length) {
     const progress = sectionProgress(cite);
     sheets.forEach((sheet, index) => {
-      const along = new Vector3(index * progress * 18, 0, -index * (14 + progress * 20));
-      const lift = Math.round(progress * (sheets.length - 1)) === index ? 12 : 0;
-      sheet.style.transform = `translate3d(${along.x.toFixed(1)}px, ${(along.y - lift).toFixed(1)}px, ${along.z.toFixed(1)}px)`;
+      const along = new Vector3(0, Math.round(progress * (sheets.length - 1)) === index ? -10 : 0, 0);
+      sheet.setAttribute("transform", `translate(${along.x.toFixed(1)} ${along.y.toFixed(1)})`);
     });
   }
   const autopsy = document.getElementById("autopsy");
@@ -61,15 +60,19 @@ function layoutPlates() {
     });
   }
   const style = document.getElementById("style");
-  const draft = style?.querySelector<HTMLElement>(".draft-sheet");
-  const read = style?.querySelector<HTMLElement>(".depth-read");
-  if (style && draft) {
+  if (style) {
     const progress = sectionProgress(style);
     const span = progress;
-    const depth = 48 + span * 170;
-    draft.style.transform = `translateZ(${(-depth).toFixed(1)}px) scale(${(1 - span * 0.06).toFixed(3)})`;
+    const shift = span * 16;
+    style.querySelectorAll<HTMLElement>(".draft-sheet").forEach((draft) => {
+      if (draft.tagName.toLowerCase() === "g") draft.setAttribute("transform", `translate(0 ${shift.toFixed(1)})`);
+      else draft.style.transform = `translateY(${shift.toFixed(1)}px)`;
+    });
     // The sheet moves continuously, but the reading names only the two measured figures, never a value in between.
-    if (read) read.textContent = span < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
+    const figure = span < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
+    style.querySelectorAll(".depth-read").forEach((read) => {
+      read.textContent = figure;
+    });
   }
 }
 

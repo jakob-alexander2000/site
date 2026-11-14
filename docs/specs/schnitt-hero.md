@@ -48,7 +48,7 @@ Labels are at least 11px. Links and buttons are at least 44px. The hero reserves
 | `test/schnitt-run.test.ts` | Blob pins, both claims, the question, the trimmed handbook, the passage span, 18 of 18, the pin date, and a clean copy scan of the exported strings. |
 | `test/schnitt.spec.ts` | The sentence and the italic word, both claims, the pass thread, the absent fail thread, the pen loop, phone type size, reduced motion, the WebGL fallback, canvas ink on Chromium, axe, console, and layout shift. |
 | `test/schnitt-page.spec.ts` | The page-wide limits: tap targets, contrast, sideways scroll, the main link on the first screen, and no iframes. |
-| `test/b1-drawn-cards.spec.ts` | Drawn-card labels, monotonic separation on Chromium and WebKit, and the paper sitting on its card at the end of the scroll. The pixel reads stay Chromium-only. |
+| `test/b1-drawn-cards.spec.ts` | Drawn-card labels, monotonic separation on Chromium and WebKit, and the paper sitting on its card at the end of the scroll. The paper-on-card test reads pixels from the WebGL canvas (`preserveDrawingBuffer`). WebKit on this runner does not return those pixels, so that one test is Chromium-only. The separation test reads element boxes, not pixels, and runs in WebKit. |
 | `test/plates-draw.spec.ts` | The CiteBot rail, the autopsy strikes and checks, the style sheet, and the phone verdict spacing. |
 
 Chromium launches with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader` so the canvas can draw without a GPU.

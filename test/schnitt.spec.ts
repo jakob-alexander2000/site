@@ -174,6 +174,37 @@ test("reduced motion keeps the exploded stack and skips the scroll scene", async
   expect(await label.evaluate((node) => node.closest(".sheet") !== null)).toBe(false);
 });
 
+test("desktop keeps one live WebGL context", async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    const live = new Set<HTMLCanvasElement>();
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const context = original.apply(this, [type, ...args] as never);
+      if ((type === "webgl" || type === "webgl2") && context && typeof context === "object" && "getExtension" in context) {
+        live.add(this);
+        const gl = context as WebGLRenderingContext;
+        const extension = gl.getExtension("WEBGL_lose_context");
+        if (extension && !extension.loseContext.name.includes("tracked")) {
+          const lose = extension.loseContext.bind(extension);
+          const tracked = () => {
+            live.delete(this);
+            lose();
+          };
+          Object.defineProperty(tracked, "name", { value: "tracked" });
+          extension.loseContext = tracked;
+        }
+      }
+      return context;
+    } as typeof HTMLCanvasElement.prototype.getContext;
+    Object.defineProperty(window, "__webglLive", { get: () => live.size });
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const live = await page.evaluate(() => (window as Window & { __webglLive?: number }).__webglLive ?? 0);
+  expect(live).toBe(1);
+});
+
 test("a WebGL context that throws after detection shows the static stack", async ({ page }) => {
   const errors = await quiet(page);
   await page.addInitScript(() => {

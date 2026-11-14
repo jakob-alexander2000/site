@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+
+const plates = ["citebot", "autopsy", "style"] as const;
+const positions = ["scroll-0", "mid-scroll", "end-scroll"] as const;
+
+test("desktop plate stills at scroll 0, mid and end differ", () => {
+  const recorded = JSON.parse(readFileSync("docs/evidence/stop2/still-hashes.json", "utf8")) as Record<string, Record<string, string>>;
+  for (const plate of plates) {
+    const hashes = positions.map((position) => {
+      const file = `docs/evidence/stop2/1440x900/${plate}-${position}.png`;
+      const hash = createHash("md5").update(readFileSync(file)).digest("hex");
+      assert.equal(hash, recorded[plate]?.[position], file);
+      return hash;
+    });
+    assert.equal(new Set(hashes).size, 3, plate);
+  }
+});
