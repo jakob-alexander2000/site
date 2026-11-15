@@ -46,7 +46,12 @@ function yieldTurn(): Promise<void> {
   // setTimeout returns to the event loop. The animation frame callback
   // then waits for a paint, so the next module is not added to this frame.
   return new Promise((resolve) => {
-    window.setTimeout(() => window.requestAnimationFrame(() => resolve()), 0);
+    const started = performance.now();
+    window.setTimeout(() => window.requestAnimationFrame(() => {
+      const host = window as Window & { __yields?: number[] };
+      (host.__yields ??= []).push(performance.now() - started);
+      resolve();
+    }), 0);
   });
 }
 

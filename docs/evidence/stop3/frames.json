@@ -1,135 +1,175 @@
 {
-  "commit": "56b97b2f8336dced46a1782ade66d9a20e3dcfac",
-  "desktop": {
-    "name": "desktop",
-    "limit": 50,
-    "paint": [
-      {
-        "name": "first-paint",
-        "startTime": 260
-      },
-      {
-        "name": "first-contentful-paint",
-        "startTime": 348
-      }
-    ],
-    "maxAll": 108,
-    "maxAfter1s": 67,
-    "over": [
-      {
-        "startTime": 160,
-        "duration": 69,
-        "scripts": []
-      },
-      {
-        "startTime": 230,
-        "duration": 89,
-        "scripts": []
-      },
-      {
-        "startTime": 326,
-        "duration": 108,
-        "scripts": [
-          {
-            "dur": 105,
-            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
-            "fn": "",
-            "url": "13nbymvcsh4g8.js"
-          }
-        ]
-      },
-      {
-        "startTime": 1014,
-        "duration": 67,
-        "scripts": [
-          {
-            "dur": 63,
-            "invoker": "IdleRequestCallback",
-            "fn": "",
-            "url": "2p5ihxjgr-cil.js"
-          }
-        ]
-      }
-    ],
-    "loaf": [
-      {
-        "startTime": 160,
-        "duration": 69,
-        "scripts": []
-      },
-      {
-        "startTime": 230,
-        "duration": 89,
-        "scripts": []
-      },
-      {
-        "startTime": 326,
-        "duration": 108,
-        "scripts": [
-          {
-            "dur": 105,
-            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
-            "fn": "",
-            "url": "13nbymvcsh4g8.js"
-          }
-        ]
-      },
-      {
-        "startTime": 1014,
-        "duration": 67,
-        "scripts": [
-          {
-            "dur": 63,
-            "invoker": "IdleRequestCallback",
-            "fn": "",
-            "url": "2p5ihxjgr-cil.js"
-          }
-        ]
-      }
-    ]
-  },
-  "phone": {
-    "name": "phone",
-    "limit": 100,
-    "paint": [
-      {
-        "name": "first-paint",
-        "startTime": 340
-      },
-      {
-        "name": "first-contentful-paint",
-        "startTime": 340
-      }
-    ],
-    "maxAll": 208,
-    "maxAfter1s": 0,
-    "over": [
-      {
-        "startTime": 54,
-        "duration": 208,
-        "scripts": [
-          {
-            "dur": 108,
-            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
-            "fn": "",
-            "url": "13nbymvcsh4g8.js"
-          }
-        ]
-      }
-    ],
-    "loaf": [
-      {
-        "startTime": 54,
-        "duration": 208,
-        "scripts": [
-          {
-            "dur": 108,
-            "invoker": "https://jakobalex-7rgizjahs-jakobalexander2000s-projects.vercel.app/_next/static/immutable/chunks/13nbymvcsh4g8.js",
-            "fn": "",
-            "url": "13nbymvcsh4g8.js"
-          }
-        ]
-      }
-    ]
-  }
+  "commit": "02712b27cdb13c99de0cae7a910b767c609c01c5",
+  "url": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app/",
+  "method": "long-animation-frame from navigation. CPU 1x and 4x. No proxy. frameworkShare is framework script ms / all script ms. Excluded when that share is at least 0.8.",
+  "runs": [
+    {
+      "name": "desktop",
+      "rate": 1,
+      "fcp": 312,
+      "lcp": 312,
+      "domInteractive": 198,
+      "loadEventEnd": 334,
+      "frames": [
+        {
+          "startTime": 152,
+          "duration": 110,
+          "ours": 0,
+          "frameworkShare": 0,
+          "excludedFramework": false,
+          "afterFcp": false,
+          "afterLcp": false,
+          "afterLoad": false,
+          "scripts": []
+        },
+        {
+          "startTime": 831,
+          "duration": 74,
+          "ours": 0,
+          "frameworkShare": 0,
+          "excludedFramework": false,
+          "afterFcp": true,
+          "afterLcp": true,
+          "afterLoad": true,
+          "scripts": []
+        }
+      ]
+    },
+    {
+      "name": "phone",
+      "rate": 1,
+      "fcp": 372,
+      "lcp": 372,
+      "domInteractive": 77,
+      "loadEventEnd": 198,
+      "frames": [
+        {
+          "startTime": 52,
+          "duration": 51,
+          "ours": 0,
+          "frameworkShare": 0,
+          "excludedFramework": false,
+          "afterFcp": false,
+          "afterLcp": false,
+          "afterLoad": false,
+          "scripts": []
+        },
+        {
+          "startTime": 105,
+          "duration": 173,
+          "ours": 0,
+          "frameworkShare": 1,
+          "excludedFramework": true,
+          "afterFcp": false,
+          "afterLcp": false,
+          "afterLoad": false,
+          "scripts": [
+            {
+              "dur": 24,
+              "which": "framework",
+              "file": "0avp86ndfwn49.js",
+              "invoker": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app/_next/static/immutable"
+            },
+            {
+              "dur": 6,
+              "which": "framework",
+              "file": "0avp86ndfwn49.js",
+              "invoker": "MessagePort.onmessage"
+            },
+            {
+              "dur": 6,
+              "which": "framework",
+              "file": "0avp86ndfwn49.js",
+              "invoker": "MessagePort.onmessage"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "desktop",
+      "rate": 4,
+      "fcp": 356,
+      "lcp": 356,
+      "domInteractive": 213,
+      "loadEventEnd": 388,
+      "frames": [
+        {
+          "startTime": 62,
+          "duration": 254,
+          "ours": 0,
+          "frameworkShare": 0.1,
+          "excludedFramework": false,
+          "afterFcp": false,
+          "afterLcp": false,
+          "afterLoad": false,
+          "scripts": [
+            {
+              "dur": 6,
+              "which": "other",
+              "file": "",
+              "invoker": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app/"
+            },
+            {
+              "dur": 107,
+              "which": "other",
+              "file": "25kvgcvbp6c14.js",
+              "invoker": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app/_next/static/immutable"
+            },
+            {
+              "dur": 6,
+              "which": "framework",
+              "file": "0avp86ndfwn49.js",
+              "invoker": "MessagePort.onmessage"
+            },
+            {
+              "dur": 7,
+              "which": "framework",
+              "file": "0avp86ndfwn49.js",
+              "invoker": "MessagePort.onmessage"
+            }
+          ]
+        },
+        {
+          "startTime": 925,
+          "duration": 75,
+          "ours": 0,
+          "frameworkShare": 0,
+          "excludedFramework": false,
+          "afterFcp": true,
+          "afterLcp": true,
+          "afterLoad": true,
+          "scripts": []
+        }
+      ]
+    },
+    {
+      "name": "phone",
+      "rate": 4,
+      "fcp": 336,
+      "lcp": 336,
+      "domInteractive": 66,
+      "loadEventEnd": 313,
+      "frames": [
+        {
+          "startTime": 57,
+          "duration": 195,
+          "ours": 0,
+          "frameworkShare": 0,
+          "excludedFramework": false,
+          "afterFcp": false,
+          "afterLcp": false,
+          "afterLoad": false,
+          "scripts": [
+            {
+              "dur": 106,
+              "which": "other",
+              "file": "3ix6dsmnstg1z.js",
+              "invoker": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app/_next/static/immutable"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

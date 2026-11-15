@@ -1,77 +1,19 @@
 {
-  "mobile": {
-    "runs": [
-      {
-        "performance": 99,
-        "lcpMs": 1002.2810000000001,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 924.15,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 952.2780000000001,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 960.0790000000001,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 914.033,
-        "cls": 0
-      }
-    ],
-    "median": {
-      "performance": 100,
-      "lcpMs": 952,
-      "cls": 0
-    }
-  },
-  "desktop": {
-    "runs": [
-      {
-        "performance": 100,
-        "lcpMs": 267.207,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 272.401,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 265.311,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 265.478,
-        "cls": 0
-      },
-      {
-        "performance": 100,
-        "lcpMs": 266.321,
-        "cls": 0
-      }
-    ],
-    "median": {
-      "performance": 100,
-      "lcpMs": 266,
-      "cls": 0
-    }
-  },
-  "plateCls": {
-    "hero": 0,
-    "citebot": 0,
-    "autopsy": 0,
-    "style": 0,
-    "skills": 0
-  }
+  "commit": "02712b27cdb13c99de0cae7a910b767c609c01c5",
+  "url": "https://jakobalex-as0dkjif4-jakobalexander2000s-projects.vercel.app",
+  "method": "Lighthouse 13. Mobile: default simulated slow 4G, RTT 150 ms, CPU 4x. Desktop: --preset=desktop. No proxy.",
+  "mobile": [
+    { "performance": 99, "lcpMs": 918, "tbtMs": 102, "ttiMs": 1964 },
+    { "performance": 99, "lcpMs": 965, "tbtMs": 109, "ttiMs": 1970 },
+    { "performance": 99, "lcpMs": 995, "tbtMs": 109, "ttiMs": 1978 },
+    { "performance": 97, "lcpMs": 960, "tbtMs": 183, "ttiMs": 2047 },
+    { "performance": 99, "lcpMs": 962, "tbtMs": 111, "ttiMs": 1974 }
+  ],
+  "desktop": [
+    { "performance": 100, "lcpMs": 340, "tbtMs": 0, "ttiMs": 340 },
+    { "performance": 100, "lcpMs": 338, "tbtMs": 0, "ttiMs": 338 },
+    { "performance": 100, "lcpMs": 328, "tbtMs": 0, "ttiMs": 328 },
+    { "performance": 100, "lcpMs": 252, "tbtMs": 0, "ttiMs": 252 },
+    { "performance": 100, "lcpMs": 343, "tbtMs": 0, "ttiMs": 343 }
+  ]
 }

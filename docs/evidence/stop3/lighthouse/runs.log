@@ -1,13 +1,13 @@
-56b97b2f8336dced46a1782ade66d9a20e3dcfac
-method: lighthouse 13 default mobile throttling (simulated slow 4G, 4x CPU) and --preset=desktop; Chrome /home/ubuntu/.cache/ms-playwright/chromium-1254/chrome-linux64/chrome; no proxy; from this VM
-mobile 1 99 916 0 916
-mobile 2 99 922 0 922
-mobile 3 100 915 0 915
-mobile 4 98 914 0 914
-mobile 5 99 961 0 961
-desktop 1 100 252 0 333
-desktop 2 100 268 0 369
-desktop 3 100 267 0 327
-desktop 4 100 265 0 332
-desktop 5 100 347 0 417
+02712b27cdb13c99de0cae7a910b767c609c01c5
+lighthouse 13, mobile default simulated slow 4G 4x CPU, desktop preset, no proxy
+mobile 1 99 918 102 1964
+mobile 2 99 965 109 1970
+mobile 3 99 995 109 1978
+mobile 4 97 960 183 2047
+mobile 5 99 962 111 1974
+desktop 1 100 340 0 340
+desktop 2 100 338 0 338
+desktop 3 100 328 0 328
+desktop 4 100 252 0 252
+desktop 5 100 343 0 343
 DONE

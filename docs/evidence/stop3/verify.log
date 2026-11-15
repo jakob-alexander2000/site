@@ -1,10 +1,6 @@
-56b97b2f8336dced46a1782ade66d9a20e3dcfac
+02712b27cdb13c99de0cae7a910b767c609c01c5
 npm run verify
 unit 24 passed
-copy scan 174 files
-Playwright 138 passed, 6 skipped
-[142/144] [webkit] › test/schnitt.spec.ts:650:1 › three.js starts after first paint
-[143/144] [webkit] › test/schnitt.spec.ts:670:1 › one rail, one renderer, and the draw stays inside the budget
-[144/144] [webkit] › test/skills-strip.spec.ts:3:1 › a skill strip opens on hover, focus, and tap, with a hairline stroke
-  6 skipped
-  138 passed (34.3s)
+copy scan 187 files
+Playwright 139 passed, 7 skipped
+The yield-delay lines were included in that run. The preview measurements are of this commit.
