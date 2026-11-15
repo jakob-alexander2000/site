@@ -65,6 +65,7 @@ test("the sentence and the two claims are on the page", async ({ page }) => {
   await expect(page.locator("#opening em")).toHaveText("check");
   await expect(page.locator("em")).toHaveCount(1);
   await expect(page.getByText(HERO_SUPPORT)).toBeVisible();
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
   await expect(page.locator(".claim", { hasText: "Full-time employees receive 30 days." })).toBeVisible();
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
   await expect(page.locator(".question")).toContainText("How many paid vacation days do full-time employees get?");
