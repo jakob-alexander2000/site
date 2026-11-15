@@ -94,6 +94,9 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 12. The loader frame budget is Chromium-only because long-animation-frame entries and the CPU throttle are read in Chromium. Headless WebKit cannot time that work. It counts every chunk that is not react-dom or the Next.js runtime, on a quiet load and a full wheel scroll, and takes the max of 5 loads.
 13. The after-paint byte budget is Chromium-only because it sums gzip of every script whose start time is after first paint, which headless WebKit does not time the same way.
 14. The HTML-figure cover check is Chromium-only because the plate canvas only exists where the WebGL scene runs, and headless WebKit is checked on element boxes instead.
+15. The plate travel check is Chromium-only because it reads the WebGL camera and the plate projection, which only exist where the WebGL scene runs.
+16. The plate-font check is Chromium-only because the texture is built only where the WebGL scene runs.
+17. The plate paint-failure checks are Chromium-only because the plate canvas only exists where the WebGL scene runs.
 
 ## Not checked
 

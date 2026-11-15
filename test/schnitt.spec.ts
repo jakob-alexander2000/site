@@ -766,8 +766,9 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
         let ours = 0;
         let file = "";
         for (const script of entry.scripts) {
-          if (!script.url) continue;
-          const which = await kind(script.url);
+          // A step that resumes after an await on a timer or frame has no source URL.
+          // Only our loader awaits that way, so a script without a URL is ours.
+          const which = script.url ? await kind(script.url) : "ours";
           if (which === "framework") framework += script.dur;
           else {
             ours += script.dur;
@@ -924,3 +925,39 @@ test("no plate canvas lies over an HTML figure", async ({ page, browserName }) =
     }
   }
 });
+
+for (const broken of ["decode", "taint"] as const) {
+  test(`a plate that cannot paint keeps its drawing visible (${broken})`, async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "The plate canvas is read in Chromium.");
+    await page.addInitScript((mode) => {
+      if (mode === "decode") {
+        const decode = HTMLImageElement.prototype.decode;
+        HTMLImageElement.prototype.decode = function () {
+          if (this.src.startsWith("blob:")) return Promise.reject(new Error("forced decode failure"));
+          return decode.call(this);
+        };
+      } else {
+        CanvasRenderingContext2D.prototype.getImageData = function () {
+          throw new DOMException("forced taint", "SecurityError");
+        };
+      }
+    }, broken);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+    for (const id of ["citebot", "style"]) {
+      await page.locator(`header a[href="#${id}"]`).first().click();
+      await page.waitForTimeout(500);
+      const covered = await page.evaluate((plate) => {
+        const svg = document.querySelector(`#${plate} svg.plate-drawing`);
+        const canvas = document.querySelector(".schnitt-stage canvas");
+        if (!(svg instanceof SVGSVGElement) || !(canvas instanceof HTMLCanvasElement)) return "missing";
+        if (getComputedStyle(canvas).display === "none") return false;
+        const a = canvas.getBoundingClientRect();
+        const b = svg.getBoundingClientRect();
+        return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      }, id);
+      expect(covered, `${id} with a ${broken} failure`).toBe(false);
+    }
+  });
+}

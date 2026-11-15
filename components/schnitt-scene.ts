@@ -108,9 +108,13 @@ function drawingOf(id: string) {
   return null;
 }
 
+/** Plates whose texture painted. A plate that failed to paint keeps its SVG on the page. */
+const painted = new Set<string>();
+
 function onScreen() {
   let best: { id: string; node: Element; visible: number; height: number } | null = null;
   for (const id of PLATES) {
+    if (!painted.has(id)) continue;
     const node = drawingOf(id);
     if (!node) continue;
     const box = node.getBoundingClientRect();
@@ -280,14 +284,18 @@ async function raster(node: Element, faces: string) {
     await image.decode();
     await yieldTurn();
     ctx.drawImage(image, 0, 0, width, height);
+    // A tainted surface cannot be uploaded; reading one pixel throws first.
+    ctx.getImageData(0, 0, 1, 1);
   } catch {
-    // The paper fill stays when the markup will not paint.
+    URL.revokeObjectURL(image.src);
+    return null;
   }
   URL.revokeObjectURL(image.src);
   return paint;
 }
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
+  painted.clear();
   await yieldTurn();
   const T = await loadThree();
   await yieldTurn();
@@ -361,9 +369,10 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   }
 
   let cameraZ = 6;
+  let shownFigure = false;
   const exposed = {
     get cameraZ() {
-      return cameraZ;
+      return shownFigure ? camera.position.z : cameraZ;
     },
     get planeZ() {
       return DEPTHS;
@@ -384,6 +393,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const node = drawingOf(figure.id);
     if (!node) continue;
     const paint = await raster(node, faces);
+    if (!paint) continue;
+    painted.add(figure.id);
     await yieldTurn();
     const map = new T.CanvasTexture(paint);
     map.colorSpace = "";
@@ -503,6 +514,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const shown = past ? onScreen() : null;
     world.style.visibility = past ? "hidden" : "visible";
     if (!past) {
+      shownFigure = false;
       canvas.style.position = "";
       canvas.style.left = "";
       canvas.style.top = "";
@@ -521,6 +533,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         }, 0);
       }
     } else if (shown) {
+      shownFigure = true;
       const box = shown.node.getBoundingClientRect();
       canvas.style.position = "fixed";
       canvas.style.left = `${box.left}px`;
@@ -575,7 +588,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         const depth = DEPTHS[figureIndex] ?? 0;
         figure.mesh.visible = figureIndex === index;
         figure.mesh.position.z = depth;
-        const gap = Math.max(Math.abs(cameraZ - depth), 0.001);
+        const gap = Math.max(Math.abs(camera.position.z - depth), 0.001);
         const spin = figureIndex === index ? angle : 0;
         figure.mesh.rotation.y = spin;
         if (figureIndex === index) stage.dataset.projected = (figure.mesh.scale.y / gap).toFixed(5);
@@ -596,6 +609,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       stage.dataset.spin = (figures[index]?.mesh.rotation.y ?? 0).toFixed(3);
       renderer.render(scene, camera);
     } else {
+      shownFigure = false;
       canvas.style.display = "none";
       document.documentElement.classList.remove("is-figure");
       const travel = clamp01((railProgress() - 0.04) / 0.9);
