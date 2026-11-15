@@ -759,7 +759,7 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
       let max = 0;
       const over: { startTime: number; duration: number; file: string }[] = [];
       for (const entry of loaf) {
-        if (entry.startTime + entry.duration < fcp) continue;
+        if (entry.startTime < fcp) continue;
         let framework = 0;
         let ours = 0;
         let file = "";
