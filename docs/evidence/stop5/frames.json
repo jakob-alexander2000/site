@@ -1,131 +1,74 @@
 {
-  "commit": "66ce82a44460267495ac9e435c0b786a982d387f",
-  "url": "https://jakobalex-c694ta2p3-jakobalexander2000s-projects.vercel.app",
+  "commit": "30648a3b21d001a52792feb4940a61bdddaba42c",
+  "url": "https://jakobalex-8vcwyck6t-jakobalexander2000s-projects.vercel.app",
   "cold": true,
   "cache": "disabled",
   "context": "fresh",
   "rate": 4,
   "width": 1440,
   "loads": 12,
-  "worst": 105,
-  "normalReadyMs": 4964,
-  "sample": {
-    "fcp": 232,
-    "note": "The two long frames on this cold load start at 71ms and 216ms, both before first contentful paint. After paint the recorder saw no long frame.",
-    "loaf": [
-      {
-        "startTime": 71,
-        "duration": 130,
-        "scripts": [
-          {
-            "dur": 6,
-            "url": "",
-            "invoker": "document"
-          }
-        ]
-      },
-      {
-        "startTime": 216,
-        "duration": 126,
-        "scripts": [
-          {
-            "dur": 121,
-            "url": "3ix6dsmnstg1z.js"
-          }
-        ]
-      }
-    ]
-  },
+  "worst": 0,
+  "recorder": "r4",
   "peaks": [
     {
       "max": 0,
       "over": [],
-      "readyMs": 5398,
-      "loaf": 1,
-      "fcp": 480
+      "readyMs": 5947
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5230,
-      "loaf": 2,
-      "fcp": 172
-    },
-    {
-      "max": 105,
-      "over": [
-        {
-          "startTime": 217,
-          "duration": 105,
-          "file": "0gpitd7wc7rtl.js"
-        }
-      ],
-      "readyMs": 5276,
-      "loaf": 2,
-      "fcp": 204
+      "readyMs": 5247
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5269,
-      "loaf": 2,
-      "fcp": 228
+      "readyMs": 5234
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5299,
-      "loaf": 1,
-      "fcp": 332
+      "readyMs": 5404
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5225,
-      "loaf": 2,
-      "fcp": 180
+      "readyMs": 5215
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5225,
-      "loaf": 2,
-      "fcp": 188
+      "readyMs": 5214
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5721,
-      "loaf": 2,
-      "fcp": 184
+      "readyMs": 5230
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5228,
-      "loaf": 2,
-      "fcp": 184
-    },
-    {
-      "max": 24,
-      "over": [],
-      "readyMs": 5223,
-      "loaf": 3,
-      "fcp": 184
+      "readyMs": 5230
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5375,
-      "loaf": 3,
-      "fcp": 324
+      "readyMs": 5224
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 5317,
-      "loaf": 1,
-      "fcp": 400
+      "readyMs": 5210
+    },
+    {
+      "max": 0,
+      "over": [],
+      "readyMs": 5226
+    },
+    {
+      "max": 0,
+      "over": [],
+      "readyMs": 5254
     }
   ]
 }
