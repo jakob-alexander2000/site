@@ -60,6 +60,21 @@ function yieldTurn(): Promise<void> {
   });
 }
 
+/** Wall-clock budget for one resumed loader turn. A single upload or compile stays inside it. */
+const FRAME_BUDGET_MS = 8;
+
+function openBudget() {
+  let spent = 0;
+  return async function account(used: number): Promise<void> {
+    // A frozen clock during a throttled task reports 0. Treat that as a full budget
+    // so the next unit cannot join this callback.
+    spent += used > 0 ? used : FRAME_BUDGET_MS;
+    if (spent < FRAME_BUDGET_MS) return;
+    await yieldTurn();
+    spent = 0;
+  };
+}
+
 function railProgress() {
   const skills = document.getElementById("skills");
   if (!skills) return 0;
@@ -360,7 +375,11 @@ async function loadBuiltPlate(id: string) {
   }
 }
 
-/** One horizontal band of the plate per frame. Three allocates the store; the pixels arrive in slices. */
+/**
+ * Upload a plate in short row bands. initTexture only allocates; each band is a
+ * few rows, and a frame stops once 8ms have passed so one callback cannot grow
+ * into the 55ms turn.
+ */
 async function uploadPlate(
   renderer: { initTexture(texture: unknown): void; properties: { get(texture: unknown): unknown }; getContext(): WebGLRenderingContext | WebGL2RenderingContext },
   texture: { image: ImageBitmap; source: { dataReady: boolean }; needsUpdate: boolean; flipY: boolean; generateMipmaps: boolean; minFilter: number; magFilter: number },
@@ -380,19 +399,18 @@ async function uploadPlate(
   const gl = renderer.getContext();
   const handle = (renderer.properties.get(texture) as { __webglTexture?: WebGLTexture }).__webglTexture;
   if (!handle || !(gl instanceof WebGL2RenderingContext)) return;
-  const slices = 8;
-  const stripH = Math.ceil(bitmap.height / slices);
-  for (let index = 0; index < slices; index += 1) {
-    const y = index * stripH;
-    const height = Math.min(stripH, bitmap.height - y);
-    if (height <= 0) break;
+  const bandRows = 4;
+  const account = openBudget();
+  for (let y = 0; y < bitmap.height; y += bandRows) {
+    const height = Math.min(bandRows, bitmap.height - y);
+    const started = performance.now();
     const strip = await createImageBitmap(bitmap, 0, y, bitmap.width, height);
-    await yieldTurn();
     gl.bindTexture(gl.TEXTURE_2D, handle);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, y, gl.RGBA, gl.UNSIGNED_BYTE, strip);
     strip.close();
+    await account(performance.now() - started);
   }
   texture.needsUpdate = false;
 }
@@ -540,15 +558,16 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     ...figures.map((figure) => figure.mesh),
     ...figures.flatMap((figure) => figure.sheets),
   ];
+  const account = openBudget();
   for (const mesh of meshes) {
-    await yieldTurn();
+    const started = performance.now();
     const solo = new T.Scene();
     const parent = mesh.parent;
     if (mesh instanceof T.Mesh) mesh.visible = true;
     solo.add(mesh);
     if (parallel) await renderer.compileAsync(solo, camera);
     else renderer.compile(solo, camera);
-    await yieldTurn();
+    await account(performance.now() - started);
     parent?.add(mesh);
     if (mesh instanceof T.Mesh && figures.some((figure) => figure.mesh === mesh)) mesh.visible = false;
   }
