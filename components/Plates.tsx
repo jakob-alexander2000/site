@@ -147,36 +147,31 @@ export function Plates({ run }: { run: SchnittRun }) {
             {(["retrieve", "check"] as const).map((id) => {
               const index = id === "retrieve" ? 1 : 4;
               const box = sheetBox(index);
-              // Hang text is 15 units on an 18-unit line, and each sheet is as tall as its text.
-              const refusalLines = wrapLines(CITEBOT_PLATE.refusal, 12);
-              const failLines = wrapLines(fail?.text ?? "", 12);
-              const reasonLines = wrapLines(fail?.evidence ?? "", 12);
-              const reasonTop = 58 + failLines.length * 18 + 10;
-              const hangHeight = id === "retrieve" ? 22 + (refusalLines.length - 1) * 18 + 12 : reasonTop + (reasonLines.length - 1) * 18 + 12;
-              const hang = { x: box.x, y: box.y + box.h + 36, w: dx - 14, h: hangHeight };
+              // The path leaves the right edge, clear of the next sheet, and the
+              // hang sits beside that edge. Nothing about it enters the label column.
+              const edgeX = box.x + box.w;
+              const edgeY = id === "retrieve" ? box.y + 26 : box.y + 18;
+              const hang = id === "retrieve"
+                ? { x: edgeX + 16, y: edgeY - 18, w: 312, h: 40 }
+                : { x: edgeX + 14, y: edgeY - 100, w: 148, h: 128 };
+              const evidenceLines = wrapLines(fail?.evidence ?? "", 16);
               return (
                 <g key={id} data-hang={id}>
-                  <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={28} y2={box.y + box.h} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-                  <line className="hang-leader" data-leader={id} x1={28} y1={box.y + box.h} x2={28} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-                  <line className="hang-leader" data-leader={id} x1={28} y1={hang.y} x2={hang.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
+                  <line className="hang-leader" data-leader={id} x1={edgeX} y1={edgeY} x2={hang.x + 8} y2={edgeY} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
                   <rect className="sheet-face hang-sheet" x={hang.x} y={hang.y} width={hang.w} height={hang.h} fill="#FBFAF7" stroke="#111111" strokeDasharray="6 4" />
                   {id === "retrieve" ? (
-                    refusalLines.map((line, lineIndex) => (
-                      <text key={line} x={hang.x + 8} y={hang.y + 22 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">
-                        {line}
-                      </text>
-                    ))
+                    <text x={hang.x + 12} y={hang.y + 26} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">
+                      {CITEBOT_PLATE.refusal}
+                    </text>
                   ) : (
                     <>
                       <g className="fail-mark">
                         <text className="fail-word" x={hang.x + 36} y={hang.y + 22} textAnchor="middle" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
-                        <ellipse className="pen-loop" cx={hang.x + 36} cy={hang.y + 17} rx="32" ry="14" fill="none" stroke="#C6302A" strokeWidth="1.4" />
+                        <ellipse className="pen-loop" cx={hang.x + 36} cy={hang.y + 17} rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.4" />
                       </g>
-                      {failLines.map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 8} y={hang.y + 58 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
-                      ))}
-                      {reasonLines.map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 8} y={hang.y + reasonTop + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
+                      <text className="verdict-fail-sentence" x={hang.x + 10} y={hang.y + 64} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{fail?.text}</text>
+                      {evidenceLines.map((line, lineIndex) => (
+                        <text key={line} x={hang.x + 10} y={hang.y + 86 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
                       ))}
                     </>
                   )}

@@ -267,6 +267,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const material = figure.mesh.material;
     if (material instanceof MeshBasicMaterial) {
       material.map = map;
+      material.color.set(0xffffff);
       material.needsUpdate = true;
     }
     await yieldTurn();
