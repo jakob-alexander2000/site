@@ -380,7 +380,7 @@ async function uploadPlate(
   const gl = renderer.getContext();
   const handle = (renderer.properties.get(texture) as { __webglTexture?: WebGLTexture }).__webglTexture;
   if (!handle || !(gl instanceof WebGL2RenderingContext)) return;
-  const slices = 6;
+  const slices = 8;
   const stripH = Math.ceil(bitmap.height / slices);
   for (let index = 0; index < slices; index += 1) {
     const y = index * stripH;
@@ -412,6 +412,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   if (sheets.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const gl = canvas.getContext("webgl2");
   if (!gl) throw new Error("WebGL2 context is missing");
+  gl.getExtension("KHR_parallel_shader_compile");
   const renderer = new T.WebGLRenderer({
     canvas,
     context: gl,
@@ -546,10 +547,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     if (mesh instanceof T.Mesh) mesh.visible = true;
     solo.add(mesh);
     if (parallel) await renderer.compileAsync(solo, camera);
-    else {
-      renderer.compile(solo, camera);
-      await yieldTurn();
-    }
+    else renderer.compile(solo, camera);
+    await yieldTurn();
     parent?.add(mesh);
     if (mesh instanceof T.Mesh && figures.some((figure) => figure.mesh === mesh)) mesh.visible = false;
   }
