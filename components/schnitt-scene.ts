@@ -40,7 +40,11 @@ function clamp01(value: number) {
  * so the loader uses setTimeout(0), which returns to the event loop first.
  */
 function yieldTurn(): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, 0));
+  // setTimeout returns to the event loop. The animation frame callback
+  // then waits for a paint, so the next module is not added to this frame.
+  return new Promise((resolve) => {
+    window.setTimeout(() => window.requestAnimationFrame(() => resolve()), 0);
+  });
 }
 
 type CssObject = import("three").Object3D & { element: HTMLElement };
@@ -73,6 +77,12 @@ async function loadBits() {
   };
   await yieldTurn();
   const vector = (await import("three/src/math/Vector3.js")) as { Vector3: new () => Vector3 };
+  await yieldTurn();
+  await import("three/src/renderers/webgl/WebGLPrograms.js");
+  await yieldTurn();
+  await import("three/src/renderers/webgl/WebGLTextures.js");
+  await yieldTurn();
+  await import("three/src/renderers/webgl/WebGLState.js");
   await yieldTurn();
   const renderer = (await import("three/src/renderers/WebGLRenderer.js")) as {
     WebGLRenderer: new (params?: object) => WebGLRenderer;
@@ -259,6 +269,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const css = new CSS3DRenderer();
   css.domElement.className = "schnitt-css";
   stage.appendChild(css.domElement);
+  await yieldTurn();
 
   const cards: Card[] = [];
   const materials: MeshBasicMaterial[] = [];
@@ -266,7 +277,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   const labelLane = 188;
   const maxSheet = Math.max(280, stage.clientWidth - labelLane - 28);
-  slots.forEach((slot) => {
+  for (const slot of slots) {
     slot.style.boxSizing = "border-box";
     slot.style.transformOrigin = "center center";
     if (window.innerWidth < 1100 && stage.clientWidth >= 700) {
@@ -307,7 +318,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     }
     scene.add(rig);
     cards.push({ rig, sheet, card, edge, cssW, cssH });
-  });
+    await yieldTurn();
+  }
 
   await yieldTurn();
   const planeZ: number[] = [];
@@ -356,6 +368,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   let fittedWidth = 0;
   let fittedGap = 0;
+  let fitPasses = 0;
+  let fitGap = 0;
   let drawnFrames = 0;
   const pinRail = () => {
     const hero = document.querySelector(".schnitt");
@@ -467,13 +481,15 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         return Math.max(below, above, 0);
       };
       if (fittedWidth !== width) {
-        let maxGap = planeH * 1.7;
-        placeDesktop(maxGap, false);
-        for (let pass = 0; pass < 8 && overflow() > 1; pass += 1) {
-          maxGap = Math.max(planeH * 0.9, maxGap - overflow() / 2.2);
-          placeDesktop(maxGap, false);
+        if (fitPasses === 0) fitGap = planeH * 1.7;
+        placeDesktop(fitGap, false);
+        const over = overflow();
+        fitPasses += 1;
+        if (over > 1 && fitPasses < 8) {
+          fitGap = Math.max(planeH * 0.9, fitGap - over / 2.2);
+          return;
         }
-        fittedGap = maxGap;
+        fittedGap = fitGap;
         fittedWidth = width;
       }
       const gap = fittedGap * (0.7 + 0.3 * progress);
@@ -538,8 +554,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", onResize);
   await yieldTurn();
+  renderer.compile(scene, camera);
   resize();
-  render();
+  for (let pass = 0; pass < 9; pass += 1) {
+    render();
+    if (fittedWidth === stage.clientWidth || window.innerWidth < 700) break;
+    await yieldTurn();
+  }
   stage.dataset.engine = "WebGLRenderer";
   stage.dataset.gl = "ready";
 

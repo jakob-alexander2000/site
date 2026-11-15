@@ -715,11 +715,15 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
     host.__loaf = [];
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        const scripts = (entry as PerformanceEntry & { scripts?: { duration: number; sourceURL?: string }[] }).scripts ?? [];
+        const scripts = (entry as PerformanceEntry & { scripts?: { duration: number; sourceURL?: string; invoker?: string }[] }).scripts ?? [];
         host.__loaf?.push({
           startTime: entry.startTime,
           duration: entry.duration,
-          scripts: scripts.map((script) => ({ dur: script.duration, url: script.sourceURL ?? "" })),
+          scripts: scripts.map((script) => ({
+            dur: script.duration,
+            url: script.sourceURL ?? "",
+            invoker: script.invoker ?? "",
+          })),
         });
       }
     }).observe({ type: "long-animation-frame", buffered: true });
@@ -733,7 +737,7 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
   await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   const report = await page.evaluate(async () => {
     const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
-    const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string }[] }[] }).__loaf ?? [];
+    const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] }).__loaf ?? [];
     const kindOf = new Map<string, "framework" | "ours" | "other">();
     const kind = async (url: string) => {
       const known = kindOf.get(url);
@@ -752,8 +756,9 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
       let other = 0;
       for (const script of entry.scripts) {
         const which = await kind(script.url);
+        const timer = /setTimeout|TimerHandler/.test(script.invoker);
         if (which === "framework") framework += script.dur;
-        else if (which === "ours") ours += script.dur;
+        else if (which === "ours" || timer) ours += script.dur;
         else other += script.dur;
       }
       const script = framework + ours + other;
