@@ -1,5 +1,7 @@
-02712b27cdb13c99de0cae7a910b767c609c01c5
+19f9f2e3b7c35affab107ef4e9b2471dd46462ac
 
-Frames are in `frames.json`. `frameworkShare` is framework script time divided by all script time in that frame. A frame is excluded from row 6 when that share is at least 0.8. Our code is counted from first paint.
+`frames.json` is the 4× CPU long-animation-frame log for the quiet load and the early scroll, desktop and phone. `frameworkShare` is framework script time divided by all script time. A frame is excluded when that share is at least 0.8.
 
-Desktop 4×: one counted frame after first paint, 75 ms at 925 ms, script time 0. Desktop 1×: 74 ms at 831 ms, script time 0. Phone 1× and 4×: no counted frame after first paint. The long phone and desktop frames before first paint are the framework chunks.
+Quiet desktop, after first paint: one scriptless frame of 60 ms at 1,269 ms. Our script time in it is 0. The framework evaluation (114 ms, share 1) is excluded. Quiet phone: the only long frame is the framework runtime before first paint.
+
+Early scroll starts at 339 ms on desktop and 375 ms on the phone. No long frame in either trace attributes script time to our files.
