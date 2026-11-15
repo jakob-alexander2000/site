@@ -39,7 +39,10 @@ function clamp01(value: number) {
  * scheduler.yield continues in the same frame when the machine is idle,
  * so the loader uses setTimeout(0), which returns to the event loop first.
  */
+let turn = 0;
 function yieldTurn(): Promise<void> {
+  performance.mark(`schnitt-turn-${turn}`);
+  turn += 1;
   // setTimeout returns to the event loop. The animation frame callback
   // then waits for a paint, so the next module is not added to this frame.
   return new Promise((resolve) => {
@@ -370,6 +373,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   let fittedGap = 0;
   let fitPasses = 0;
   let fitGap = 0;
+  let deferredCallouts = false;
+  let calloutsPlaced = false;
   let drawnFrames = 0;
   const pinRail = () => {
     const hero = document.querySelector(".schnitt");
@@ -520,6 +525,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       cut.rotation.y = clamp01(1 - gapToCut / 900) * (Math.PI / 2);
     }
     css.domElement.style.pointerEvents = "none";
+    if (!calloutsPlaced) {
+      if (!deferredCallouts) {
+        deferredCallouts = true;
+        return;
+      }
+      calloutsPlaced = true;
+    }
     placeCallouts(stage);
     const leaders = stage.querySelector<SVGElement>(".leaders, .tie-svg, svg");
     if (leaders && traveling) leaders.style.visibility = "hidden";
@@ -558,7 +570,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   resize();
   for (let pass = 0; pass < 9; pass += 1) {
     render();
-    if (fittedWidth === stage.clientWidth || window.innerWidth < 700) break;
+    const fitted = fittedWidth === stage.clientWidth || window.innerWidth < 700;
+    if (fitted && calloutsPlaced) break;
     await yieldTurn();
   }
   stage.dataset.engine = "WebGLRenderer";

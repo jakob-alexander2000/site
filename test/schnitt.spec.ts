@@ -774,4 +774,8 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
   });
   const counted = report.frames.filter((frame) => frame.afterPaint && frame.frameworkShare < 0.8 && frame.ours > 50);
   expect(counted, JSON.stringify(report)).toEqual([]);
+  const turns = await page.evaluate(() => performance.getEntriesByType("mark").filter((entry) => entry.name.startsWith("schnitt-turn-")).map((entry) => entry.startTime));
+  const span = turns.length > 1 ? turns[turns.length - 1] - turns[0] : 0;
+  expect(turns.length).toBeGreaterThan(8);
+  expect(span).toBeGreaterThan(80);
 });
