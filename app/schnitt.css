@@ -419,37 +419,10 @@ html.is-figure svg.plate-drawing {
   z-index: 5;
 }
 
-.crops span {
-  position: absolute;
-  width: 13px;
-  height: 13px;
-}
-
-.crops span::before,
-.crops span::after {
-  content: "";
-  position: absolute;
-  background: var(--ink);
-}
-
-.crops span::before {
-  left: 0;
-  top: 6px;
-  width: 13px;
-  height: 1px;
-}
-
-.crops span::after {
-  left: 6px;
-  top: 0;
-  width: 1px;
-  height: 13px;
-}
-
-.crops span:nth-child(1) { top: 8px; left: 8px; }
-.crops span:nth-child(2) { top: 8px; right: 8px; }
-.crops span:nth-child(3) { bottom: 8px; left: 8px; }
-.crops span:nth-child(4) { right: 8px; bottom: 8px; }
+.crops .register-mark:nth-child(1) { top: 8px; left: 8px; }
+.crops .register-mark:nth-child(2) { top: 8px; right: 8px; }
+.crops .register-mark:nth-child(3) { bottom: 8px; left: 8px; }
+.crops .register-mark:nth-child(4) { right: 8px; bottom: 8px; }
 
 html[data-schnitt="gl"] .stack {
   position: absolute;
@@ -494,6 +467,11 @@ html[data-schnitt="gl"] .callout {
   margin: 0;
   background: transparent;
   pointer-events: none;
+}
+
+.schnitt-stage[data-gl="ready"] .plus-mark,
+.schnitt-stage[data-gl="ready"] .plus-callout {
+  pointer-events: auto;
 }
 
 html.is-past .schnitt-stage .sheet,
@@ -1465,37 +1443,10 @@ html.is-cut svg.plate-drawing {
   margin-bottom: 8px;
 }
 
-.sheet-rule i {
-  position: absolute;
-  width: 13px;
-  height: 13px;
-}
-
-.sheet-rule i::before,
-.sheet-rule i::after {
-  content: "";
-  position: absolute;
-  background: var(--ink);
-}
-
-.sheet-rule i::before {
-  left: 0;
-  top: 6px;
-  width: 13px;
-  height: 1px;
-}
-
-.sheet-rule i::after {
-  left: 6px;
-  top: 0;
-  width: 1px;
-  height: 13px;
-}
-
-.sheet-rule i:nth-child(1) { left: 0; top: 0; }
-.sheet-rule i:nth-child(2) { right: 0; top: 0; }
-.sheet-rule i:nth-child(3) { left: 0; bottom: 0; }
-.sheet-rule i:nth-child(4) { right: 0; bottom: 0; }
+.sheet-rule .register-mark:nth-child(1) { left: 0; top: 0; }
+.sheet-rule .register-mark:nth-child(2) { right: 0; top: 0; }
+.sheet-rule .register-mark:nth-child(3) { left: 0; bottom: 0; }
+.sheet-rule .register-mark:nth-child(4) { right: 0; bottom: 0; }
 
 .sheet-no {
   position: absolute;
@@ -1667,4 +1618,175 @@ html.is-cut svg.plate-drawing {
   height: 100%;
   overflow: visible;
   pointer-events: none;
+}
+
+.schnitt-copy .hero-project {
+  margin: 0 0 10px;
+}
+
+.plate h2.kicker,
+.plate h2.plate-continue {
+  max-width: none;
+  color: var(--mute);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.hero-continue a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: 0;
+  line-height: 1;
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+}
+
+.hero-thread {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: var(--ink);
+  align-self: flex-end;
+}
+
+.register-mark {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  cursor: default;
+}
+
+.register-mark::before,
+.register-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+
+.register-mark::before {
+  left: 0;
+  top: 4px;
+  width: 9px;
+  height: 1px;
+}
+
+.register-mark::after {
+  left: 4px;
+  top: 0;
+  width: 1px;
+  height: 9px;
+}
+
+.callout-head {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.part-note {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.plus-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.plus-glyph {
+  position: relative;
+  width: 9px;
+  height: 9px;
+}
+
+.plus-glyph::before,
+.plus-glyph::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.plus-glyph::before {
+  left: 0;
+  top: 4px;
+  width: 9px;
+  height: 1px;
+}
+
+.plus-glyph::after {
+  left: 4px;
+  top: 0;
+  width: 1px;
+  height: 9px;
+}
+
+.plus-mark:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.plus-callout {
+  position: absolute;
+  z-index: 8;
+  top: 100%;
+  right: 0;
+  left: auto;
+  margin-top: 4px;
+  max-width: min(14rem, calc(100vw - 16px));
+  white-space: normal;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 6px 8px;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+@media (max-width: 800px) {
+  .plus-mark {
+    width: 44px;
+    height: 44px;
+    margin-left: 0;
+  }
+
+  .plus-callout {
+    left: 0;
+    right: auto;
+  }
+
+  .callout::after {
+    display: none;
+  }
+
+  .hero-continue a {
+    font-size: 12px;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
 }

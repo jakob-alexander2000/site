@@ -1,3 +1,4 @@
+import { PartNote, RegisterMark } from "@/components/PartNote";
 import { LAYERS, type LayerId } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
 import type { ReactNode } from "react";
@@ -15,10 +16,10 @@ export function SchnittSheets({ run }: { run: SchnittRun }) {
   return (
     <>
       <div className="crops" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <span />
+        <RegisterMark />
+        <RegisterMark />
+        <RegisterMark />
+        <RegisterMark />
       </div>
       <canvas className="schnitt-gl" aria-hidden="true" />
       <svg className="leaders" aria-hidden="true" />
@@ -97,8 +98,11 @@ function Sheet({ id, verdict = false, children }: { id: LayerId; verdict?: boole
     <div className="plane-slot" data-plane={id}>
       {layer ? (
         <p className="callout" data-for={id}>
-          <span className="leader-name">
-            {layer.letter} · {layer.name}
+          <span className="callout-head">
+            <span className="leader-name">
+              {layer.letter} · {layer.name}
+            </span>
+            <PartNote id={id} label={layer.name} note={layer.note} />
           </span>
           <span className="leader-note">{layer.note}</span>
         </p>

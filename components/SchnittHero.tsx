@@ -1,8 +1,9 @@
+import { PlateKicker } from "@/components/PlateKicker";
 import { RunLink } from "@/components/RunLink";
 import { SchnittMount } from "@/components/SchnittStage";
 import { SchnittSheets } from "@/components/SchnittSheets";
 import { contact } from "@/lib/contact";
-import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PATTERN_LABEL, RUN_LINK } from "@/lib/schnitt-copy";
+import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PARTS_LABEL, PROJECT_INDEX, PROJECT_NAME, RUN_LINK } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
 import { LOOKS } from "@/lib/looks";
 import { SHEETS } from "@/lib/plates";
@@ -26,6 +27,7 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
           <a href={contact.github}>GitHub</a>
         </header>
         <div className="schnitt-copy">
+          <PlateKicker index={PROJECT_INDEX} name={PROJECT_NAME} className="hero-project" />
           <h2 className="display" id="opening">
             {HERO_BEFORE}
             <em>{HERO_WORD}</em>
@@ -49,7 +51,12 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
           <SchnittMount />
         </div>
         <footer className="schnitt-foot">
-          <p>{PATTERN_LABEL}</p>
+          <p className="hero-continue">
+            <a href="#citebot" data-hero-thread>
+              {PARTS_LABEL}
+              <span className="hero-thread" aria-hidden="true" />
+            </a>
+          </p>
           <p>
             <span>
               {run.evalCount.caption} · offline eval · {run.evalCount.dated}

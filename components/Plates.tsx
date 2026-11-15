@@ -1,4 +1,5 @@
 import { AlignLeaders } from "@/components/AlignLeaders";
+import { RegisterMark } from "@/components/PartNote";
 import { CopyAddress } from "@/components/CopyAddress";
 import { BACKGROUND } from "@/lib/looks";
 import { contact } from "@/lib/contact";
@@ -6,6 +7,7 @@ import { CITEBOT_PLATE, DROPPED, REVISION, STYLE_DISTANCE } from "@/lib/diagrams
 import { FLAGSHIP_CASES } from "@/lib/flagship";
 import { FOOTER_SHEETS } from "@/lib/plates";
 import type { SchnittRun } from "@/lib/schnitt-extract";
+import { PARTS_LABEL } from "@/lib/schnitt-copy";
 import { SKILLS } from "@/lib/skills";
 
 const ALIGNED = [
@@ -41,10 +43,10 @@ function wrapLines(text: string, max = 46) {
 function SheetRule({ index }: { index: string }) {
   return (
     <div className="sheet-rule" aria-hidden="true">
-      <i />
-      <i />
-      <i />
-      <i />
+      <RegisterMark />
+      <RegisterMark />
+      <RegisterMark />
+      <RegisterMark />
       <span className="sheet-no">{index}</span>
       <span className="cut-mark" />
     </div>
@@ -69,8 +71,9 @@ export function Plates({ run }: { run: SchnittRun }) {
     <div className="plates">
       <AlignLeaders />
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
-        <p className="kicker">01 · CITEBOT</p>
-        <h2 id="citebot-title">{CITEBOT_PLATE.headline}</h2>
+        <h2 id="citebot-title" className="kicker plate-continue">
+          {PARTS_LABEL}
+        </h2>
         <figure className="cite-figure">
           <ol className="cite-steps">
             <li>Question. {run.question}</li>

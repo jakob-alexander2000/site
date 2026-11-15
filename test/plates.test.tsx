@@ -13,7 +13,8 @@ import { findHits } from "../scripts/scan-copy";
 const html = renderToStaticMarkup(<Plates run={loadSchnittRun()} />);
 
 test("plate copy is real and the scan is clean", () => {
-  assert.equal(html.includes(CITEBOT_PLATE.headline), true);
+  assert.equal(html.includes("The parts in detail"), true);
+  assert.equal(html.includes(CITEBOT_PLATE.headline), false);
   assert.equal(html.includes(DROPPED.headline), true);
   assert.equal(html.includes(STYLE_DISTANCE.headline), true);
   assert.equal(html.includes("I check each sentence against the passage it came from and mark what fell out."), true);

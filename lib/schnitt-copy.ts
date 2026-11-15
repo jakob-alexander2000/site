@@ -9,7 +9,9 @@ export const HERO_SCROLL = "Scroll pulls the layers apart.";
 
 export const RUN_LINK = "See CiteBot run";
 export const BUILT_LINK = "How it is built";
-export const PATTERN_LABEL = "PATTERN 01 · CITEBOT · EXPLODED VIEW";
+export const PROJECT_INDEX = "01";
+export const PROJECT_NAME = "CITEBOT";
+export const PARTS_LABEL = "The parts in detail";
 
 export const LAYERS = [
   { id: "handbook", letter: "A", name: "HANDBOOK", note: "Source document" },

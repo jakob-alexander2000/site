@@ -6,7 +6,7 @@ test("every plate is in the served html", async ({ page }) => {
   await page.goto("/");
   const html = await page.content();
   for (const line of [
-    CITEBOT_PLATE.headline,
+    "The parts in detail",
     CITEBOT_PLATE.body,
     DROPPED.headline,
     "FAIL",
@@ -61,7 +61,7 @@ test("javascript off still serves the plate text and drawings", async ({ browser
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: CITEBOT_PLATE.headline })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The parts in detail" })).toBeVisible();
   await expect(page.getByRole("heading", { name: DROPPED.headline })).toBeVisible();
   await expect(page.locator("#citebot").getByRole("link", { name: "Harness" })).toBeVisible();
   await expect(page.locator("svg")).not.toHaveCount(0);
