@@ -1069,15 +1069,8 @@ article.verdict-sheet,
   background: var(--ink);
 }
 
-.pair.is-twin .offcut {
-  position: relative;
-  top: -12px;
-}
-
-.word-align svg.hair-around {
-  width: 18px;
-  height: 20px;
-  background: none;
+.autopsy-draw + .leader-note {
+  margin-top: 14px;
 }
 
 .drawing-grid .leader-name,
@@ -1100,15 +1093,14 @@ article.verdict-sheet,
 }
 
 .pair {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
+  display: grid;
+  grid-template-rows: auto 18px auto;
+  justify-items: center;
+  align-items: end;
 }
 
 .pair .offcut {
-  max-width: 14rem;
+  max-width: none;
   text-align: center;
   white-space: nowrap;
 }
@@ -1116,6 +1108,7 @@ article.verdict-sheet,
 .passage-line,
 .answer-line {
   margin: 0;
+  min-height: calc(17px * 1.35);
   font-size: 17px;
   font-weight: 300;
   line-height: 1.35;

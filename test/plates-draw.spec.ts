@@ -53,7 +53,29 @@ test("the autopsy plate strikes only the dropped spans and names four checks", a
   const decoration = await page.locator("#autopsy .offcut").first().evaluate((node) => getComputedStyle(node).textDecorationLine);
   expect(decoration).toContain("line-through");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(9);
+  await expect(page.locator("#autopsy svg.hair:visible")).toHaveCount(11);
+  const aligned = await page.locator("#autopsy .word-align").evaluate((node) => {
+    const passage = [...node.querySelectorAll(".passage-line")].map((item) => item.textContent ?? "").join("");
+    const offcut = node.querySelector(".offcut");
+    const line = offcut?.closest(".answer-line");
+    const offcutBox = offcut?.getBoundingClientRect();
+    const lineBox = line?.getBoundingClientRect();
+    const practice = [...node.querySelectorAll(".passage-line")].find((item) => (item.textContent ?? "").includes("practice"));
+    const receive = [...node.querySelectorAll(".passage-line")].find((item) => (item.textContent ?? "").startsWith("receive"));
+    const note = document.querySelector("#autopsy .leader-note")?.getBoundingClientRect();
+    const answerBottom = Math.max(...[...node.querySelectorAll(".answer-line")].map((item) => item.getBoundingClientRect().bottom));
+    return {
+      passage,
+      delta: offcutBox && lineBox ? Math.abs(offcutBox.top - lineBox.top) : 99,
+      between: practice && receive ? receive.getBoundingClientRect().left - practice.getBoundingClientRect().right : 0,
+      caption: note ? note.top - answerBottom : 0,
+    };
+  });
+  expect(aligned.passage).toContain("practice, full-time employees only receive");
+  expect(aligned.delta).toBeLessThan(3);
+  expect(aligned.between).toBeGreaterThan(40);
+  expect(aligned.between).toBeLessThan(360);
+  expect(aligned.caption).toBeGreaterThanOrEqual(12);
 });
 
 test("phone verdict names sit clear of the row above", async ({ page }) => {

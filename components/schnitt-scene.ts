@@ -245,6 +245,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     preserveDrawingBuffer: true,
     failIfMajorPerformanceCaveat: false,
   });
+  await (renderer as unknown as { ready: Promise<void> }).ready;
   await yieldTurn();
   renderer.setClearColor(0x000000, 0);
   const scene = new T.Scene();
@@ -286,7 +287,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const figures = PLATES.map((id, index) => {
     const mesh = new T.Mesh(
       new T.PlaneGeometry(1, 1),
-      new T.MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2 }),
+      new T.MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2, transparent: true, opacity: 1 }),
     );
     mesh.position.z = DEPTHS[index] ?? 0;
     mesh.visible = false;
@@ -320,7 +321,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const paint = await raster(node, faces);
     const map = new T.CanvasTexture(paint);
     map.colorSpace = "srgb";
-    map.generateMipmaps = true;
+    map.generateMipmaps = false;
     map.minFilter = T.LinearFilter as typeof map.minFilter;
     map.magFilter = T.LinearFilter as typeof map.magFilter;
     map.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -350,6 +351,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const height = Math.max(stage.clientHeight, 1);
     const half = (camera.fov * Math.PI) / 360;
     const dist = (height / 2) / Math.tan(half);
+    camera.near = 1;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     camera.position.set(0, 0, dist);
@@ -460,7 +462,11 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       const plane = DEPTHS[index] ?? 0;
       const leaving = clamp01(1 - shown.visible / Math.max(shown.height, 1));
       const travel = Math.min(1, leaving / 0.85);
-      const stand = Math.max(STAND * (1 - travel), 8);
+      // Reach a true edge before the dolly can magnify the sheet. The standing
+      // distance stays close to STAND so the edge is a hairline inside the drawing.
+      const angle = Math.min(Math.PI / 2, (travel * (Math.PI / 2)) / 0.45);
+      const stand = STAND * (1 - travel * 0.34);
+      camera.near = Math.max(24, stand * 0.12);
       cameraZ = plane + stand;
       camera.aspect = width / height;
       camera.position.set(0, 0, cameraZ);
@@ -487,13 +493,20 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         figure.mesh.visible = figureIndex === index;
         figure.mesh.position.z = depth;
         const gap = Math.max(Math.abs(cameraZ - depth), 0.001);
-        figure.mesh.rotation.y = figureIndex === index ? travel * (Math.PI / 2) : 0;
+        const spin = figureIndex === index ? angle : 0;
+        figure.mesh.rotation.y = spin;
         if (figureIndex === index) stage.dataset.projected = (figure.mesh.scale.y / gap).toFixed(5);
         const material = figure.mesh.material;
-        if (material instanceof T.MeshBasicMaterial && material.map) {
-          const flat = Math.abs(figure.mesh.rotation.y) < 0.08;
-          material.map.minFilter = (flat ? T.LinearFilter : T.LinearMipmapLinearFilter) as typeof material.map.minFilter;
-          material.map.magFilter = T.LinearFilter as typeof material.map.magFilter;
+        if (material instanceof T.MeshBasicMaterial) {
+          const fade = spin < 1.35 ? 1 : Math.max(0.35, 1 - ((spin - 1.35) / (Math.PI / 2 - 1.35)) * 0.65);
+          material.opacity = fade;
+          material.transparent = true;
+          material.depthWrite = fade > 0.9;
+          if (material.map) {
+            material.map.generateMipmaps = false;
+            material.map.minFilter = T.LinearFilter as typeof material.map.minFilter;
+            material.map.magFilter = T.LinearFilter as typeof material.map.magFilter;
+          }
         }
       });
       stage.dataset.spin = (figures[index]?.mesh.rotation.y ?? 0).toFixed(3);

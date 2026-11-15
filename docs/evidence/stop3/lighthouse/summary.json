@@ -1,57 +1,67 @@
 {
-  "commit": "f60391bc7ace3fba9cb8335ff398205c115943a3",
-  "url": "https://jakobalex-4y42btj3w-jakobalexander2000s-projects.vercel.app",
+  "commit": "pending",
+  "url": "http://127.0.0.1:3456",
   "mobile": [
     {
-      "score": 98,
-      "tbt": 169,
+      "score": 100,
+      "tbt": 53,
+      "lcp": 1058,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 88,
+      "tbt": 51,
+      "lcp": 1064,
       "throttling": "simulate"
     },
     {
-      "score": 99,
-      "tbt": 94,
+      "score": 100,
+      "tbt": 52,
+      "lcp": 1060,
       "throttling": "simulate"
     },
     {
-      "score": 99,
-      "tbt": 104,
+      "score": 100,
+      "tbt": 52,
+      "lcp": 1058,
       "throttling": "simulate"
     },
     {
-      "score": 99,
-      "tbt": 104,
+      "score": 100,
+      "tbt": 51,
+      "lcp": 1061,
       "throttling": "simulate"
     }
   ],
   "desktop": [
     {
       "score": 100,
-      "tbt": 32,
+      "tbt": 0,
+      "lcp": 283,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 34,
+      "tbt": 0,
+      "lcp": 283,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 31,
+      "tbt": 0,
+      "lcp": 283,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 33,
+      "tbt": 0,
+      "lcp": 282,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 31,
+      "tbt": 0,
+      "lcp": 283,
       "throttling": "simulate"
     }
   ]

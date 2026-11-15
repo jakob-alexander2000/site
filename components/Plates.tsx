@@ -11,8 +11,7 @@ import { SKILLS } from "@/lib/skills";
 const ALIGNED = [
   { top: "In ", bottom: "In " },
   { top: "practice, ", bottom: "practice, " },
-  { top: "full-time employees only ", drop: true },
-  { top: "", bottom: "employees " },
+  { top: "full-time employees only ", drop: true, bottom: "employees " },
   { top: "receive ", bottom: "receive " },
   { top: "30 ", bottom: "30 " },
   { top: "days ", bottom: "days " },
@@ -261,30 +260,25 @@ export function Plates({ run }: { run: SchnittRun }) {
                 const dropped = "drop" in column && column.drop;
                 const top = column.top;
                 const bottom = "bottom" in column ? column.bottom : "";
-                const twin = dropped && Boolean(bottom);
+                const tied = Boolean(top) && (Boolean(bottom) || dropped);
                 return (
-                  <span className={`pair${twin ? " is-twin" : ""}`} key={`${top}|${bottom}`}>
-                    {dropped ? (
-                      <s className="offcut" style={{ textDecoration: "line-through" }}>
-                        {top}
-                      </s>
-                    ) : (
-                      <span className="passage-line">{top}</span>
-                    )}
-                    {top && bottom ? (
-                      twin ? (
-                        <svg className="hair hair-around" viewBox="0 0 18 20" width="18" height="20" aria-hidden="true">
-                          <polyline points="1,1 1,10 9,10 9,20" fill="none" stroke="#111111" strokeWidth="1" />
-                        </svg>
-                      ) : (
-                        <svg className="hair" viewBox="0 0 2 18" width="2" height="18" aria-hidden="true">
-                          <line x1="1" y1="0" x2="1" y2="18" stroke="#111111" strokeWidth="1" />
-                        </svg>
-                      )
+                  <span className="pair" key={`${top}|${bottom}|${dropped ? "drop" : "keep"}`}>
+                    <span className="passage-line">{top}</span>
+                    {tied ? (
+                      <svg className="hair" viewBox="0 0 2 18" width="2" height="18" aria-hidden="true">
+                        <line x1="1" y1="0" x2="1" y2="18" stroke="#111111" strokeWidth="1" />
+                      </svg>
                     ) : (
                       <span className="hair hair-gap" />
                     )}
-                    <span className="answer-line">{bottom}</span>
+                    <span className="answer-line">
+                      {dropped ? (
+                        <s className="offcut" style={{ textDecoration: "line-through" }}>
+                          {top}
+                        </s>
+                      ) : null}
+                      {bottom}
+                    </span>
                   </span>
                 );
               })}

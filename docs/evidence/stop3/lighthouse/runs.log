@@ -1,13 +1,12 @@
-19f9f2e3b7c35affab107ef4e9b2471dd46462ac
-lighthouse 13; mobile default simulated slow 4G, RTT 150ms, CPU 4x; desktop preset; no proxy
-mobile 1 99 1026 126
-mobile 2 99 990 111
-mobile 3 99 914 113
-mobile 4 99 926 141
-mobile 5 99 917 118
-desktop 1 100 351 0
-desktop 2 100 268 0
-desktop 3 100 265 0
-desktop 4 100 255 0
-desktop 5 100 265 0
+local
+mobile 1 100 1058 53
+mobile 2 100 1064 51
+mobile 3 100 1060 52
+mobile 4 100 1058 52
+mobile 5 100 1061 51
+desktop 1 100 283 0
+desktop 2 100 283 0
+desktop 3 100 283 0
+desktop 4 100 282 0
+desktop 5 100 283 0
 DONE
