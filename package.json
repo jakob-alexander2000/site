@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "postinstall": "patch-package",
+    "postinstall": "node scripts/apply-three-patch.mjs",
     "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/plate-stills.test.ts test/scan.test.ts test/schnitt-run.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
     "test:e2e": "playwright test",
