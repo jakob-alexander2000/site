@@ -1,86 +1,82 @@
 {
-  "commit": "05ac9ed222086e15f0626d23d20892527a7bd143",
-  "url": "https://jakobalex-8cn17ovjg-jakobalexander2000s-projects.vercel.app",
+  "commit": "0572d60b770e4eba402f7bf9e007c6ee4bc970bb",
+  "url": "https://jakobalex-32xidphb3-jakobalexander2000s-projects.vercel.app",
   "cold": true,
   "cache": "disabled",
   "context": "fresh",
   "rate": 4,
   "width": 1440,
   "loads": 12,
-  "worst": 33,
-  "normalReadyMs": 4972,
+  "worst": 0,
+  "normalReadyMs": 4455,
+  "sample": {
+    "fcp": 232,
+    "note": "The two long frames on this cold load start at 71ms and 216ms, both before first contentful paint. After paint the recorder saw no long frame.",
+    "loaf": [
+      {"startTime": 71, "duration": 130, "scripts": [{"dur": 6, "url": "", "invoker": "document"}]},
+      {"startTime": 216, "duration": 126, "scripts": [{"dur": 121, "url": "3ix6dsmnstg1z.js"}]}
+    ]
+  },
   "peaks": [
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5284
+      "readyMs": 5089
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5744
+      "readyMs": 4713
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5229
+      "readyMs": 4720
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5256
+      "readyMs": 4704
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5217
+      "readyMs": 4823
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5198
+      "readyMs": 4798
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5201
+      "readyMs": 4764
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5225
+      "readyMs": 4714
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5216
+      "readyMs": 4754
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5213
+      "readyMs": 4742
     },
     {
       "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5262
+      "readyMs": 4735
     },
     {
-      "max": 33,
+      "max": 0,
       "over": [],
-      "ready": "ready",
-      "readyMs": 5237
+      "readyMs": 4742
     }
   ]
 }
