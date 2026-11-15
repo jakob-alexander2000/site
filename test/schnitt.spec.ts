@@ -751,7 +751,8 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
         const known = kindOf.get(url);
         if (known) return known;
         const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
-        const framework = /rendererPackageName|reconcilerVersion|app-page|TURBOPACK/.test(text);
+        // Every Turbopack chunk carries the TURBOPACK push, so only react-dom and the Next.js app runtime count as framework.
+        const framework = /rendererPackageName|reconcilerVersion|app-page/.test(text);
         const value = framework ? "framework" : "ours";
         kindOf.set(url, value);
         return value;
@@ -847,3 +848,28 @@ for (const width of [1280, 1440]) {
     }
   });
 }
+
+test("no plate canvas lies over an HTML figure", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate canvas is read in Chromium.");
+  for (const width of [1024, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+    for (const id of ["autopsy"]) {
+      await page.locator(`header a[href="#${id}"]`).first().click();
+      await page.waitForTimeout(500);
+      const hit = await page.evaluate((plate) => {
+        const canvas = document.querySelector(".schnitt-stage canvas");
+        const words = document.querySelector(`#${plate} .word-align`);
+        if (!(canvas instanceof HTMLCanvasElement)) return false;
+        if (!words) return "no word alignment";
+        if (getComputedStyle(canvas).display === "none") return false;
+        const a = canvas.getBoundingClientRect();
+        const b = words.getBoundingClientRect();
+        return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      }, id);
+      expect(hit, `${id} at ${width}px`).toBe(false);
+      await expect(page.locator(`#${id} .word-align`)).toBeVisible();
+    }
+  }
+});

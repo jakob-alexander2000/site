@@ -109,8 +109,7 @@ function drawingOf(id: string) {
   if (!plate) return null;
   const svg = plate.querySelector("svg.plate-drawing");
   if (svg instanceof SVGSVGElement && svg.getBoundingClientRect().height > 2) return svg;
-  const words = plate.querySelector(".word-align");
-  if (words instanceof HTMLElement && words.getBoundingClientRect().height > 2) return words;
+  // HTML figures stay HTML: an SVG foreignObject taints the canvas and the upload paints black.
   return null;
 }
 
