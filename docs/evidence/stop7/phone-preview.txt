@@ -1,0 +1,25 @@
+preview https://jakobalex-8in3dr0du-jakobalexander2000s-projects.vercel.app
+commit aa3b2a0d81e1c0d6d4d24a87a335063fa86f2723
+browsers chromium webkit
+test/phone-stability.spec.ts targets 127.0.0.1:3456, which forwarded to that preview
+
+
+Running 10 tests using 2 workers
+
+(node:566041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(node:566042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/10] [chromium] › test/phone-stability.spec.ts:65:1 › phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 0.1
+[2/10] [webkit] › test/phone-stability.spec.ts:65:1 › phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 0.1
+[3/10] [chromium] › test/phone-stability.spec.ts:90:1 › phone landscape 3D hero: toolbar resizes do not resize the canvas
+[4/10] [webkit] › test/phone-stability.spec.ts:90:1 › phone landscape 3D hero: toolbar resizes do not resize the canvas
+[5/10] [webkit] › test/phone-stability.spec.ts:127:1 › phone landscape: a lost WebGL context leaves the static hero and stops the scene
+[6/10] [chromium] › test/phone-stability.spec.ts:127:1 › phone landscape: a lost WebGL context leaves the static hero and stops the scene
+[7/10] [webkit] › test/phone-stability.spec.ts:152:3 › phone 390x844 with WebGL off shows the static hero
+[8/10] [chromium] › test/phone-stability.spec.ts:152:3 › phone 390x844 with WebGL off shows the static hero
+[9/10] [webkit] › test/phone-stability.spec.ts:152:3 › phone 844x390 with WebGL off shows the static hero
+[10/10] [chromium] › test/phone-stability.spec.ts:152:3 › phone 844x390 with WebGL off shows the static hero
+  10 passed (20.5s)
