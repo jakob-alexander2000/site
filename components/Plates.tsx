@@ -1,3 +1,4 @@
+import { AlignLeaders } from "@/components/AlignLeaders";
 import { CopyAddress } from "@/components/CopyAddress";
 import { BACKGROUND } from "@/lib/looks";
 import { contact } from "@/lib/contact";
@@ -77,6 +78,7 @@ export function Plates({ run }: { run: SchnittRun }) {
   const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 168 : sh });
   return (
     <div className="plates">
+      <AlignLeaders />
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
         <p className="kicker">01 · CITEBOT</p>
         <h2 id="citebot-title">{CITEBOT_PLATE.headline}</h2>
@@ -89,10 +91,10 @@ export function Plates({ run }: { run: SchnittRun }) {
               const box = sheetBox(index);
               const verdict = step.name === "Verdict";
               const ink = verdict ? "#F7F7F5" : "#111111";
-              const midY = box.y + box.h / 2;
+              const rowY = box.y + 16;
               return (
                 <g key={step.name} className="draw-sheet" data-step={step.name.toLowerCase()}>
-                  <line className="leader-line" x1={96} y1={midY} x2={140} y2={midY} stroke="#111111" strokeWidth="1" />
+                  <line className="leader-line" data-for={step.name.toLowerCase()} x1={108} y1={rowY} x2={box.x} y2={rowY} stroke="#111111" strokeWidth="1" />
                   <rect className={`sheet-face${verdict ? " verdict-sheet" : ""}`} x={box.x} y={box.y} width={box.w} height={box.h} fill={verdict ? "#111111" : "#FBFAF7"} stroke="#111111" />
                   {step.name === "Split"
                     ? run.sentences.map((sentence, sentenceIndex) => (
@@ -151,10 +153,12 @@ export function Plates({ run }: { run: SchnittRun }) {
               const reasonLines = wrapLines(fail?.evidence ?? "", 12);
               const reasonTop = 58 + failLines.length * 18 + 10;
               const hangHeight = id === "retrieve" ? 22 + (refusalLines.length - 1) * 18 + 12 : reasonTop + (reasonLines.length - 1) * 18 + 12;
-              const hang = { x: box.x, y: box.y + box.h + 52, w: dx - 14, h: hangHeight };
+              const hang = { x: box.x, y: box.y + box.h + 36, w: dx - 14, h: hangHeight };
               return (
                 <g key={id} data-hang={id}>
-                  <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={box.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
+                  <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={28} y2={box.y + box.h} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
+                  <line className="hang-leader" data-leader={id} x1={28} y1={box.y + box.h} x2={28} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
+                  <line className="hang-leader" data-leader={id} x1={28} y1={hang.y} x2={hang.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
                   <rect className="sheet-face hang-sheet" x={hang.x} y={hang.y} width={hang.w} height={hang.h} fill="#FBFAF7" stroke="#111111" strokeDasharray="6 4" />
                   {id === "retrieve" ? (
                     refusalLines.map((line, lineIndex) => (
@@ -183,9 +187,9 @@ export function Plates({ run }: { run: SchnittRun }) {
           <div className="sheet-labels">
             {steps.map((step, index) => {
               const box = sheetBox(index);
-              const midY = box.y + box.h / 2;
+              const rowY = box.y + 16;
               return (
-                <p key={step.name} className="leader-name" style={{ left: "1.2%", top: `${((midY - 8) / 520) * 100}%` }}>
+                <p key={step.name} className="leader-name" data-for={step.name.toLowerCase()} style={{ left: "12px", top: `${(rowY / 520) * 100}%`, transform: "translateY(-50%)" }}>
                   {step.name.toUpperCase()}
                 </p>
               );

@@ -1,3 +1,4 @@
+import { LinearFilter, LinearMipmapLinearFilter } from "three/src/constants.js";
 import { CanvasTexture } from "three/src/textures/CanvasTexture.js";
 import { Group } from "three/src/objects/Group.js";
 import { Mesh } from "three/src/objects/Mesh.js";
@@ -7,6 +8,7 @@ import { PlaneGeometry } from "three/src/geometries/PlaneGeometry.js";
 import { Scene } from "three/src/scenes/Scene.js";
 import { WebGLRenderer } from "three/src/renderers/WebGLRenderer.js";
 import { placeThread } from "@/components/schnitt-fallback";
+import { alignCiteLeaders } from "@/lib/align-leaders";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
@@ -124,17 +126,26 @@ function onScreen() {
   return best;
 }
 
+const PAPER = 0xf7f7f5;
+
 async function raster(node: Element) {
+  if (node instanceof SVGSVGElement) alignCiteLeaders();
   const rect = node.getBoundingClientRect();
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  const width = Math.max(2, Math.round(Math.max(rect.width, 2) * ratio));
-  const height = Math.max(2, Math.round(Math.max(rect.height, 2) * ratio));
+  const ratio = Math.max(window.devicePixelRatio || 1, 2);
+  let width = Math.max(2, Math.round(Math.max(rect.width, 2) * ratio));
+  let height = Math.max(2, Math.round(Math.max(rect.height, 2) * ratio));
+  const longest = Math.max(width, height);
+  if (longest > 4096) {
+    const scale = 4096 / longest;
+    width = Math.max(2, Math.round(width * scale));
+    height = Math.max(2, Math.round(height * scale));
+  }
   const paint = document.createElement("canvas");
   paint.width = width;
   paint.height = height;
   const ctx = paint.getContext("2d");
   if (!ctx) throw new Error("texture surface is missing");
-  ctx.fillStyle = "#FBFAF7";
+  ctx.fillStyle = "#F7F7F5";
   ctx.fillRect(0, 0, width, height);
   const clone = node.cloneNode(true) as Element;
   if (clone instanceof SVGSVGElement) {
@@ -214,7 +225,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const figures = PLATES.map((id, index) => {
     const mesh = new Mesh(
       new PlaneGeometry(1, 1),
-      new MeshBasicMaterial({ color: 0xfbfaf7, toneMapped: false, side: 2 }),
+      new MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2 }),
     );
     mesh.position.z = DEPTHS[index] ?? 0;
     mesh.visible = false;
@@ -248,6 +259,10 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const paint = await raster(node);
     const map = new CanvasTexture(paint);
     map.colorSpace = "srgb";
+    map.generateMipmaps = true;
+    map.minFilter = LinearFilter;
+    map.magFilter = LinearFilter;
+    map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     map.needsUpdate = true;
     const material = figure.mesh.material;
     if (material instanceof MeshBasicMaterial) {
@@ -292,7 +307,11 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const extra = progress * 52;
     const natural = laid.reduce((sum, item) => sum + item, 0) + 14 * (cards.length - 1) + 28;
     const fit = Math.min(1, (height - 24) / Math.max(natural, 1));
-    let cursor = 8;
+    const crop = stage.querySelector(".crops span");
+    const stageBox = stage.getBoundingClientRect();
+    const cropBottom = crop ? crop.getBoundingClientRect().bottom - stageBox.top : 21;
+    const cropRight = crop ? crop.getBoundingClientRect().right - stageBox.left : 21;
+    let cursor = cropBottom + 18;
     figures.forEach((figure) => {
       figure.mesh.visible = false;
     });
@@ -314,9 +333,9 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       }
       if (card.callout) {
         card.callout.style.position = "absolute";
-        card.callout.style.width = `${lane - 18}px`;
-        card.callout.style.left = "0px";
-        card.callout.style.top = `${top + 4}px`;
+        card.callout.style.left = `${cropRight + 10}px`;
+        card.callout.style.width = `${Math.max(88, lane - cropRight - 16)}px`;
+        card.callout.style.top = `${top + 6}px`;
       }
       cursor += boxH + 14 * fit;
     });
@@ -364,7 +383,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       const width = Math.max(canvas.clientWidth, 1);
       const height = Math.max(canvas.clientHeight, 1);
       const key = `${width}x${height}`;
-      renderer.setClearColor(0xfbfaf7, 1);
+      renderer.setClearColor(PAPER, 1);
       renderer.setPixelRatio(ratio);
       if (key !== sized) {
         renderer.setSize(width, height, false);
@@ -391,8 +410,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         figure.mesh.visible = figureIndex === index;
         figure.mesh.position.z = plane;
         const visibleH = 2 * Math.tan(half) * distance;
-        figure.mesh.scale.set(visibleH * camera.aspect * 0.92, visibleH * 0.84, 1);
+        figure.mesh.scale.set(visibleH * camera.aspect, visibleH, 1);
         figure.mesh.rotation.y = figureIndex === index ? Math.min(1.05, leaving * 1.35) : 0;
+        const material = figure.mesh.material;
+        if (material instanceof MeshBasicMaterial && material.map) {
+          const flat = Math.abs(figure.mesh.rotation.y) < 0.08;
+          material.map.minFilter = flat ? LinearFilter : LinearMipmapLinearFilter;
+          material.map.magFilter = LinearFilter;
+        }
       });
       renderer.render(scene, camera);
     } else {
