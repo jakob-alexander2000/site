@@ -303,10 +303,10 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
 
 .fail-loop {
   position: absolute;
-  left: -10px;
-  top: -6px;
-  width: calc(100% + 20px);
-  height: calc(100% + 12px);
+  left: -16px;
+  top: -12px;
+  width: calc(100% + 32px);
+  height: calc(100% + 24px);
   overflow: visible;
   pointer-events: none;
 }
@@ -356,6 +356,46 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
 .schnitt-gl {
   z-index: 1;
   display: none;
+}
+
+.schnitt-world,
+.schnitt-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.schnitt-world {
+  z-index: 2;
+  overflow: hidden;
+  perspective: 900px;
+  perspective-origin: 60% 45%;
+}
+
+.schnitt-view,
+.schnitt-rig {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 0 0;
+}
+
+.schnitt-rig .sheet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  transform-style: preserve-3d;
+  pointer-events: auto;
+}
+
+.schnitt-labels {
+  z-index: 6;
+}
+
+html.is-figure svg.plate-drawing,
+html.is-figure .word-align {
+  opacity: 0;
 }
 
 .schnitt-css {

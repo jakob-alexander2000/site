@@ -700,16 +700,8 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
   await page.waitForTimeout(200);
   const after = await read();
   expect(after.z).not.toBe(mid.z);
-  const face = await page.evaluate(() => {
-    const svg = document.querySelector("#style svg.plate-drawing");
-    const canvas = document.querySelector(".schnitt-gl");
-    return {
-      opacity: svg ? getComputedStyle(svg).opacity : "0",
-      canvas: canvas ? getComputedStyle(canvas).display : "",
-    };
-  });
-  expect(face.opacity).toBe("1");
-  expect(face.canvas).toBe("none");
+  const face = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-gl")!).position);
+  expect(face).toBe("fixed");
   const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
   await page.waitForTimeout(2000);
   const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");

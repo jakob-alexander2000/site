@@ -74,7 +74,7 @@ export function Plates({ run }: { run: SchnittRun }) {
   const dy = 56;
   const sw = 340;
   const sh = 68;
-  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 124 : sh });
+  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 168 : sh });
   return (
     <div className="plates">
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
@@ -89,10 +89,10 @@ export function Plates({ run }: { run: SchnittRun }) {
               const box = sheetBox(index);
               const verdict = step.name === "Verdict";
               const ink = verdict ? "#F7F7F5" : "#111111";
-              const labelX = box.x + box.w - dx + 8;
+              const midY = box.y + box.h / 2;
               return (
                 <g key={step.name} className="draw-sheet" data-step={step.name.toLowerCase()}>
-                  <line className="leader-line" x1={labelX + 28} y1={box.y - 6} x2={labelX + 28} y2={box.y} stroke="#111111" strokeWidth="1" />
+                  <line className="leader-line" x1={96} y1={midY} x2={140} y2={midY} stroke="#111111" strokeWidth="1" />
                   <rect className={`sheet-face${verdict ? " verdict-sheet" : ""}`} x={box.x} y={box.y} width={box.w} height={box.h} fill={verdict ? "#111111" : "#FBFAF7"} stroke="#111111" />
                   {step.name === "Split"
                     ? run.sentences.map((sentence, sentenceIndex) => (
@@ -116,19 +116,19 @@ export function Plates({ run }: { run: SchnittRun }) {
                               </text>
                             ));
                           }
-                          const y = cursor + 6;
-                          cursor = y + 46;
+                          const y = cursor + 14;
+                          cursor = y + 58;
                           return [
                             <g key="mark" className="fail-mark">
-                              <text className="fail-word" x={box.x + 12} y={y} fill="#FF8A84" fontSize="15" fontFamily="ui-monospace, monospace">
+                              <text className="fail-word" x={box.x + 16} y={y} fill="#FF8A84" fontSize="15" fontFamily="ui-monospace, monospace">
                                 {`S${sentenceIndex + 1} · FAIL`}
                               </text>
-                              <ellipse className="pen-loop" cx={box.x + 52} cy={y - 6} rx="46" ry="10" fill="none" stroke="#C6302A" strokeWidth="1.6" />
+                              <ellipse className="pen-loop" cx={box.x + 58} cy={y - 5} rx="54" ry="14" fill="none" stroke="#C6302A" strokeWidth="1.6" />
                             </g>,
-                            <text key="sentence" className="verdict-fail-sentence" x={box.x + 112} y={y} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
+                            <text key="sentence" className="verdict-fail-sentence" x={box.x + 128} y={y} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
                               {sentence.text}
                             </text>,
-                            <text key="why" className="verdict-fail-reason" x={box.x + 12} y={y + 28} fill="#F7F7F5" fontSize="15" fontFamily="Geist, sans-serif">
+                            <text key="why" className="verdict-fail-reason" x={box.x + 16} y={y + 36} fill="#F7F7F5" fontSize="15" fontFamily="Geist, sans-serif">
                               {sentence.evidence}
                             </text>,
                           ];
@@ -149,9 +149,9 @@ export function Plates({ run }: { run: SchnittRun }) {
               const refusalLines = wrapLines(CITEBOT_PLATE.refusal, 12);
               const failLines = wrapLines(fail?.text ?? "", 12);
               const reasonLines = wrapLines(fail?.evidence ?? "", 12);
-              const reasonTop = 42 + failLines.length * 18 + 6;
+              const reasonTop = 58 + failLines.length * 18 + 10;
               const hangHeight = id === "retrieve" ? 22 + (refusalLines.length - 1) * 18 + 12 : reasonTop + (reasonLines.length - 1) * 18 + 12;
-              const hang = { x: box.x, y: box.y + box.h + 16, w: dx - 14, h: hangHeight };
+              const hang = { x: box.x, y: box.y + box.h + 52, w: dx - 14, h: hangHeight };
               return (
                 <g key={id} data-hang={id}>
                   <line className="hang-leader" data-leader={id} x1={box.x + 16} y1={box.y + box.h} x2={box.x + 16} y2={hang.y} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
@@ -165,11 +165,11 @@ export function Plates({ run }: { run: SchnittRun }) {
                   ) : (
                     <>
                       <g className="fail-mark">
-                        <text className="fail-word" x={hang.x + 28} y={hang.y + 16} textAnchor="middle" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
-                        <ellipse className="pen-loop" cx={hang.x + 28} cy={hang.y + 12} rx="24" ry="11" fill="none" stroke="#C6302A" strokeWidth="1.4" />
+                        <text className="fail-word" x={hang.x + 36} y={hang.y + 22} textAnchor="middle" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
+                        <ellipse className="pen-loop" cx={hang.x + 36} cy={hang.y + 17} rx="32" ry="14" fill="none" stroke="#C6302A" strokeWidth="1.4" />
                       </g>
                       {failLines.map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 8} y={hang.y + 42 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
+                        <text key={line} x={hang.x + 8} y={hang.y + 58 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
                       ))}
                       {reasonLines.map((line, lineIndex) => (
                         <text key={line} x={hang.x + 8} y={hang.y + reasonTop + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
@@ -183,9 +183,9 @@ export function Plates({ run }: { run: SchnittRun }) {
           <div className="sheet-labels">
             {steps.map((step, index) => {
               const box = sheetBox(index);
-              const labelX = box.x + box.w - dx + 8;
+              const midY = box.y + box.h / 2;
               return (
-                <p key={step.name} className="leader-name" style={{ left: `${(labelX / 1280) * 100}%`, top: `${((box.y - 22) / 520) * 100}%` }}>
+                <p key={step.name} className="leader-name" style={{ left: "1.2%", top: `${((midY - 8) / 520) * 100}%` }}>
                   {step.name.toUpperCase()}
                 </p>
               );

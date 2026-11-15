@@ -1,7 +1,16 @@
+import { CanvasTexture } from "three/src/textures/CanvasTexture.js";
+import { Group } from "three/src/objects/Group.js";
+import { Mesh } from "three/src/objects/Mesh.js";
+import { MeshBasicMaterial } from "three/src/materials/MeshBasicMaterial.js";
+import { PerspectiveCamera } from "three/src/cameras/PerspectiveCamera.js";
+import { PlaneGeometry } from "three/src/geometries/PlaneGeometry.js";
+import { Scene } from "three/src/scenes/Scene.js";
+import { WebGLRenderer } from "three/src/renderers/WebGLRenderer.js";
 import { placeThread } from "@/components/schnitt-fallback";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
+const DEPTHS = [-1600, -3200, -4800, -6400];
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -90,22 +99,24 @@ function placeCallouts(stage: HTMLElement) {
 function pastHero() {
   const hero = document.querySelector(".schnitt");
   if (!(hero instanceof HTMLElement)) return false;
-  return hero.getBoundingClientRect().bottom <= window.innerHeight * 0.25;
+  return hero.getBoundingClientRect().bottom <= 1;
 }
 
 function drawingOf(id: string) {
   const plate = document.getElementById(id);
   if (!plate) return null;
   const svg = plate.querySelector("svg.plate-drawing");
-  if (svg instanceof SVGSVGElement && svg.getBoundingClientRect().width > 2) return svg;
+  if (svg instanceof SVGSVGElement && svg.getBoundingClientRect().height > 2) return svg;
+  const words = plate.querySelector(".word-align");
+  if (words instanceof HTMLElement && words.getBoundingClientRect().height > 2) return words;
   return null;
 }
 
 function onScreen() {
-  let best: { id: string; node: SVGSVGElement; visible: number; height: number } | null = null;
-  for (const id of ["citebot", "style"]) {
+  let best: { id: string; node: Element; visible: number; height: number } | null = null;
+  for (const id of PLATES) {
     const node = drawingOf(id);
-    if (!(node instanceof SVGSVGElement)) continue;
+    if (!node) continue;
     const box = node.getBoundingClientRect();
     const visible = Math.min(box.bottom, window.innerHeight) - Math.max(box.top, 0);
     if (visible > 24 && (!best || visible > best.visible)) best = { id, node, visible, height: box.height };
@@ -113,81 +124,39 @@ function onScreen() {
   return best;
 }
 
-const DEPTHS = [0, -800, -1600, -2400];
-const PAPER: [number, number, number, number] = [251 / 255, 250 / 255, 247 / 255, 1];
-const INK: [number, number, number, number] = [17 / 255, 17 / 255, 17 / 255, 1];
-
-function painter(gl: WebGL2RenderingContext) {
-  const compile = (type: number, source: string) => {
-    const shader = gl.createShader(type);
-    if (!shader) throw new Error("shader is missing");
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    return shader;
-  };
-  const program = gl.createProgram();
-  if (!program) throw new Error("program is missing");
-  gl.attachShader(program, compile(gl.VERTEX_SHADER, "attribute vec2 p;attribute vec2 t;varying vec2 v;void main(){v=t;gl_Position=vec4(p,0.,1.);}"));
-  gl.attachShader(program, compile(gl.FRAGMENT_SHADER, "precision mediump float;varying vec2 v;uniform sampler2D u;uniform vec4 c;uniform float k;void main(){gl_FragColor=k>0.5?texture2D(u,v):c;}"));
-  gl.linkProgram(program);
-  const buffer = gl.createBuffer();
-  const pos = gl.getAttribLocation(program, "p");
-  const uv = gl.getAttribLocation(program, "t");
-  const color = gl.getUniformLocation(program, "c");
-  const flag = gl.getUniformLocation(program, "k");
-  const sampler = gl.getUniformLocation(program, "u");
-  let calls = 0;
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  return {
-    program,
-    buffer,
-    reset() {
-      calls = 0;
-    },
-    calls() {
-      return calls;
-    },
-    draw(x: number, y: number, w: number, h: number, cssW: number, cssH: number, ink: [number, number, number, number], tex: WebGLTexture | null) {
-      const x0 = (x / cssW) * 2 - 1;
-      const x1 = ((x + w) / cssW) * 2 - 1;
-      const y0 = 1 - (y / cssH) * 2;
-      const y1 = 1 - ((y + h) / cssH) * 2;
-      gl.useProgram(program);
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([x0, y0, 0, 1, x1, y0, 1, 1, x0, y1, 0, 0, x0, y1, 0, 0, x1, y0, 1, 1, x1, y1, 1, 0]),
-        gl.DYNAMIC_DRAW,
-      );
-      gl.enableVertexAttribArray(pos);
-      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 16, 0);
-      gl.enableVertexAttribArray(uv);
-      gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 16, 8);
-      gl.uniform4fv(color, ink);
-      gl.uniform1f(flag, tex ? 1 : 0);
-      if (tex) {
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.uniform1i(sampler, 0);
-      }
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      calls += 1;
-    },
-  };
-}
-
-function upload(gl: WebGL2RenderingContext, source: HTMLCanvasElement) {
-  const tex = gl.createTexture();
-  if (!tex) throw new Error("texture is missing");
-  gl.bindTexture(gl.TEXTURE_2D, tex);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-  return tex;
+async function raster(node: Element) {
+  const rect = node.getBoundingClientRect();
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(2, Math.round(Math.max(rect.width, 2) * ratio));
+  const height = Math.max(2, Math.round(Math.max(rect.height, 2) * ratio));
+  const paint = document.createElement("canvas");
+  paint.width = width;
+  paint.height = height;
+  const ctx = paint.getContext("2d");
+  if (!ctx) throw new Error("texture surface is missing");
+  ctx.fillStyle = "#FBFAF7";
+  ctx.fillRect(0, 0, width, height);
+  const clone = node.cloneNode(true) as Element;
+  if (clone instanceof SVGSVGElement) {
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", String(width));
+    clone.setAttribute("height", String(height));
+  }
+  const xml = new XMLSerializer().serializeToString(clone);
+  const markup = clone instanceof SVGSVGElement
+    ? xml
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${xml}</div></foreignObject></svg>`;
+  const image = new Image();
+  image.src = URL.createObjectURL(new Blob([markup], { type: "image/svg+xml" }));
+  try {
+    await image.decode();
+    await yieldTurn();
+    ctx.drawImage(image, 0, 0, width, height);
+  } catch {
+    // The paper fill stays when the markup will not paint.
+  }
+  URL.revokeObjectURL(image.src);
+  return paint;
 }
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
@@ -196,17 +165,65 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   if (sheets.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const gl = canvas.getContext("webgl2");
   if (!gl) throw new Error("WebGL2 context is missing");
-  const pen = painter(gl);
+  const renderer = new WebGLRenderer({
+    canvas,
+    context: gl,
+    alpha: true,
+    antialias: false,
+    powerPreference: "low-power",
+    preserveDrawingBuffer: true,
+    failIfMajorPerformanceCaveat: false,
+  });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(40, 1, 1, 20000);
   await yieldTurn();
-  const warmup = document.createElement("canvas");
-  warmup.width = 1;
-  warmup.height = 1;
-  const warmupTexture = upload(gl, warmup);
+
+  const world = document.createElement("div");
+  world.className = "schnitt-world";
+  const view = document.createElement("div");
+  view.className = "schnitt-view";
+  const rig = document.createElement("div");
+  rig.className = "schnitt-rig";
+  view.appendChild(rig);
+  world.appendChild(view);
+  stage.appendChild(world);
+  const labels = document.createElement("div");
+  labels.className = "schnitt-labels";
+  stage.appendChild(labels);
+
+  const cards = sheets.map((sheet) => {
+    const slot = sheet.closest(".plane-slot");
+    const callout = slot?.querySelector<HTMLElement>(".callout") ?? null;
+    if (callout) labels.appendChild(callout);
+    const width = Math.max(sheet.offsetWidth, 180);
+    const height = Math.max(sheet.offsetHeight, 72);
+    sheet.style.width = `${width}px`;
+    sheet.style.height = `${height}px`;
+    rig.appendChild(sheet);
+    const group = new Group();
+    group.add(new Mesh(
+      new PlaneGeometry(width, height),
+      new MeshBasicMaterial({ color: sheet.classList.contains("verdict") ? 0x111111 : 0xfbfaf7, toneMapped: false }),
+    ));
+    scene.add(group);
+    return { sheet, group, width, height, callout };
+  });
   await yieldTurn();
-  gl.deleteTexture(warmupTexture);
+
+  const figures = PLATES.map((id, index) => {
+    const mesh = new Mesh(
+      new PlaneGeometry(1, 1),
+      new MeshBasicMaterial({ color: 0xfbfaf7, toneMapped: false, side: 2 }),
+    );
+    mesh.position.z = DEPTHS[index] ?? 0;
+    mesh.visible = false;
+    scene.add(mesh);
+    return { id, mesh };
+  });
 
   let cameraZ = 6;
-  const view = {
+  const exposed = {
     get cameraZ() {
       return cameraZ;
     },
@@ -214,92 +231,182 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       return DEPTHS;
     },
   };
-  (stage as HTMLElement & { schnittView?: typeof view }).schnittView = view;
+  (stage as HTMLElement & { schnittView?: typeof exposed }).schnittView = exposed;
 
-  const fitHero = () => {
-    const hero = document.querySelector(".schnitt");
-    const stack = stage.querySelector<HTMLElement>(".stack");
-    if (!(hero instanceof HTMLElement) || !stack) return;
-    const nodes = [...stage.querySelectorAll<HTMLElement>(".plane-slot")];
-    const used = nodes.reduce((sum, node) => sum + node.offsetHeight, 0);
-    const spare = Math.max(0, stage.clientHeight - used - 12 * Math.max(0, nodes.length - 1) - 8);
-    const start = hero.getBoundingClientRect().top + window.scrollY;
-    const range = Math.max(1, hero.clientHeight - window.innerHeight);
-    const progress = clamp01((window.scrollY - start) / range);
-    const step = progress * Math.min(52, spare / Math.max(1, nodes.length - 1));
-    nodes.forEach((node, index) => {
-      const shift = (index - (nodes.length - 1) / 2) * step;
-      node.style.transform = shift === 0 ? "" : `translateY(${shift.toFixed(2)}px)`;
-    });
-  };
+  await yieldTurn();
+  await renderer.compileAsync(scene, camera);
+  await yieldTurn();
+  const warmup = new CanvasTexture(document.createElement("canvas"));
+  renderer.initTexture(warmup);
+  await yieldTurn();
+  warmup.dispose();
+
+  for (const figure of figures) {
+    await yieldTurn();
+    const node = drawingOf(figure.id);
+    if (!node) continue;
+    const paint = await raster(node);
+    const map = new CanvasTexture(paint);
+    map.colorSpace = "srgb";
+    map.needsUpdate = true;
+    const material = figure.mesh.material;
+    if (material instanceof MeshBasicMaterial) {
+      material.map = map;
+      material.needsUpdate = true;
+    }
+    await yieldTurn();
+  }
 
   let drawn = 0;
   let sized = "";
+  let laidWidth = 0;
+  let polishFrame = 0;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const laid = cards.map(() => 96);
+
+  const placeHero = () => {
+    const width = Math.max(stage.clientWidth, 1);
+    const height = Math.max(stage.clientHeight, 1);
+    const half = (camera.fov * Math.PI) / 360;
+    const dist = (height / 2) / Math.tan(half);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    camera.position.set(0, 0, dist);
+    camera.lookAt(0, 0, 0);
+    cameraZ = dist;
+    const hero = document.querySelector(".schnitt");
+    const start = hero instanceof HTMLElement ? hero.getBoundingClientRect().top + window.scrollY : 0;
+    const range = hero instanceof HTMLElement ? Math.max(1, hero.clientHeight - window.innerHeight) : 1;
+    const progress = clamp01((window.scrollY - start) / range);
+    const lane = Math.min(156, Math.max(108, width * 0.3));
+    const sheetW = Math.max(160, width - lane - 28);
+    if (laidWidth !== width) {
+      cards.forEach((card, index) => {
+        card.sheet.style.width = `${sheetW}px`;
+        card.sheet.style.height = "auto";
+        card.sheet.style.transform = "none";
+        laid[index] = Math.max(72, card.sheet.offsetHeight);
+      });
+      laidWidth = width;
+    }
+    const extra = progress * 52;
+    const natural = laid.reduce((sum, item) => sum + item, 0) + 14 * (cards.length - 1) + 28;
+    const fit = Math.min(1, (height - 24) / Math.max(natural, 1));
+    let cursor = 8;
+    figures.forEach((figure) => {
+      figure.mesh.visible = false;
+    });
+    cards.forEach((card, index) => {
+      const boxH = (laid[index] ?? 96) * fit;
+      const top = cursor + extra * index * fit;
+      const depth = (index - 1.5) * 18;
+      card.sheet.style.left = `${lane + 10}px`;
+      card.sheet.style.top = `${top}px`;
+      card.sheet.style.width = `${sheetW}px`;
+      card.sheet.style.transformOrigin = "center top";
+      card.sheet.style.transform = `scale(${fit}) rotateX(-5deg) translateZ(${depth}px)`;
+      card.group.position.set(lane + 10 + sheetW / 2 - width / 2, height / 2 - (top + boxH / 2), 0);
+      card.group.rotation.set(0, 0, 0);
+      const mesh = card.group.children[0];
+      if (mesh instanceof Mesh) {
+        mesh.visible = true;
+        mesh.scale.set((sheetW * fit) / card.width, boxH / card.height, 1);
+      }
+      if (card.callout) {
+        card.callout.style.position = "absolute";
+        card.callout.style.width = `${lane - 18}px`;
+        card.callout.style.left = "0px";
+        card.callout.style.top = `${top + 4}px`;
+      }
+      cursor += boxH + 14 * fit;
+    });
+    rig.style.transform = "";
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(ratio);
+    renderer.setSize(width, height, false);
+    renderer.render(scene, camera);
+  };
+
   const render = () => {
     const past = pastHero();
     document.documentElement.classList.toggle("is-past", past);
-    const hero = document.querySelector(".schnitt");
-    if (hero instanceof HTMLElement) stage.style.setProperty("--hero-fade", clamp01(hero.getBoundingClientRect().bottom / window.innerHeight).toFixed(3));
     const shown = past ? onScreen() : null;
-    const drawing = shown?.node ?? null;
-    const cutting = Boolean(shown && shown.visible < shown.height * 0.34);
-    document.documentElement.classList.toggle("is-cut", cutting);
-    if (cutting && drawing) {
-      const box = drawing.getBoundingClientRect();
-      canvas.style.position = "fixed";
-      canvas.style.left = `${box.left}px`;
-      canvas.style.top = `${box.top}px`;
-      canvas.style.width = `${Math.max(2, box.width)}px`;
-      canvas.style.height = `${Math.max(2, box.height)}px`;
-      canvas.style.display = "";
-      canvas.style.visibility = "visible";
-      canvas.style.pointerEvents = "none";
-    } else if (past) {
-      canvas.style.display = "none";
-    } else {
+    world.style.visibility = past ? "hidden" : "visible";
+    if (!past) {
       canvas.style.position = "";
       canvas.style.left = "";
       canvas.style.top = "";
       canvas.style.width = "";
       canvas.style.height = "";
       canvas.style.display = "";
-      canvas.style.visibility = "";
       canvas.style.zIndex = "0";
-    }
-    if (!past) fitHero();
-    const width = Math.max(canvas.clientWidth, 1);
-    const height = Math.max(canvas.clientHeight, 1);
-    const nextSize = `${width}x${height}`;
-    if (nextSize !== sized) {
-      canvas.width = Math.round(width * ratio);
-      canvas.height = Math.round(height * ratio);
-      sized = nextSize;
-    }
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    pen.reset();
-    const live = canvas.getBoundingClientRect();
-    if (!past) {
-      for (const sheet of sheets) {
-        const rect = sheet.getBoundingClientRect();
-        pen.draw(rect.left - live.left, rect.top - live.top, rect.width, rect.height, live.width, live.height, sheet.classList.contains("verdict") ? INK : PAPER, null);
+      document.documentElement.classList.remove("is-figure");
+      placeHero();
+      if (!polishFrame) {
+        polishFrame = window.setTimeout(() => {
+          polishFrame = 0;
+          placeCallouts(stage);
+          placeThread(stage);
+          layoutPlates();
+        }, 0);
       }
-    } else if (cutting && drawing && live.width > 2) {
-      pen.draw(live.width / 2 - 1, 0, 2, live.height, live.width, live.height, INK, null);
-    }
-    const travel = clamp01((railProgress() - 0.05) / 0.9);
-    cameraZ = past ? 4 + (-2600 - 4) * travel : 6;
-    if (!past) {
-      placeCallouts(stage);
-      placeThread(stage);
+    } else if (shown) {
+      const box = shown.node.getBoundingClientRect();
+      canvas.style.position = "fixed";
+      canvas.style.left = `${box.left}px`;
+      canvas.style.top = `${box.top}px`;
+      canvas.style.width = `${Math.max(2, box.width)}px`;
+      canvas.style.height = `${Math.max(2, box.height)}px`;
+      canvas.style.display = "";
+      canvas.style.zIndex = "1";
+      canvas.style.pointerEvents = "none";
+      document.documentElement.classList.add("is-figure");
+      const width = Math.max(canvas.clientWidth, 1);
+      const height = Math.max(canvas.clientHeight, 1);
+      const key = `${width}x${height}`;
+      renderer.setClearColor(0xfbfaf7, 1);
+      renderer.setPixelRatio(ratio);
+      if (key !== sized) {
+        renderer.setSize(width, height, false);
+        sized = key;
+      }
+      const half = (camera.fov * Math.PI) / 360;
+      const dist = (height / 2) / Math.tan(half);
+      const index = Math.max(0, PLATES.indexOf(shown.id as (typeof PLATES)[number]));
+      const depth = DEPTHS[index] ?? 0;
+      const next = DEPTHS[Math.min(PLATES.length - 1, index + 1)] ?? depth;
+      const leaving = clamp01(1 - shown.visible / Math.max(shown.height, 1));
+      cameraZ = depth + dist + (next - depth) * leaving * 0.65;
+      camera.aspect = width / height;
+      camera.position.set(0, 0, cameraZ);
+      camera.lookAt(0, 0, cameraZ - dist);
+      camera.updateProjectionMatrix();
+      cards.forEach((card) => {
+        const mesh = card.group.children[0];
+        if (mesh instanceof Mesh) mesh.visible = false;
+      });
+      figures.forEach((figure, figureIndex) => {
+        const plane = DEPTHS[figureIndex] ?? 0;
+        const distance = Math.max(cameraZ - plane, 1);
+        figure.mesh.visible = figureIndex === index;
+        figure.mesh.position.z = plane;
+        const visibleH = 2 * Math.tan(half) * distance;
+        figure.mesh.scale.set(visibleH * camera.aspect * 0.92, visibleH * 0.84, 1);
+        figure.mesh.rotation.y = figureIndex === index ? Math.min(1.05, leaving * 1.35) : 0;
+      });
+      renderer.render(scene, camera);
+    } else {
+      canvas.style.display = "none";
+      document.documentElement.classList.remove("is-figure");
+      const travel = clamp01((railProgress() - 0.04) / 0.9);
+      const end = (DEPTHS[DEPTHS.length - 1] ?? 0) - 200;
+      cameraZ = (DEPTHS[0] ?? 0) + ((end - (DEPTHS[0] ?? 0)) * travel);
     }
     layoutPlates();
     drawn += 1;
-    stage.dataset.draws = String(pen.calls());
-    stage.dataset.triangles = String(pen.calls() * 2);
-    stage.dataset.ratio = String(ratio);
+    stage.dataset.draws = String(renderer.info.render.calls);
+    stage.dataset.triangles = String(renderer.info.render.triangles);
+    stage.dataset.ratio = String(renderer.getPixelRatio());
     stage.dataset.frames = String(drawn);
     stage.dataset.engine = "WebGLRenderer";
   };
@@ -323,11 +430,19 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   return () => {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onScroll);
-    document.documentElement.classList.remove("is-past");
-    document.documentElement.classList.remove("is-cut");
+    document.documentElement.classList.remove("is-past", "is-figure");
     if (frame) window.cancelAnimationFrame(frame);
-    gl.deleteProgram(pen.program);
-    gl.deleteBuffer(pen.buffer);
+    const stack = stage.querySelector(".stack");
+    if (stack) {
+      for (const card of cards) {
+        const slot = stage.querySelector(`.plane-slot[data-plane="${card.sheet.querySelector(".peg")?.getAttribute("data-peg") ?? ""}"]`);
+        if (slot) slot.appendChild(card.sheet);
+        if (card.callout) slot?.prepend(card.callout);
+      }
+    }
+    labels.remove();
+    world.remove();
+    renderer.dispose();
     stage.dataset.gl = "off";
   };
 }

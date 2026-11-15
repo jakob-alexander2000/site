@@ -39,12 +39,18 @@ for (const width of [1280, 1366, 1440]) {
       for (const loop of svg.querySelectorAll(".pen-loop")) {
         const ring = loop.getBoundingClientRect();
         const own = loop.closest(".fail-mark");
+        const word = own?.querySelector("text")?.getBoundingClientRect();
+        if (word && word.width > 0) {
+          const pad = Math.min(word.left - ring.left, ring.right - word.right, word.top - ring.top, ring.bottom - word.bottom);
+          if (pad < 4) ringed.push(`loop within ${pad.toFixed(1)}px of its word`);
+        }
         for (const text of svg.querySelectorAll("text")) {
           if (own?.contains(text) || !(text.textContent ?? "").trim()) continue;
           const box = text.getBoundingClientRect();
-          const across = Math.min(ring.right, box.right) - Math.max(ring.left, box.left);
-          const down = Math.min(ring.bottom, box.bottom) - Math.max(ring.top, box.top);
-          if (across > 1 && down > 1) ringed.push(`"${(text.textContent ?? "").trim()}"`);
+          const grown = { left: box.left - 4, right: box.right + 4, top: box.top - 4, bottom: box.bottom + 4 };
+          const across = Math.min(ring.right, grown.right) - Math.max(ring.left, grown.left);
+          const down = Math.min(ring.bottom, grown.bottom) - Math.max(ring.top, grown.top);
+          if (across > 0 && down > 0) ringed.push(`"${(text.textContent ?? "").trim()}"`);
         }
       }
       return { outside, crowded, ringed, hangs };
@@ -55,6 +61,31 @@ for (const width of [1280, 1366, 1440]) {
     expect(report.ringed).toEqual([]);
     expect(report.hangs.retrieve).toBe(CITEBOT_PLATE.refusal);
     expect(report.hangs.check).toBe(`${fail?.text} ${fail?.evidence}`);
+  });
+}
+
+for (const width of [1024, 1280, 1440]) {
+  test(`step labels sit off the sheet text at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const hits = await page.locator("#citebot").evaluate((plate) => {
+      const hit = (a: DOMRect, b: DOMRect) => a.width > 1 && b.width > 1 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const found: string[] = [];
+      for (const label of plate.querySelectorAll<HTMLElement>(".leader-name")) {
+        const box = label.getBoundingClientRect();
+        if (box.width < 2) continue;
+        for (const face of plate.querySelectorAll(".sheet-face")) {
+          if (hit(box, face.getBoundingClientRect())) found.push((label.textContent ?? "").trim());
+        }
+        for (const text of plate.querySelectorAll<HTMLElement>(".body, text")) {
+          if (label.contains(text)) continue;
+          if (hit(box, text.getBoundingClientRect())) found.push(`${(label.textContent ?? "").trim()} on ${(text.textContent ?? "").trim().slice(0, 24)}`);
+        }
+      }
+      return found;
+    });
+    expect(hits).toEqual([]);
   });
 }
 

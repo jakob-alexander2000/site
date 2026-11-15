@@ -29,6 +29,43 @@ for (const width of [801, 1024, 1280, 1440]) {
         }
         for (let j = i + 1; j < sheets.length; j += 1) if (hit(box, sheets[j].getBoundingClientRect())) overlaps.push("sheets");
       }
+      const strokes: string[] = [];
+      const anchors = [...stage.querySelectorAll("[data-anchor]")].map((node) => node.getBoundingClientRect());
+      const nearAnchor = (x: number, y: number) => anchors.some((box) => x >= box.left - 4 && x <= box.right + 4 && y >= box.top - 4 && y <= box.bottom + 4);
+      const letters: { box: DOMRect; text: string }[] = [];
+      for (const glyph of stage.querySelectorAll<HTMLElement>(".sheet p, .sheet span")) {
+        const words = [...glyph.childNodes].find((child) => child.nodeType === Node.TEXT_NODE && (child.textContent ?? "").trim());
+        if (!words?.textContent) continue;
+        const range = document.createRange();
+        const text = words.textContent;
+        for (let index = 0; index < text.length; index += 4) {
+          if (!text[index].trim()) continue;
+          range.setStart(words, index);
+          range.setEnd(words, index + 1);
+          const box = range.getBoundingClientRect();
+          if (box.width > 0.4) letters.push({ box, text: text.trim().slice(0, 24) });
+        }
+      }
+      for (const path of stage.querySelectorAll("path")) {
+        if (!(path instanceof SVGPathElement) || !path.getAttribute("d")) continue;
+        const svg = path.ownerSVGElement;
+        const origin = svg?.getBoundingClientRect();
+        if (!svg || !origin) continue;
+        const box = svg.viewBox.baseVal;
+        const sx = origin.width / (box.width || origin.width || 1);
+        const sy = origin.height / (box.height || origin.height || 1);
+        const total = path.getTotalLength();
+        for (let distance = 0; distance <= total; distance += 3) {
+          const point = path.getPointAtLength(distance);
+          const x = origin.left + point.x * sx;
+          const y = origin.top + point.y * sy;
+          if (nearAnchor(x, y)) continue;
+          for (const letter of letters) {
+            const box = letter.box;
+            if (x > box.left + 0.5 && x < box.right - 0.5 && y > box.top + 0.5 && y < box.bottom - 0.5) strokes.push(letter.text);
+          }
+        }
+      }
       const svg = stage.querySelector(".leaders");
       if (svg instanceof SVGSVGElement) {
         for (const path of svg.querySelectorAll("path")) {
@@ -51,10 +88,11 @@ for (const width of [801, 1024, 1280, 1440]) {
           return `S ${Math.round(box.right)} ${(sheet.style.transform || "no-tf").slice(80, 140)}`;
         }),
       ];
-      return { overlaps, clips, cuts, boxes, inner: window.innerWidth };
+      return { overlaps, clips, cuts, strokes, boxes, inner: window.innerWidth };
     });
     expect(report.overlaps, `${report.inner} ${report.boxes.join(" | ")}`).toEqual([]);
     expect(report.clips).toEqual([]);
     expect(report.cuts).toEqual([]);
+    expect(report.strokes, `${report.inner}`).toEqual([]);
   });
 }

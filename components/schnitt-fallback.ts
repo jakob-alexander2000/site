@@ -26,22 +26,22 @@ export function placeThread(stage: HTMLElement) {
   const root = stage.getBoundingClientRect();
   const a = rightmostGlyph(from);
   const b = rightmostGlyph(to);
+  const fromSheet = from.closest(".sheet")?.getBoundingClientRect() ?? a;
+  const toSheet = to.closest(".sheet")?.getBoundingClientRect() ?? b;
   const y1 = a.top + a.height / 2 - root.top;
   const y2 = b.top + b.height / 2 - root.top;
-  const above = b.top - root.top - 8;
+  const x1 = a.right - root.left;
+  const x2 = b.right - root.left;
+  const above1 = a.top - root.top - 4;
+  const above2 = b.top - root.top - 4;
   const phone = stage.clientWidth < 700;
-  const limit = stage.clientWidth - 6;
-  const x1 = phone ? Math.min(a.right - root.left, limit) : a.right - root.left;
-  const x2 = phone ? Math.min(b.right - root.left, limit) : b.right - root.left;
-  const line = to.closest("p");
-  const lineRight = line ? line.getBoundingClientRect().right - root.left : x2;
   const gutter = phone
-    ? Math.min(limit, Math.max(x1, lineRight) + 8)
-    : Math.min(stage.clientWidth - 10, Math.max(x1, lineRight) + 14);
+    ? Math.min(stage.clientWidth - 6, Math.max(fromSheet.right, toSheet.right) - root.left + 8)
+    : Math.min(stage.clientWidth - 8, Math.max(fromSheet.right, toSheet.right) - root.left + 10);
   svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
   path.setAttribute(
     "d",
-    `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${y1.toFixed(1)} L ${gutter.toFixed(1)} ${above.toFixed(1)} L ${x2.toFixed(1)} ${above.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+    `M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x1.toFixed(1)} ${above1.toFixed(1)} L ${gutter.toFixed(1)} ${above1.toFixed(1)} L ${gutter.toFixed(1)} ${above2.toFixed(1)} L ${x2.toFixed(1)} ${above2.toFixed(1)}`,
   );
   stage.dataset.ties = "1";
 }
