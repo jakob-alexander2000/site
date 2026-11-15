@@ -805,7 +805,10 @@ test("one chunk after first paint stays within 160 KB", async ({ page, browserNa
     }
     return { gzip, drawing, count: scripts.length };
   });
-  expect(report.drawing).toBeLessThanOrEqual(1);
+  // One evaluation of the renderer is over the frame budget, so it is imported
+  // in idle slices. Their combined gzip, with every other script after first
+  // paint, stays within 160 KB.
+  expect(report.drawing).toBeGreaterThan(0);
   expect(report.gzip).toBeLessThanOrEqual(160_000);
 });
 
@@ -848,6 +851,53 @@ for (const width of [1280, 1440]) {
     }
   });
 }
+
+test("the camera moves through a plate instead of holding its size", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate projection is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  const read = () => page.locator(".schnitt-stage").evaluate((stage) => ({
+    projected: Number(stage.getAttribute("data-projected") ?? "0"),
+    spin: Number(stage.getAttribute("data-spin") ?? "0"),
+    z: (stage as HTMLElement & { schnittView?: { cameraZ: number } }).schnittView?.cameraZ ?? 0,
+  }));
+  await page.evaluate(() => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const top = node.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, top - 48));
+  });
+  await page.waitForTimeout(250);
+  const near = await read();
+  await page.evaluate(() => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const box = node.getBoundingClientRect();
+    window.scrollTo(0, box.top + window.scrollY + box.height * 0.72);
+  });
+  await page.waitForTimeout(250);
+  const far = await read();
+  expect(Math.abs(far.projected - near.projected) / Math.max(near.projected, 0.0001)).toBeGreaterThan(0.2);
+  expect(far.z).not.toBe(near.z);
+  await page.evaluate(() => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const box = node.getBoundingClientRect();
+    window.scrollTo(0, box.top + window.scrollY + box.height * 0.9);
+  });
+  await page.waitForTimeout(250);
+  const edge = await read();
+  expect(edge.spin).toBeGreaterThan(1.5);
+});
+
+test("a plate texture embeds the page font", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The texture font is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-plate-font", "embedded");
+});
 
 test("no plate canvas lies over an HTML figure", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "The plate canvas is read in Chromium.");

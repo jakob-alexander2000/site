@@ -1,18 +1,11 @@
-import { LinearFilter, LinearMipmapLinearFilter } from "three/src/constants.js";
-import { CanvasTexture } from "three/src/textures/CanvasTexture.js";
-import { Group } from "three/src/objects/Group.js";
-import { Mesh } from "three/src/objects/Mesh.js";
-import { MeshBasicMaterial } from "three/src/materials/MeshBasicMaterial.js";
-import { PerspectiveCamera } from "three/src/cameras/PerspectiveCamera.js";
-import { PlaneGeometry } from "three/src/geometries/PlaneGeometry.js";
-import { Scene } from "three/src/scenes/Scene.js";
-import { WebGLRenderer } from "three/src/renderers/WebGLRenderer.js";
+import { loadThree } from "@/components/load-three";
 import { placeThread } from "@/components/schnitt-fallback";
 import { alignCiteLeaders } from "@/lib/align-leaders";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
 const DEPTHS = [-1600, -3200, -4800, -6400];
+const STAND = 480;
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -127,7 +120,68 @@ function onScreen() {
 
 const PAPER = 0xf7f7f5;
 
-async function raster(node: Element) {
+let plateFaces: Promise<string> | null = null;
+
+function tick() {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, 0);
+  });
+}
+
+async function inlineFontSrc(src: string, base: string) {
+  let next = src;
+  for (const match of src.matchAll(/url\((['"]?)([^'")]+)\1\)/g)) {
+    const url = match[2];
+    if (!url || url.startsWith("data:")) continue;
+    const abs = new URL(url, base).href;
+    if (!abs.includes(".woff2")) continue;
+    const response = await fetch(abs);
+    if (!response.ok) continue;
+    await tick();
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = "";
+    for (let index = 0; index < bytes.length; index += 4096) {
+      const slice = bytes.subarray(index, index + 4096);
+      binary += String.fromCharCode.apply(null, slice as unknown as number[]);
+    }
+    next = next.replaceAll(url, `data:font/woff2;base64,${btoa(binary)}`);
+  }
+  return next;
+}
+
+function pageFaces() {
+  if (!plateFaces) {
+    plateFaces = (async () => {
+      await document.fonts.ready;
+      await tick();
+      const rules: string[] = [];
+      for (const sheet of [...document.styleSheets]) {
+        let list: CSSRuleList;
+        try {
+          list = sheet.cssRules;
+        } catch {
+          continue;
+        }
+        if (!sheet.href) continue;
+        const base = sheet.href;
+        for (const rule of list) {
+          if (!(rule instanceof CSSFontFaceRule)) continue;
+          const family = rule.style.getPropertyValue("font-family");
+          const range = rule.style.getPropertyValue("unicode-range");
+          if (!/Geist/i.test(family) || !range.includes("U+0-FF")) continue;
+          const inlined = await inlineFontSrc(rule.cssText, base);
+          if (!inlined.includes("data:font")) continue;
+          rules.push(inlined);
+          await tick();
+        }
+      }
+      return rules.join("\n");
+    })();
+  }
+  return plateFaces;
+}
+
+async function raster(node: Element, faces: string) {
   if (node instanceof SVGSVGElement) alignCiteLeaders();
   const rect = node.getBoundingClientRect();
   const ratio = Math.max(window.devicePixelRatio || 1, 2);
@@ -151,6 +205,11 @@ async function raster(node: Element) {
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     clone.setAttribute("width", String(width));
     clone.setAttribute("height", String(height));
+    if (faces.includes("data:font")) {
+      const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      style.textContent = faces;
+      clone.insertBefore(style, clone.firstChild);
+    }
   }
   const xml = new XMLSerializer().serializeToString(clone);
   const markup = clone instanceof SVGSVGElement
@@ -171,11 +230,13 @@ async function raster(node: Element) {
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   await yieldTurn();
+  const T = await loadThree();
+  await yieldTurn();
   const sheets = [...stage.querySelectorAll<HTMLElement>(".sheet")];
   if (sheets.length !== 4) throw new Error("Schnitt scene needs four sheets");
   const gl = canvas.getContext("webgl2");
   if (!gl) throw new Error("WebGL2 context is missing");
-  const renderer = new WebGLRenderer({
+  const renderer = new T.WebGLRenderer({
     canvas,
     context: gl,
     alpha: true,
@@ -184,9 +245,10 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     preserveDrawingBuffer: true,
     failIfMajorPerformanceCaveat: false,
   });
+  await yieldTurn();
   renderer.setClearColor(0x000000, 0);
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(40, 1, 1, 20000);
+  const scene = new T.Scene();
+  const camera = new T.PerspectiveCamera(40, 1, 1, 20000);
   await yieldTurn();
 
   const world = document.createElement("div");
@@ -211,10 +273,10 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     sheet.style.width = `${width}px`;
     sheet.style.height = `${height}px`;
     rig.appendChild(sheet);
-    const group = new Group();
-    group.add(new Mesh(
-      new PlaneGeometry(width, height),
-      new MeshBasicMaterial({ color: sheet.classList.contains("verdict") ? 0x111111 : 0xfbfaf7, toneMapped: false }),
+    const group = new T.Group();
+    group.add(new T.Mesh(
+      new T.PlaneGeometry(width, height),
+      new T.MeshBasicMaterial({ color: sheet.classList.contains("verdict") ? 0x111111 : 0xfbfaf7, toneMapped: false }),
     ));
     scene.add(group);
     return { sheet, group, width, height, callout };
@@ -222,14 +284,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   await yieldTurn();
 
   const figures = PLATES.map((id, index) => {
-    const mesh = new Mesh(
-      new PlaneGeometry(1, 1),
-      new MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2 }),
+    const mesh = new T.Mesh(
+      new T.PlaneGeometry(1, 1),
+      new T.MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2 }),
     );
     mesh.position.z = DEPTHS[index] ?? 0;
     mesh.visible = false;
     scene.add(mesh);
-    return { id, mesh };
+    return { id, mesh, worldH: 1 };
   });
 
   let cameraZ = 6;
@@ -246,25 +308,27 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   await yieldTurn();
   await renderer.compileAsync(scene, camera);
   await yieldTurn();
-  const warmup = new CanvasTexture(document.createElement("canvas"));
+  const warmup = new T.CanvasTexture(document.createElement("canvas"));
   renderer.initTexture(warmup);
   await yieldTurn();
   warmup.dispose();
+  const faces = await pageFaces();
+  if (faces.includes("data:font")) stage.dataset.plateFont = "embedded";
 
   for (const figure of figures) {
     await yieldTurn();
     const node = drawingOf(figure.id);
     if (!node) continue;
-    const paint = await raster(node);
-    const map = new CanvasTexture(paint);
+    const paint = await raster(node, faces);
+    const map = new T.CanvasTexture(paint);
     map.colorSpace = "srgb";
     map.generateMipmaps = true;
-    map.minFilter = LinearFilter;
-    map.magFilter = LinearFilter;
+    map.minFilter = T.LinearFilter as typeof map.minFilter;
+    map.magFilter = T.LinearFilter as typeof map.magFilter;
     map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     map.needsUpdate = true;
     const material = figure.mesh.material;
-    if (material instanceof MeshBasicMaterial) {
+    if (material instanceof T.MeshBasicMaterial) {
       material.map = map;
       material.color.set(0xffffff);
       material.needsUpdate = true;
@@ -274,6 +338,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   let drawn = 0;
   let sized = "";
+  let figureKey = "";
   let laidWidth = 0;
   let polishFrame = 0;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -327,7 +392,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       card.group.position.set(lane + 10 + sheetW / 2 - width / 2, height / 2 - (top + boxH / 2), 0);
       card.group.rotation.set(0, 0, 0);
       const mesh = card.group.children[0];
-      if (mesh instanceof Mesh) {
+      if (mesh instanceof T.Mesh) {
         mesh.visible = true;
         mesh.scale.set((sheetW * fit) / card.width, boxH / card.height, 1);
       }
@@ -390,35 +455,47 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         sized = key;
       }
       const half = (camera.fov * Math.PI) / 360;
-      const dist = (height / 2) / Math.tan(half);
       const index = Math.max(0, PLATES.indexOf(shown.id as (typeof PLATES)[number]));
-      const depth = DEPTHS[index] ?? 0;
-      const next = DEPTHS[Math.min(PLATES.length - 1, index + 1)] ?? depth;
+      const plane = DEPTHS[index] ?? 0;
       const leaving = clamp01(1 - shown.visible / Math.max(shown.height, 1));
-      cameraZ = depth + dist + (next - depth) * leaving * 0.65;
+      const travel = Math.min(1, leaving / 0.85);
+      const stand = Math.max(STAND * (1 - travel), 8);
+      cameraZ = plane + stand;
       camera.aspect = width / height;
       camera.position.set(0, 0, cameraZ);
-      camera.lookAt(0, 0, cameraZ - dist);
+      camera.lookAt(0, 0, plane);
       camera.updateProjectionMatrix();
+      const boxKey = `${Math.round(box.width)}x${Math.round(box.height)}`;
+      if (boxKey !== figureKey) {
+        const worldH = 2 * Math.tan(half) * STAND;
+        figures.forEach((figure) => {
+          const node = drawingOf(figure.id);
+          const face = node?.getBoundingClientRect();
+          const aspect = face && face.height > 2 ? face.width / face.height : box.width / Math.max(box.height, 1);
+          figure.worldH = worldH;
+          figure.mesh.scale.set(worldH * aspect, worldH, 1);
+        });
+        figureKey = boxKey;
+      }
       cards.forEach((card) => {
         const mesh = card.group.children[0];
-        if (mesh instanceof Mesh) mesh.visible = false;
+        if (mesh instanceof T.Mesh) mesh.visible = false;
       });
       figures.forEach((figure, figureIndex) => {
-        const plane = DEPTHS[figureIndex] ?? 0;
-        const distance = Math.max(cameraZ - plane, 1);
+        const depth = DEPTHS[figureIndex] ?? 0;
         figure.mesh.visible = figureIndex === index;
-        figure.mesh.position.z = plane;
-        const visibleH = 2 * Math.tan(half) * distance;
-        figure.mesh.scale.set(visibleH * camera.aspect, visibleH, 1);
-        figure.mesh.rotation.y = figureIndex === index ? Math.min(1.05, leaving * 1.35) : 0;
+        figure.mesh.position.z = depth;
+        const gap = Math.max(Math.abs(cameraZ - depth), 0.001);
+        figure.mesh.rotation.y = figureIndex === index ? travel * (Math.PI / 2) : 0;
+        if (figureIndex === index) stage.dataset.projected = (figure.mesh.scale.y / gap).toFixed(5);
         const material = figure.mesh.material;
-        if (material instanceof MeshBasicMaterial && material.map) {
+        if (material instanceof T.MeshBasicMaterial && material.map) {
           const flat = Math.abs(figure.mesh.rotation.y) < 0.08;
-          material.map.minFilter = flat ? LinearFilter : LinearMipmapLinearFilter;
-          material.map.magFilter = LinearFilter;
+          material.map.minFilter = (flat ? T.LinearFilter : T.LinearMipmapLinearFilter) as typeof material.map.minFilter;
+          material.map.magFilter = T.LinearFilter as typeof material.map.magFilter;
         }
       });
+      stage.dataset.spin = (figures[index]?.mesh.rotation.y ?? 0).toFixed(3);
       renderer.render(scene, camera);
     } else {
       canvas.style.display = "none";
