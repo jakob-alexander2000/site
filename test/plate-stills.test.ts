@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 
 const plates = ["citebot", "autopsy", "style"] as const;
@@ -17,4 +18,17 @@ test("desktop plate stills at scroll 0, mid and end differ", () => {
     });
     assert.equal(new Set(hashes).size, 3, plate);
   }
+});
+
+test("stop 4 evidence stills are not byte-identical", () => {
+  const dir = "docs/evidence/stop4";
+  const files = readdirSync(dir).filter((name) => name.endsWith(".png")).sort();
+  const byHash = new Map<string, string>();
+  for (const name of files) {
+    const hash = createHash("sha256").update(readFileSync(join(dir, name))).digest("hex");
+    const previous = byHash.get(hash);
+    assert.equal(previous, undefined, `${name} is byte-identical to ${previous}`);
+    byHash.set(hash, name);
+  }
+  assert.ok(files.length >= 12);
 });

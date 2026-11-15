@@ -14,7 +14,7 @@
     "postinstall": "node scripts/apply-three-patch.mjs",
     "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/plate-stills.test.ts test/scan.test.ts test/schnitt-run.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --retries=0",
     "test": "npm run test:unit && npm run test:scan && npm run test:e2e",
     "verify": "npm run typecheck && npm run lint && npm run build && npm test"
   },

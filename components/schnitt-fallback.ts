@@ -29,7 +29,6 @@ export function placeThread(stage: HTMLElement) {
   const fromSheet = from.closest(".sheet")?.getBoundingClientRect() ?? a;
   const toSheet = to.closest(".sheet")?.getBoundingClientRect() ?? b;
   const y1 = a.top + a.height / 2 - root.top;
-  const y2 = b.top + b.height / 2 - root.top;
   const x1 = a.right - root.left;
   const x2 = b.right - root.left;
   const above1 = a.top - root.top - 4;
