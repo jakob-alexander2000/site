@@ -393,8 +393,7 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
   z-index: 6;
 }
 
-html.is-figure svg.plate-drawing,
-html.is-figure .word-align {
+html.is-figure svg.plate-drawing {
   opacity: 0;
 }
 
@@ -1095,13 +1094,18 @@ article.verdict-sheet,
 .pair {
   display: grid;
   grid-template-rows: auto 18px auto;
-  justify-items: center;
+  justify-items: start;
   align-items: end;
+  width: max-content;
+  min-width: max-content;
 }
 
 .pair .offcut {
+  display: inline;
+  position: static;
+  flex: none;
+  width: auto;
   max-width: none;
-  text-align: center;
   white-space: nowrap;
 }
 
@@ -1112,6 +1116,14 @@ article.verdict-sheet,
   font-size: 17px;
   font-weight: 300;
   line-height: 1.35;
+}
+
+.answer-line {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: baseline;
+  width: max-content;
+  white-space: nowrap;
 }
 
 .word-align svg.hair {
@@ -1280,6 +1292,16 @@ article.verdict-sheet,
   position: relative;
 }
 
+.cut-runway {
+  height: 0;
+}
+
+@media (min-width: 1100px) {
+  .cut-runway {
+    height: 46vh;
+  }
+}
+
 .sheet-labels {
   position: absolute;
   inset: 0;
@@ -1338,8 +1360,8 @@ article.verdict-sheet,
   }
 
   .pair .offcut {
-    white-space: normal;
-    max-width: 8.5rem;
+    white-space: nowrap;
+    max-width: none;
   }
 }
 

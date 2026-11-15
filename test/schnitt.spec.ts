@@ -962,19 +962,45 @@ for (const broken of ["decode", "taint"] as const) {
   });
 }
 
-test("two plates stay visible through the middle of a turn", async ({ page, browserName }) => {
+async function pinScroll(page: Page, progress: number) {
+  await page.evaluate((target) => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const pinTop = window.innerHeight * 0.16;
+    const start = rect.top + window.scrollY - pinTop;
+    const runway = Math.max(rect.height * 1.35, 360);
+    window.scrollTo(0, start + target * runway);
+  }, progress);
+  await page.waitForTimeout(280);
+}
+
+test("two plates have area inside the viewport mid-travel", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "The plate camera is read in Chromium.");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
-  await page.evaluate(() => {
-    const node = document.querySelector("#citebot svg.plate-drawing");
-    if (!node) return;
-    const box = node.getBoundingClientRect();
-    window.scrollTo(0, box.top + window.scrollY + box.height * 0.4);
+  await pinScroll(page, 0.35);
+  const view = await page.evaluate(() => {
+    const stage = document.querySelector(".schnitt-stage");
+    const canvas = document.querySelector(".schnitt-stage canvas");
+    if (!(canvas instanceof HTMLCanvasElement) || !(stage instanceof HTMLElement)) return null;
+    const box = canvas.getBoundingClientRect();
+    const areas = (stage.getAttribute("data-areas") ?? "0,0").split(",").map(Number);
+    return {
+      areas,
+      top: box.top,
+      bottom: box.bottom,
+      height: box.height,
+      viewport: window.innerHeight,
+    };
   });
-  await page.waitForTimeout(300);
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-planes", "2");
+  expect(view).toBeTruthy();
+  expect(view!.areas[0] ?? 0).toBeGreaterThan(8000);
+  expect(view!.areas[1] ?? 0).toBeGreaterThan(8000);
+  expect(view!.top).toBeGreaterThan(40);
+  expect(view!.bottom).toBeLessThan(view!.viewport - 40);
+  expect(view!.height).toBeGreaterThan(240);
 });
 
 test("plate depth changes continuously while the page scrolls", async ({ page, browserName }) => {
@@ -1009,24 +1035,118 @@ test("plate depth changes continuously while the page scrolls", async ({ page, b
   }
 });
 
-test("a plate's labels turn with the plate", async ({ page, browserName }) => {
-  test.skip(browserName !== "chromium", "The plate transform is read in Chromium.");
+test("label pixels move with the turning plate", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate canvas is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  const sample = () => page.evaluate(() => {
+    const canvas = document.querySelector(".schnitt-stage canvas");
+    if (!(canvas instanceof HTMLCanvasElement)) return null;
+    const gl = canvas.getContext("webgl2");
+    if (!gl) return null;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const width = canvas.width;
+    const height = canvas.height;
+    const pixel = new Uint8Array(4);
+    let xSum = 0;
+    let ySum = 0;
+    let count = 0;
+    for (let x = 0; x < width; x += 10) {
+      for (let y = 0; y < height; y += 10) {
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        const red = pixel[0] ?? 255;
+        const green = pixel[1] ?? 255;
+        const blue = pixel[2] ?? 255;
+        if (red < 40 && green < 40 && blue < 40) {
+          xSum += x;
+          ySum += height - 1 - y;
+          count += 1;
+        }
+      }
+    }
+    if (count < 8) return null;
+    return { x: xSum / count, y: ySum / count };
+  });
+  await pinScroll(page, 0.22);
+  const first = await sample();
+  await pinScroll(page, 0.48);
+  const second = await sample();
+  expect(first).toBeTruthy();
+  expect(second).toBeTruthy();
+  const moved = Math.hypot((second?.x ?? 0) - (first?.x ?? 0), (second?.y ?? 0) - (first?.y ?? 0));
+  expect(moved).toBeGreaterThan(6);
+});
+
+test("the next plate assembles in one direction", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate camera is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  const samples: number[] = [];
+  for (const progress of [0.16, 0.32, 0.48, 0.64, 0.8]) {
+    await pinScroll(page, progress);
+    const value = await page.locator(".schnitt-stage").getAttribute("data-assemble");
+    samples.push(Number(value ?? "0"));
+  }
+  expect((samples.at(-1) ?? 0) - (samples[0] ?? 0)).toBeGreaterThan(0.4);
+  for (let index = 1; index < samples.length; index += 1) {
+    expect(samples[index] ?? 0).toBeGreaterThanOrEqual((samples[index - 1] ?? 0) - 0.001);
+  }
+});
+
+test("autopsy answer words do not overlap", async ({ page }) => {
+  for (const width of [1024, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page.locator("#autopsy").scrollIntoViewIfNeeded();
+    await page.waitForTimeout(200);
+    const hits = await page.evaluate(() => {
+      const lines = [...document.querySelectorAll("#autopsy .word-align .answer-line")];
+      const boxes: DOMRect[] = [];
+      for (const line of lines) {
+        for (const child of line.childNodes) {
+          if (child.nodeType === Node.ELEMENT_NODE) boxes.push((child as Element).getBoundingClientRect());
+          else if (child.nodeType === Node.TEXT_NODE && (child.textContent ?? "").trim()) {
+            const range = document.createRange();
+            range.selectNodeContents(child);
+            boxes.push(range.getBoundingClientRect());
+          }
+        }
+      }
+      const overlap: string[] = [];
+      for (let i = 0; i < boxes.length; i += 1) {
+        for (let j = i + 1; j < boxes.length; j += 1) {
+          const a = boxes[i];
+          const b = boxes[j];
+          if (!a || !b || a.width < 2 || b.width < 2) continue;
+          const width = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+          const height = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+          if (width > 1 && height > 1) overlap.push(`${Math.round(width)}x${Math.round(height)}`);
+        }
+      }
+      return overlap;
+    });
+    expect(hits, `${width}`).toEqual([]);
+  }
+});
+
+test("autopsy words are on the page once the section is in view", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
   await page.evaluate(() => {
-    const node = document.querySelector("#citebot svg.plate-drawing");
+    const node = document.getElementById("autopsy");
     if (!node) return;
-    const box = node.getBoundingClientRect();
-    window.scrollTo(0, box.top + window.scrollY + box.height * 0.82);
+    const top = node.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, top - window.innerHeight * 0.4);
   });
-  await expect.poll(async () => page.locator(".schnitt-stage").getAttribute("data-spin")).toMatch(/^[1-9]/);
-  const spin = await page.locator(".schnitt-stage").getAttribute("data-spin");
-  const label = await page.locator("#citebot .sheet-labels").evaluate((node) => ({
-    turn: getComputedStyle(node).getPropertyValue("--plate-turn").trim(),
-    spin: (node as HTMLElement).dataset.spin ?? "",
+  await page.waitForTimeout(200);
+  const state = await page.locator("#autopsy .word-align").evaluate((node) => ({
+    opacity: getComputedStyle(node).opacity,
+    text: (node.textContent ?? "").replace(/\s+/g, " ").trim(),
   }));
-  expect(Number(spin)).toBeGreaterThan(1);
-  expect(label.spin).toBe(spin);
-  expect(label.turn).toContain("rotateX");
+  expect(state.opacity).toBe("1");
+  expect(state.text).toContain("practice");
+  expect(state.text).toContain("employees");
 });

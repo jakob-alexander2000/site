@@ -190,6 +190,7 @@ export function Plates({ run }: { run: SchnittRun }) {
             })}
           </div>
           </div>
+          <div className="cut-runway" aria-hidden="true" />
           <ol className="cite-steps">
             {steps.map((step) => (
               <li key={step.name}>
@@ -382,6 +383,7 @@ export function Plates({ run }: { run: SchnittRun }) {
             <p className="leader-name" style={{ left: "80.36%", top: "3.33%" }}>DRAFT</p>
           </div>
           </div>
+          <div className="cut-runway" aria-hidden="true" />
           <div className="plate-stack distance-sheets">
             <article className="voice-sheet">
               <p className="leader-name kicker">House voice</p>

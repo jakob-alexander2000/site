@@ -8,6 +8,43 @@ import { STYLE_DISTANCE } from "@/lib/diagrams";
 const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
 const DEPTHS = [-1600, -3200, -4800, -6400];
 const STAND = 480;
+/** Sheet crops in each drawing's viewBox. They start stacked and move into these boxes. */
+const SHEETS: Record<string, { view: [number, number]; rects: [number, number, number, number][] }> = {
+  citebot: {
+    view: [1280, 520],
+    rects: [0, 1, 2, 3, 4, 5].map((index) => {
+      const x = 150 + index * 156;
+      const y = 28 + index * 56;
+      return [x, y, 340, index === 5 ? 168 : 68];
+    }),
+  },
+  style: {
+    view: [1120, 360],
+    rects: [
+      [150, 28, 160, 120],
+      [310, 20, 560, 160],
+      [868, 44, 200, 108],
+      [16, 208, 1088, 132],
+    ],
+  },
+};
+
+function croppedPlane(T: Awaited<ReturnType<typeof loadThree>>, rect: [number, number, number, number], viewW: number, viewH: number) {
+  const geo = new T.PlaneGeometry(1, 1);
+  const uv = geo.attributes.uv;
+  const [x, y, w, h] = rect;
+  const u0 = x / viewW;
+  const u1 = (x + w) / viewW;
+  const v0 = 1 - (y + h) / viewH;
+  const v1 = 1 - y / viewH;
+  for (let index = 0; index < uv.count; index += 1) {
+    const u = uv.getX(index);
+    const v = uv.getY(index);
+    uv.setXY(index, u0 + u * (u1 - u0), v0 + v * (v1 - v0));
+  }
+  uv.needsUpdate = true;
+  return geo;
+}
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -123,6 +160,8 @@ function onScreen() {
   }
   return best;
 }
+
+void onScreen;
 
 const PAPER = 0xf7f7f5;
 
@@ -411,7 +450,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   }
   await yieldTurn();
 
-  const figures: { id: (typeof PLATES)[number]; mesh: Mesh; worldH: number }[] = [];
+  const figures: { id: (typeof PLATES)[number]; mesh: Mesh; sheets: Mesh[]; worldH: number }[] = [];
   for (const [index, id] of PLATES.entries()) {
     await yieldTurn();
     const mesh = new T.Mesh(
@@ -421,7 +460,20 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     mesh.position.z = DEPTHS[index] ?? 0;
     mesh.visible = false;
     scene.add(mesh);
-    figures.push({ id, mesh, worldH: 1 });
+    const sheets: Mesh[] = [];
+    const layout = SHEETS[id];
+    if (layout) {
+      const material = figureMaterial(T);
+      for (const rect of layout.rects) {
+        await yieldTurn();
+        const sheet = new T.Mesh(croppedPlane(T, rect, layout.view[0], layout.view[1]), material);
+        sheet.visible = false;
+        sheet.userData.rect = rect;
+        scene.add(sheet);
+        sheets.push(sheet);
+      }
+    }
+    figures.push({ id, mesh, sheets, worldH: 1 });
   }
 
   let cameraZ = 6;
@@ -464,6 +516,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     map.needsUpdate = true;
     const material = figure.mesh.material;
     if (material instanceof T.ShaderMaterial) material.uniforms.map.value = map;
+    const sheetMaterial = figure.sheets[0]?.material;
+    if (sheetMaterial instanceof T.ShaderMaterial) sheetMaterial.uniforms.map.value = map;
     await yieldTurn();
     renderer.initTexture(map);
   }
@@ -471,6 +525,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const meshes = [
     ...cards.flatMap((card) => card.group.children),
     ...figures.map((figure) => figure.mesh),
+    ...figures.flatMap((figure) => figure.sheets),
   ];
   for (const mesh of meshes) {
     await yieldTurn();
@@ -589,7 +644,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const render = (paint = true) => {
     const past = pastHero();
     document.documentElement.classList.toggle("is-past", past);
-    const shown = past ? onScreen() : null;
     world.style.visibility = past ? "hidden" : "visible";
     if (!past) {
       shownFigure = false;
@@ -610,100 +664,201 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
           layoutPlates();
         }, 0);
       }
-    } else if (shown) {
-      shownFigure = true;
-      const metrics = plateMetrics();
-      const lead = Math.max(0, metrics.findIndex((item) => item.past < 1));
-      const current = metrics[lead];
-      const next = metrics[lead + 1];
-      const blend = current ? clamp01(current.past) : 0;
-      const depthHere = current?.depth ?? 0;
-      const depthNext = next?.depth ?? depthHere;
-      const look = depthHere + (depthNext - depthHere) * blend;
-      const box = current?.rect ?? shown.node.getBoundingClientRect();
-      canvas.style.position = "fixed";
-      canvas.style.left = `${box.left}px`;
-      canvas.style.top = `${box.top}px`;
-      canvas.style.width = `${Math.max(2, box.width)}px`;
-      canvas.style.height = `${Math.max(2, box.height)}px`;
-      canvas.style.display = "";
-      canvas.style.zIndex = "1";
-      canvas.style.pointerEvents = "none";
-      document.documentElement.classList.add("is-figure");
-      const width = Math.max(canvas.clientWidth, 1);
-      const height = Math.max(canvas.clientHeight, 1);
-      const key = `${width}x${height}`;
-      renderer.setClearColor(PAPER, 0);
-      renderer.setPixelRatio(ratio);
-      if (key !== sized) {
-        renderer.setSize(width, height, false);
-        sized = key;
-      }
-      const half = (camera.fov * Math.PI) / 360;
-      camera.near = 24;
-      cameraZ = look + STAND;
-      camera.aspect = width / height;
-      camera.position.set(0, 0, cameraZ);
-      camera.lookAt(0, 0, look);
-      camera.updateProjectionMatrix();
-      const front = cameraZ - 420;
-      const turn = current ? clamp01((current.past - 0.7) / 0.15) : 0;
-      const angle = turn * (Math.PI / 2);
-      cards.forEach((card) => {
-        const mesh = card.group.children[0];
-        if (mesh instanceof T.Mesh) mesh.visible = false;
-      });
-      const place = (figure: (typeof figures)[number], depth: number, spin: number, fade: number, fitDistance: number) => {
-        const node = drawingOf(figure.id);
-        const face = node?.getBoundingClientRect();
-        const aspect = face && face.height > 2 ? face.width / face.height : box.width / Math.max(box.height, 1);
-        const worldH = 2 * Math.tan(half) * fitDistance * ((face?.height || box.height) / Math.max(box.height, 1));
-        const worldW = worldH * aspect;
-        figure.mesh.scale.set(worldW, worldH, 1);
-        const pivot = worldH / 2;
-        figure.mesh.rotation.set(-spin, 0, 0);
-        figure.mesh.position.set(0, pivot * (1 - Math.cos(spin)), depth - pivot * Math.sin(spin));
-        figure.mesh.visible = true;
-        const material = figure.mesh.material;
-        if (material instanceof T.ShaderMaterial) {
-          material.uniforms.opacity.value = fade;
-          material.transparent = fade < 0.99;
-          material.depthWrite = fade > 0.9;
-        }
-        const labels = document.querySelector(`#${figure.id} .sheet-labels`);
-        if (labels instanceof HTMLElement) {
-          const turn = spin > 0.001 ? `perspective(900px) rotateX(${(-spin).toFixed(4)}rad)` : "none";
-          labels.style.setProperty("--plate-turn", turn);
-          labels.dataset.spin = spin.toFixed(3);
-        }
-      };
-      figures.forEach((figure) => {
-        figure.mesh.visible = false;
-      });
-      const fade = angle < 1.05 ? 1 : Math.max(0, 1 - (angle - 1.05) / (Math.PI / 2 - 1.05));
-      if (current) place(current.figure, front, angle, fade, 420);
-      if (next && blend > 0.02) {
-        const arrival = front - 640 * (1 - blend);
-        place(next.figure, arrival, 0, 1, 420);
-        next.figure.mesh.position.y -= next.figure.mesh.scale.y * 0.34 * (1 - blend);
-      }
-      const gap = Math.max(Math.abs(camera.position.z - depthHere), 0.001);
-      const leadMesh = current?.figure.mesh;
-      stage.dataset.projected = ((leadMesh?.scale.y ?? 1) / gap).toFixed(5);
-      stage.dataset.spin = angle.toFixed(3);
-      stage.dataset.planes = String(figures.filter((figure) => figure.mesh.visible).length);
-      stage.dataset.depths = [depthHere, next ? depthHere + (depthNext - depthHere) * blend : depthHere].map((depth) => depth.toFixed(1)).join(",");
-      renderer.setScissorTest(true);
-      renderer.setScissor(0, 0, Math.round(width * ratio), Math.round(height * ratio));
-      renderer.render(scene, camera);
-      renderer.setScissorTest(false);
     } else {
-      canvas.style.display = "none";
-      document.documentElement.classList.remove("is-figure");
-      const look = lookAlong(plateMetrics());
-      camera.position.set(0, 0, look + STAND);
-      cameraZ = camera.position.z;
-      shownFigure = true;
+      const metrics = plateMetrics();
+      const pinTop = Math.round(window.innerHeight * 0.16);
+      const runwayOf = (rect: DOMRect) => {
+        const start = rect.top + window.scrollY - pinTop;
+        const runway = Math.max(rect.height * 1.35, 360);
+        return { start, runway, progress: clamp01((window.scrollY - start) / runway) };
+      };
+      let mode: "pin" | "follow" | "rest" = "rest";
+      let current = metrics.find((item) => item.rect) ?? null;
+      let progress = 0;
+      for (const item of metrics) {
+        if (!item.rect) continue;
+        const run = runwayOf(item.rect);
+        if (run.progress > 0 && run.progress < 1) {
+          mode = "pin";
+          current = item;
+          progress = run.progress;
+          break;
+        }
+      }
+      if (mode === "rest") {
+        const visible = metrics.find((item) => item.rect && item.rect.bottom > 24 && item.rect.top < window.innerHeight - 24);
+        if (visible?.rect && runwayOf(visible.rect).progress <= 0) {
+          mode = "follow";
+          current = visible;
+          progress = 0;
+        }
+      }
+      if ((mode === "pin" || mode === "follow") && current?.rect) {
+        shownFigure = true;
+        const next = metrics[metrics.indexOf(current) + 1];
+        const depthHere = current.depth;
+        const depthNext = next?.depth ?? depthHere;
+        const look = depthHere + (depthNext - depthHere) * (mode === "pin" ? progress : 0);
+        const box = current.rect;
+        const viewTop = mode === "pin" ? pinTop : box.top;
+        let viewHeight = mode === "pin" ? Math.min(box.height, window.innerHeight * 0.68) : box.height;
+        if (mode === "pin") {
+          const blockers = document.querySelectorAll(".plate h2, .plate h3, .plate figcaption, .plate li, .plate p.body");
+          for (const node of blockers) {
+            if (!(node instanceof HTMLElement) || node.closest("svg, .sheet-labels, .cite-steps")) continue;
+            const top = node.getBoundingClientRect().top;
+            if (top > viewTop + 4) viewHeight = Math.min(viewHeight, top - viewTop - 8);
+          }
+        }
+        const blocked = mode === "pin" && viewHeight < 140;
+        canvas.style.position = "fixed";
+        canvas.style.left = `${box.left}px`;
+        canvas.style.top = `${viewTop}px`;
+        canvas.style.width = `${Math.max(2, box.width)}px`;
+        canvas.style.height = `${Math.max(2, viewHeight)}px`;
+        canvas.style.display = blocked ? "none" : "";
+        canvas.style.zIndex = "1";
+        canvas.style.pointerEvents = "none";
+        document.documentElement.classList.toggle("is-figure", !blocked);
+        const width = Math.max(canvas.clientWidth, 1);
+        const height = Math.max(canvas.clientHeight, 1);
+        const key = `${width}x${height}`;
+        renderer.setClearColor(PAPER, 1);
+        renderer.setPixelRatio(ratio);
+        if (key !== sized) {
+          renderer.setSize(width, height, false);
+          sized = key;
+        }
+        const half = (camera.fov * Math.PI) / 360;
+        camera.near = 24;
+        cameraZ = look + STAND;
+        camera.aspect = width / height;
+        camera.position.set(0, 0, cameraZ);
+        camera.lookAt(0, 0, look);
+        camera.updateProjectionMatrix();
+        const front = cameraZ - 420;
+        const angle = mode === "pin" ? Math.min(Math.PI / 2, (progress / 0.7) * (Math.PI / 2)) : 0;
+        const assemble = mode === "pin" ? clamp01((progress - 0.05) / 0.7) : 0;
+        const worldH = 2 * Math.tan(half) * 420;
+        const worldW = worldH * (box.width / Math.max(box.height, 1));
+        cards.forEach((card) => {
+          const mesh = card.group.children[0];
+          if (mesh instanceof T.Mesh) mesh.visible = false;
+        });
+        figures.forEach((figure) => {
+          figure.mesh.visible = false;
+          figure.sheets.forEach((sheet) => {
+            sheet.visible = false;
+          });
+        });
+        const fade = angle < 1.05 ? 1 : Math.max(0.15, 1 - (angle - 1.05) / (Math.PI / 2 - 1.05));
+        const leaving = current.figure.mesh;
+        leaving.visible = true;
+        leaving.scale.set(worldW, worldH, 1);
+        const pivot = worldH / 2;
+        leaving.rotation.set(-angle, 0, 0);
+        leaving.position.set(0, pivot * (1 - Math.cos(angle)), front - pivot * Math.sin(angle));
+        const leavingMaterial = leaving.material;
+        if (leavingMaterial instanceof T.ShaderMaterial) {
+          leavingMaterial.uniforms.opacity.value = fade;
+          leavingMaterial.transparent = fade < 0.99;
+          leavingMaterial.depthWrite = fade > 0.9;
+        }
+        const layout = next ? SHEETS[next.figure.id] : undefined;
+        if (next && layout && mode === "pin") {
+          if (assemble < 0.62) {
+            const behind = next.figure.mesh;
+            behind.visible = true;
+            behind.rotation.set(0, 0, 0);
+            const scale = 0.78;
+            behind.scale.set(worldW * scale, worldH * scale, 1);
+            behind.position.set(0, -worldH * 0.34 * (1 - assemble), front - 260);
+            const behindMaterial = behind.material;
+            if (behindMaterial instanceof T.ShaderMaterial) {
+              behindMaterial.uniforms.opacity.value = 1;
+              behindMaterial.transparent = false;
+              behindMaterial.depthWrite = true;
+            }
+          }
+          const depth = front - 180 * (1 - progress * 0.55);
+          next.figure.sheets.forEach((sheet, index) => {
+            const rect = sheet.userData.rect as [number, number, number, number] | undefined;
+            if (!rect) return;
+            const [x, y, w, h] = rect;
+            const homeX = ((x + w / 2) / layout.view[0] - 0.5) * worldW;
+            const homeY = (0.5 - (y + h / 2) / layout.view[1]) * worldH;
+            const sheetW = (w / layout.view[0]) * worldW;
+            const sheetH = (h / layout.view[1]) * worldH;
+            sheet.visible = true;
+            sheet.rotation.set(0, 0, 0);
+            sheet.renderOrder = index === next.figure.sheets.length - 1 ? 0 : 2;
+            const pile = (1 - assemble) * worldH * 0.34;
+            const step = (1 - assemble) * worldH * 0.07 * index;
+            sheet.position.set(homeX * assemble, homeY * assemble - pile + step, depth - index * (1 - assemble) * 24);
+            const grow = 0.58 + 0.42 * assemble;
+            sheet.scale.set(sheetW * grow, sheetH * grow, 1);
+          });
+          const sheetMaterial = next.figure.sheets[0]?.material;
+          if (sheetMaterial instanceof T.ShaderMaterial) {
+            sheetMaterial.uniforms.opacity.value = 1;
+            sheetMaterial.transparent = false;
+            sheetMaterial.depthWrite = true;
+          }
+        }
+        const view = { left: box.left, top: viewTop, width, height };
+        const areaOf = (mesh: Mesh) => {
+          if (!mesh.visible) return 0;
+          mesh.updateWorldMatrix(true, false);
+          const xs = [-0.5, 0.5, 0.5, -0.5];
+          const ys = [0.5, 0.5, -0.5, -0.5];
+          const points = xs.map((x, index) => {
+            const projected = new T.Vector3(x, ys[index] ?? 0, 0).applyMatrix4(mesh.matrixWorld).project(camera);
+            return {
+              x: Math.min(window.innerWidth, Math.max(0, (projected.x * 0.5 + 0.5) * view.width + view.left)),
+              y: Math.min(window.innerHeight, Math.max(0, (-projected.y * 0.5 + 0.5) * view.height + view.top)),
+              outside: projected.z < -1 || projected.z > 1,
+            };
+          });
+          if (points.some((point) => point.outside)) return 0;
+          let sum = 0;
+          for (let index = 0; index < points.length; index += 1) {
+            const a = points[index];
+            const b = points[(index + 1) % points.length];
+            if (!a || !b) continue;
+            sum += a.x * b.y - b.x * a.y;
+          }
+          return Math.abs(sum) / 2;
+        };
+        const nextArea = next ? Math.max(...next.figure.sheets.map(areaOf), 0) : 0;
+        const gap = Math.max(Math.abs(camera.position.z - depthHere), 0.001);
+        stage.dataset.projected = (leaving.scale.y / gap).toFixed(5);
+        stage.dataset.spin = angle.toFixed(3);
+        stage.dataset.assemble = assemble.toFixed(3);
+        stage.dataset.progress = progress.toFixed(3);
+        stage.dataset.areas = `${Math.round(areaOf(leaving))},${Math.round(nextArea)}`;
+        stage.dataset.planes = String((leaving.visible ? 1 : 0) + (next?.figure.sheets.some((sheet) => sheet.visible) ? 1 : 0));
+        stage.dataset.depths = [depthHere, depthHere + (depthNext - depthHere) * (mode === "pin" ? progress : 0)].map((depth) => depth.toFixed(1)).join(",");
+        if (!blocked) {
+          renderer.setScissorTest(true);
+          renderer.setScissor(0, 0, Math.round(width * ratio), Math.round(height * ratio));
+          renderer.render(scene, camera);
+          renderer.setScissorTest(false);
+        }
+      } else {
+        for (const figure of figures) {
+          const svg = document.querySelector(`#${figure.id} svg.plate-drawing`);
+          if (svg instanceof HTMLElement) svg.style.visibility = "";
+        }
+        canvas.style.display = "none";
+        document.documentElement.classList.remove("is-figure");
+        const look = lookAlong(metrics);
+        camera.position.set(0, 0, look + STAND);
+        cameraZ = camera.position.z;
+        shownFigure = true;
+        stage.dataset.spin = "0.000";
+        stage.dataset.assemble = "1.000";
+        stage.dataset.areas = "0,0";
+      }
     }
     if (!polishFrame) {
       polishFrame = window.setTimeout(() => {
