@@ -1,0 +1,237 @@
+15e498623f9f67f6d5ee04e2da68c271ddedd0eb
+Mutation proofs: each mutation applied to the code commit, the named row run with --retries=0 (Chromium), then reverted. Every row FAILS under its mutation, as intended.
+
+## H1 drop the kicker class from PlateKicker
+file: components/PlateKicker.tsx
+      34 |         };
+      35 |       }, await sample.elementHandle());
+    > 36 |       expect(fonts.family).toBe(fonts.peerFamily);
+         |                            ^
+      37 |       expect(fonts.size).toBe(fonts.peerSize);
+      38 |       expect(fonts.className.split(/\s+/)).toContain("kicker");
+      39 |     });
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:36:28
+    Error Context: test-results/hero-one-project-H1-hero-u-fe394--the-kicker-style-at-1440px-chromium/error-context.md
+  2) [chromium] › test/hero-one-project.spec.ts:17:5 › H1 hero uses the section-header treatment › the hero shows 01 CiteBot in the kicker style at 390px 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: "\"Geist Mono\", \"Geist Mono Fallback\", ui-monospace, monospace"
+    Received: "Geist, \"Geist Fallback\", sans-serif"
+      34 |         };
+      35 |       }, await sample.elementHandle());
+    > 36 |       expect(fonts.family).toBe(fonts.peerFamily);
+         |                            ^
+      37 |       expect(fonts.size).toBe(fonts.peerSize);
+      38 |       expect(fonts.className.split(/\s+/)).toContain("kicker");
+      39 |     });
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:36:28
+    Error Context: test-results/hero-one-project-H1-hero-u-487a6-n-the-kicker-style-at-390px-chromium/error-context.md
+  2 failed
+    [chromium] › test/hero-one-project.spec.ts:17:5 › H1 hero uses the section-header treatment › the hero shows 01 CiteBot in the kicker style at 390px 
+    [chromium] › test/hero-one-project.spec.ts:17:5 › H1 hero uses the section-header treatment › the hero shows 01 CiteBot in the kicker style at 1440px 
+
+## H2 restore the old section 1 kicker and headline
+file: components/Plates.tsx
+      60 |       await expect(section.getByRole("heading", { name: "The parts in detail" })).toBeVisible();
+      61 |       await expect(section.getByRole("heading", { name: CITEBOT_PLATE.headline })).toHaveCount(0);
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:58:41
+    Error Context: test-results/hero-one-project-H2-CiteBo-77161-t-re-introduce-it-at-1440px-chromium/error-context.md
+  2) [chromium] › test/hero-one-project.spec.ts:45:5 › H2 CiteBot is one project › CiteBot is named once and section 1 does not re-introduce it at 390px 
+    Error: 01 · CITEBOT | 01 · CITEBOT | Answers that point to the line they came from.
+    expect(received).toEqual(expected) // deep equality
+    - Expected  - 0
+    + Received  + 1
+      Array [
+        "01 · CITEBOT",
+    +   "01 · CITEBOT",
+      ]
+      56 |       });
+      57 |       const named = labels.filter((text) => /citebot/i.test(text));
+    > 58 |       expect(named, labels.join(" | ")).toEqual(["01 · CITEBOT"]);
+         |                                         ^
+      59 |       const section = page.locator("#citebot");
+      60 |       await expect(section.getByRole("heading", { name: "The parts in detail" })).toBeVisible();
+      61 |       await expect(section.getByRole("heading", { name: CITEBOT_PLATE.headline })).toHaveCount(0);
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:58:41
+    Error Context: test-results/hero-one-project-H2-CiteBo-d02f8-ot-re-introduce-it-at-390px-chromium/error-context.md
+  2 failed
+    [chromium] › test/hero-one-project.spec.ts:45:5 › H2 CiteBot is one project › CiteBot is named once and section 1 does not re-introduce it at 390px 
+    [chromium] › test/hero-one-project.spec.ts:45:5 › H2 CiteBot is one project › CiteBot is named once and section 1 does not re-introduce it at 1440px 
+
+## H3 point the continue link at #top
+file: components/SchnittHero.tsx
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:73:26
+    Error Context: test-results/hero-one-project-H3-thread-07e12--reaches-section-1-at-390px-chromium/error-context.md
+  2) [chromium] › test/hero-one-project.spec.ts:69:5 › H3 thread into section 1 › a visible anchor from the hero reaches section 1 at 1440px 
+    Error: expect(locator).toHaveAttribute(expected) failed
+    Locator:  locator('a[data-hero-thread]')
+    Expected: "#citebot"
+    Received: "#top"
+    Timeout:  5000ms
+    Call log:
+      - Expect "toHaveAttribute" locator('a[data-hero-thread]') with timeout 5000ms
+      - waiting for locator('a[data-hero-thread]')
+        14 × locator resolved to <a href="#top" data-hero-thread="true">…</a>
+           - unexpected value "#top"
+      71 |       const link = page.locator("a[data-hero-thread]");
+      72 |       await expect(link).toBeVisible();
+    > 73 |       await expect(link).toHaveAttribute("href", "#citebot");
+         |                          ^
+      74 |       const thread = link.locator(".hero-thread");
+      75 |       await expect(thread).toBeVisible();
+      76 |       const target = page.locator("#citebot");
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:73:26
+    Error Context: test-results/hero-one-project-H3-thread-5e2d4-reaches-section-1-at-1440px-chromium/error-context.md
+  2 failed
+    [chromium] › test/hero-one-project.spec.ts:69:5 › H3 thread into section 1 › a visible anchor from the hero reaches section 1 at 390px 
+    [chromium] › test/hero-one-project.spec.ts:69:5 › H3 thread into section 1 › a visible anchor from the hero reaches section 1 at 1440px 
+
+## H4 drop overflow clip and force a 520px sticky frame
+file: app/schnitt.css
+
+    Error: {"scroll":520,"client":390}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 390
+    Received:    520
+
+      87 |       client: document.documentElement.clientWidth,
+      88 |     }));
+    > 89 |     expect(report.scroll, JSON.stringify(report)).toBeLessThanOrEqual(report.client);
+         |                                                   ^
+      90 |   });
+      91 | });
+      92 |
+        at /workspace/pr31apply/test/hero-one-project.spec.ts:89:51
+
+    Error Context: test-results/hero-one-project-H4-no-sid-fe841--scroll-sideways-at-390x844-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › test/hero-one-project.spec.ts:83:3 › H4 no sideways overflow on the phone › the page does not scroll sideways at 390x844 
+
+## P1 drop aria-expanded
+file: components/PartNote.tsx
+  2) [chromium] › test/plus-marks.spec.ts:17:5 › P1 every plus is a control or a register mark › every visible plus is a button or a hidden register mark at 1440px 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "false"
+    Received: null
+
+      38 |         if (item.kind === "plus") {
+      39 |           expect(item.tag).toBe("BUTTON");
+    > 40 |           expect(item.expanded).toBe("false");
+         |                                 ^
+      41 |         } else {
+      42 |           expect(item.kind).toBe("register");
+      43 |           expect(item.hidden).toBe("true");
+        at /workspace/pr31apply/test/plus-marks.spec.ts:40:33
+
+    Error Context: test-results/plus-marks-P1-every-plus-i-33ddb-den-register-mark-at-1440px-chromium/error-context.md
+
+
+  2 failed
+    [chromium] › test/plus-marks.spec.ts:17:5 › P1 every plus is a control or a register mark › every visible plus is a button or a hidden register mark at 390px 
+    [chromium] › test/plus-marks.spec.ts:17:5 › P1 every plus is a control or a register mark › every visible plus is a button or a hidden register mark at 1440px 
+
+## P2 remove the click handler
+file: components/PartNote.tsx
+    Call log:
+      - Expect "toHaveAttribute" locator('button.plus-mark').first() with timeout 5000ms
+      - waiting for locator('button.plus-mark').first()
+        14 × locator resolved to <button type="button" data-mark="plus" class="plus-mark" aria-expanded="false" aria-label="HANDBOOK" aria-controls="handbook-note">…</button>
+           - unexpected value "false"
+
+
+      57 |       await expect(button).toHaveAttribute("aria-expanded", "false");
+      58 |       await button.click();
+    > 59 |       await expect(button).toHaveAttribute("aria-expanded", "true");
+         |                            ^
+      60 |       const panelId = await button.getAttribute("aria-controls");
+      61 |       const panel = page.locator(`#${panelId}`);
+      62 |       await expect(panel).toBeVisible();
+        at /workspace/pr31apply/test/plus-marks.spec.ts:59:28
+
+    Error Context: test-results/plus-marks-P2-click-and-Es-f34ef--Escape-closes-it-at-1440px-chromium/error-context.md
+
+
+  2 failed
+    [chromium] › test/plus-marks.spec.ts:53:5 › P2 click and Escape toggle the callout › click opens the note and a second click or Escape closes it at 390px 
+    [chromium] › test/plus-marks.spec.ts:53:5 › P2 click and Escape toggle the callout › click opens the note and a second click or Escape closes it at 1440px 
+
+## P3 tabindex=-1 on the buttons
+file: components/PartNote.tsx
+  2) [chromium] › test/plus-marks.spec.ts:78:5 › P3 keyboard reaches each button and Enter toggles › Tab reaches every plus button and Enter toggles it at 1440px 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 0
+
+      101 |         await expect(button).toHaveAttribute("aria-expanded", "false");
+      102 |       }
+    > 103 |       expect(found.length).toBe(count);
+          |                            ^
+      104 |     });
+      105 |   }
+      106 | });
+        at /workspace/pr31apply/test/plus-marks.spec.ts:103:28
+
+    Error Context: test-results/plus-marks-P3-keyboard-rea-d3768--Enter-toggles-it-at-1440px-chromium/error-context.md
+
+
+  2 failed
+    [chromium] › test/plus-marks.spec.ts:78:5 › P3 keyboard reaches each button and Enter toggles › Tab reaches every plus button and Enter toggles it at 390px 
+    [chromium] › test/plus-marks.spec.ts:78:5 › P3 keyboard reaches each button and Enter toggles › Tab reaches every plus button and Enter toggles it at 1440px 
+
+## P4 set the phone hit area to 24px
+file: app/schnitt.css
+[1/1] [chromium] › test/plus-marks.spec.ts:109:3 › P4 phone hit area › each plus button is at least 44 by 44 CSS pixels at 390x844
+  1) [chromium] › test/plus-marks.spec.ts:109:3 › P4 phone hit area › each plus button is at least 44 by 44 CSS pixels at 390x844 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    24
+
+      117 |     expect(sizes.length).toBeGreaterThan(0);
+      118 |     for (const size of sizes) {
+    > 119 |       expect(size.w).toBeGreaterThanOrEqual(44);
+          |                      ^
+      120 |       expect(size.h).toBeGreaterThanOrEqual(44);
+      121 |     }
+      122 |   });
+        at /workspace/pr31apply/test/plus-marks.spec.ts:119:22
+
+    Error Context: test-results/plus-marks-P4-phone-hit-ar-afffa-by-44-CSS-pixels-at-390x844-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › test/plus-marks.spec.ts:109:3 › P4 phone hit area › each plus button is at least 44 by 44 CSS pixels at 390x844 
+
+## P5 skip the overflow placement
+file: components/PartNote.tsx
+
+    Error: {"left":-26,"right":52,"top":413.703125,"bottom":461.484375,"width":390,"height":844}
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= -0.5
+    Received:    -26
+
+      145 |           };
+      146 |         }, view);
+    > 147 |         expect(box.left, JSON.stringify(box)).toBeGreaterThanOrEqual(-0.5);
+          |                                               ^
+      148 |         expect(box.top).toBeGreaterThanOrEqual(-0.5);
+      149 |         expect(box.right).toBeLessThanOrEqual(box.width + 0.5);
+      150 |         expect(box.bottom).toBeLessThanOrEqual(box.height + 0.5);
+        at /workspace/pr31apply/test/plus-marks.spec.ts:147:47
+
+    Error Context: test-results/plus-marks-P5-callouts-sta-5edba-rflow-the-viewport-at-390px-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › test/plus-marks.spec.ts:127:5 › P5 callouts stay in the viewport › an open callout does not overflow the viewport at 390px 
+
