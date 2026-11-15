@@ -306,8 +306,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   (stage as HTMLElement & { schnittView?: typeof exposed }).schnittView = exposed;
 
   await yieldTurn();
-  await renderer.compileAsync(scene, camera);
-  await yieldTurn();
   const warmup = new T.CanvasTexture(document.createElement("canvas"));
   renderer.initTexture(warmup);
   await yieldTurn();
@@ -332,9 +330,12 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       material.map = map;
       material.color.set(0xffffff);
       material.needsUpdate = true;
+      renderer.initTexture(map);
     }
     await yieldTurn();
   }
+  await yieldTurn();
+  await renderer.compileAsync(scene, camera);
 
   let drawn = 0;
   let sized = "";
@@ -504,7 +505,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       const end = (DEPTHS[DEPTHS.length - 1] ?? 0) - 200;
       cameraZ = (DEPTHS[0] ?? 0) + ((end - (DEPTHS[0] ?? 0)) * travel);
     }
-    layoutPlates();
+    if (!polishFrame) {
+      polishFrame = window.setTimeout(() => {
+        polishFrame = 0;
+        placeCallouts(stage);
+        placeThread(stage);
+        layoutPlates();
+      }, 0);
+    }
     drawn += 1;
     stage.dataset.draws = String(renderer.info.render.calls);
     stage.dataset.triangles = String(renderer.info.render.triangles);
