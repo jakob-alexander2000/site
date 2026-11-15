@@ -1,12 +1,12 @@
-local
-mobile 1 100 1058 53
-mobile 2 100 1064 51
-mobile 3 100 1060 52
-mobile 4 100 1058 52
-mobile 5 100 1061 51
-desktop 1 100 283 0
-desktop 2 100 283 0
+local-sliced-compile
+mobile 1 100 1063 52
+mobile 2 100 1058 48
+mobile 3 100 1057 66
+mobile 4 100 1060 52
+mobile 5 100 1058 52
+desktop 1 100 284 0
+desktop 2 100 284 0
 desktop 3 100 283 0
-desktop 4 100 282 0
+desktop 4 100 284 0
 desktop 5 100 283 0
 DONE

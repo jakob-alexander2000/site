@@ -335,8 +335,15 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     }
     await yieldTurn();
   }
+  for (const figure of figures) {
+    await yieldTurn();
+    const solo = new T.Scene();
+    figure.mesh.visible = true;
+    solo.add(figure.mesh);
+    renderer.compile(solo, camera);
+    figure.mesh.visible = false;
+  }
   await yieldTurn();
-  await renderer.compileAsync(scene, camera);
 
   let drawn = 0;
   let sized = "";
