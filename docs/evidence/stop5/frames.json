@@ -1,82 +1,131 @@
 {
-  "commit": "0572d60b770e4eba402f7bf9e007c6ee4bc970bb",
-  "url": "https://jakobalex-32xidphb3-jakobalexander2000s-projects.vercel.app",
+  "commit": "66ce82a44460267495ac9e435c0b786a982d387f",
+  "url": "https://jakobalex-c694ta2p3-jakobalexander2000s-projects.vercel.app",
   "cold": true,
   "cache": "disabled",
   "context": "fresh",
   "rate": 4,
   "width": 1440,
   "loads": 12,
-  "worst": 0,
-  "normalReadyMs": 4455,
+  "worst": 105,
+  "normalReadyMs": 4964,
   "sample": {
     "fcp": 232,
     "note": "The two long frames on this cold load start at 71ms and 216ms, both before first contentful paint. After paint the recorder saw no long frame.",
     "loaf": [
-      {"startTime": 71, "duration": 130, "scripts": [{"dur": 6, "url": "", "invoker": "document"}]},
-      {"startTime": 216, "duration": 126, "scripts": [{"dur": 121, "url": "3ix6dsmnstg1z.js"}]}
+      {
+        "startTime": 71,
+        "duration": 130,
+        "scripts": [
+          {
+            "dur": 6,
+            "url": "",
+            "invoker": "document"
+          }
+        ]
+      },
+      {
+        "startTime": 216,
+        "duration": 126,
+        "scripts": [
+          {
+            "dur": 121,
+            "url": "3ix6dsmnstg1z.js"
+          }
+        ]
+      }
     ]
   },
   "peaks": [
     {
       "max": 0,
       "over": [],
-      "readyMs": 5089
+      "readyMs": 5398,
+      "loaf": 1,
+      "fcp": 480
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4713
+      "readyMs": 5230,
+      "loaf": 2,
+      "fcp": 172
+    },
+    {
+      "max": 105,
+      "over": [
+        {
+          "startTime": 217,
+          "duration": 105,
+          "file": "0gpitd7wc7rtl.js"
+        }
+      ],
+      "readyMs": 5276,
+      "loaf": 2,
+      "fcp": 204
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4720
+      "readyMs": 5269,
+      "loaf": 2,
+      "fcp": 228
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4704
+      "readyMs": 5299,
+      "loaf": 1,
+      "fcp": 332
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4823
+      "readyMs": 5225,
+      "loaf": 2,
+      "fcp": 180
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4798
+      "readyMs": 5225,
+      "loaf": 2,
+      "fcp": 188
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4764
+      "readyMs": 5721,
+      "loaf": 2,
+      "fcp": 184
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4714
+      "readyMs": 5228,
+      "loaf": 2,
+      "fcp": 184
+    },
+    {
+      "max": 24,
+      "over": [],
+      "readyMs": 5223,
+      "loaf": 3,
+      "fcp": 184
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4754
+      "readyMs": 5375,
+      "loaf": 3,
+      "fcp": 324
     },
     {
       "max": 0,
       "over": [],
-      "readyMs": 4742
-    },
-    {
-      "max": 0,
-      "over": [],
-      "readyMs": 4735
-    },
-    {
-      "max": 0,
-      "over": [],
-      "readyMs": 4742
+      "readyMs": 5317,
+      "loaf": 1,
+      "fcp": 400
     }
   ]
 }
