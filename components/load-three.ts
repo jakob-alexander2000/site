@@ -2,7 +2,7 @@ import type { CanvasTexture } from "three/src/textures/CanvasTexture.js";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
 import type { ShaderMaterial } from "three/src/materials/ShaderMaterial.js";
-import type { Color } from "three/src/math/Color.js";
+import type { Vector3 } from "three/src/math/Vector3.js";
 import type { PerspectiveCamera } from "three/src/cameras/PerspectiveCamera.js";
 import type { PlaneGeometry } from "three/src/geometries/PlaneGeometry.js";
 import type { Scene } from "three/src/scenes/Scene.js";
@@ -15,7 +15,7 @@ export type ThreeBits = {
   Group: typeof Group;
   Mesh: typeof Mesh;
   ShaderMaterial: typeof ShaderMaterial;
-  Color: typeof Color;
+  Vector3: typeof Vector3;
   PerspectiveCamera: typeof PerspectiveCamera;
   PlaneGeometry: typeof PlaneGeometry;
   Scene: typeof Scene;
@@ -47,7 +47,7 @@ export async function loadThree(): Promise<ThreeBits> {
     Group: objects.Group,
     Mesh: objects.Mesh,
     ShaderMaterial: objects.ShaderMaterial,
-    Color: objects.Color,
+    Vector3: objects.Vector3,
     PerspectiveCamera: objects.PerspectiveCamera,
     PlaneGeometry: objects.PlaneGeometry,
     Scene: objects.Scene,

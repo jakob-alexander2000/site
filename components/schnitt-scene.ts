@@ -147,9 +147,13 @@ void main() {
 }
 `;
 
+function byteColor(T: Awaited<ReturnType<typeof loadThree>>, color: number) {
+  return new T.Vector3(((color >> 16) & 255) / 255, ((color >> 8) & 255) / 255, (color & 255) / 255);
+}
+
 function cardMaterial(T: Awaited<ReturnType<typeof loadThree>>, color: number) {
   return new T.ShaderMaterial({
-    uniforms: { diffuse: { value: new T.Color(color) } },
+    uniforms: { diffuse: { value: byteColor(T, color) } },
     vertexShader: PLATE_VERT,
     fragmentShader: CARD_FRAG,
     toneMapped: false,
@@ -382,7 +386,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const paint = await raster(node, faces);
     await yieldTurn();
     const map = new T.CanvasTexture(paint);
-    map.colorSpace = "srgb";
+    map.colorSpace = "";
     map.generateMipmaps = false;
     map.minFilter = T.LinearFilter as typeof map.minFilter;
     map.magFilter = T.LinearFilter as typeof map.magFilter;
