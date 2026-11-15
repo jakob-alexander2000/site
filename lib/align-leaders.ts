@@ -32,3 +32,14 @@ export function alignCiteLeaders() {
   }
   frame.dataset.leaders = "ready";
 }
+
+/** Keep the Answer label on the first answer line, including when the row wraps. */
+export function alignAutopsyLabels() {
+  const rail = document.querySelector("#autopsy .label-rail");
+  const line = document.querySelector("#autopsy .word-align .answer-line");
+  const answer = rail?.querySelectorAll<HTMLElement>(".leader-name")[1];
+  if (!(rail instanceof HTMLElement) || !(line instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
+  answer.style.marginTop = "0";
+  const delta = line.getBoundingClientRect().top - answer.getBoundingClientRect().top;
+  answer.style.marginTop = `${Math.round(delta)}px`;
+}

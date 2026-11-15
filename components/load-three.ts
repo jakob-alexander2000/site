@@ -1,4 +1,5 @@
 import type { CanvasTexture } from "three/src/textures/CanvasTexture.js";
+import type { Texture } from "three/src/textures/Texture.js";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
 import type { ShaderMaterial } from "three/src/materials/ShaderMaterial.js";
@@ -12,6 +13,7 @@ export type ThreeBits = {
   LinearFilter: number;
   LinearMipmapLinearFilter: number;
   CanvasTexture: typeof CanvasTexture;
+  Texture: typeof Texture;
   Group: typeof Group;
   Mesh: typeof Mesh;
   ShaderMaterial: typeof ShaderMaterial;
@@ -44,6 +46,7 @@ export async function loadThree(): Promise<ThreeBits> {
     LinearFilter: objects.LinearFilter,
     LinearMipmapLinearFilter: objects.LinearMipmapLinearFilter,
     CanvasTexture: objects.CanvasTexture,
+    Texture: objects.Texture,
     Group: objects.Group,
     Mesh: objects.Mesh,
     ShaderMaterial: objects.ShaderMaterial,

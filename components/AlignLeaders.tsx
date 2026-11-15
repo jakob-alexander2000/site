@@ -1,11 +1,14 @@
 "use client";
 
-import { alignCiteLeaders } from "@/lib/align-leaders";
+import { alignAutopsyLabels, alignCiteLeaders } from "@/lib/align-leaders";
 import { useEffect } from "react";
 
 export function AlignLeaders() {
   useEffect(() => {
-    const align = () => alignCiteLeaders();
+    const align = () => {
+      alignCiteLeaders();
+      alignAutopsyLabels();
+    };
     align();
     document.fonts.ready.then(align);
     window.addEventListener("resize", align);

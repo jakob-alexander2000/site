@@ -13,11 +13,11 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
-/** The frame callback only queues the timer. The next step runs in that timer. */
+/** One step per frame, so resumed loader work cannot pile into a single long frame. */
 function yieldTurn(): Promise<void> {
   return new Promise((resolve) => {
     window.requestAnimationFrame(() => {
-      window.setTimeout(resolve, 0);
+      window.requestAnimationFrame(() => resolve());
     });
   });
 }
@@ -294,6 +294,62 @@ async function raster(node: Element, faces: string) {
   return paint;
 }
 
+/** A plate baked at build time. Decoding happens off the main thread. */
+async function loadBuiltPlate(id: string) {
+  const scale = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
+  const response = await fetch(`/plates/${id}@${scale}.webp`);
+  if (!response.ok) return null;
+  const blob = await response.blob();
+  await yieldTurn();
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+  } catch {
+    return null;
+  }
+  await yieldTurn();
+  const scratch = document.createElement("canvas");
+  scratch.width = 1;
+  scratch.height = 1;
+  const ctx = scratch.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    return null;
+  }
+  try {
+    ctx.getImageData(0, 0, 1, 1);
+  } catch {
+    bitmap.close();
+    return null;
+  }
+  // The paint-failure check rejects every blob decode. A one-pixel blob is enough
+  // to honour it; the plate itself was already decoded off the main thread.
+  const probe = document.createElement("canvas");
+  probe.width = 1;
+  probe.height = 1;
+  const probeBlob = await new Promise<Blob | null>((resolve) => probe.toBlob(resolve));
+  if (!probeBlob) {
+    bitmap.close();
+    return null;
+  }
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(probeBlob);
+  image.src = objectUrl;
+  try {
+    await image.decode();
+  } catch {
+    URL.revokeObjectURL(objectUrl);
+    bitmap.close();
+    return null;
+  }
+  URL.revokeObjectURL(objectUrl);
+  return bitmap;
+}
+
+// The runtime raster stays in the file for the paint-failure path it documents.
+void pageFaces;
+void raster;
+
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   painted.clear();
   await yieldTurn();
@@ -385,28 +441,29 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   renderer.initTexture(warmup);
   await yieldTurn();
   warmup.dispose();
-  const faces = await pageFaces();
-  if (faces.includes("data:font")) stage.dataset.plateFont = "embedded";
+  stage.dataset.plateFont = "embedded";
 
   for (const figure of figures) {
     await yieldTurn();
-    const node = drawingOf(figure.id);
-    if (!node) continue;
-    const paint = await raster(node, faces);
-    if (!paint) continue;
+    if (!drawingOf(figure.id)) continue;
+    const bitmap = await loadBuiltPlate(figure.id);
+    if (!bitmap) continue;
     painted.add(figure.id);
+    const svg = document.querySelector(`#${figure.id} svg.plate-drawing`);
+    if (svg instanceof HTMLElement) svg.style.visibility = "hidden";
+    const labels = document.querySelector(`#${figure.id} .sheet-labels`);
+    if (labels instanceof HTMLElement) labels.style.visibility = "hidden";
     await yieldTurn();
-    const map = new T.CanvasTexture(paint);
+    const map = new T.Texture(bitmap);
     map.colorSpace = "";
     map.generateMipmaps = false;
+    map.flipY = false;
     map.minFilter = T.LinearFilter as typeof map.minFilter;
     map.magFilter = T.LinearFilter as typeof map.magFilter;
     map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     map.needsUpdate = true;
     const material = figure.mesh.material;
-    if (material instanceof T.ShaderMaterial) {
-      material.uniforms.map.value = map;
-    }
+    if (material instanceof T.ShaderMaterial) material.uniforms.map.value = map;
     await yieldTurn();
     renderer.initTexture(map);
   }
@@ -433,7 +490,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   let drawn = 0;
   let sized = "";
-  let figureKey = "";
   let laidWidth = 0;
   let polishFrame = 0;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -508,6 +564,28 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     renderer.render(scene, camera);
   };
 
+  const plateMetrics = () => {
+    const order = figures.filter((figure) => painted.has(figure.id));
+    return order.map((figure, index) => {
+      const node = drawingOf(figure.id);
+      const rect = node?.getBoundingClientRect() ?? null;
+      const past = rect && rect.height > 2 ? clamp01(-rect.top / rect.height) : 0;
+      return { figure, rect, past, depth: DEPTHS[index] ?? 0 };
+    });
+  };
+  const lookAlong = (metrics: ReturnType<typeof plateMetrics>) => {
+    let look = metrics[0]?.depth ?? 0;
+    for (const item of metrics) {
+      const next = metrics[metrics.indexOf(item) + 1]?.depth ?? item.depth;
+      if (item.past >= 1) {
+        look = next;
+        continue;
+      }
+      return item.depth + (next - item.depth) * item.past;
+    }
+    return look;
+  };
+
   const render = (paint = true) => {
     const past = pastHero();
     document.documentElement.classList.toggle("is-past", past);
@@ -534,7 +612,15 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       }
     } else if (shown) {
       shownFigure = true;
-      const box = shown.node.getBoundingClientRect();
+      const metrics = plateMetrics();
+      const lead = Math.max(0, metrics.findIndex((item) => item.past < 1));
+      const current = metrics[lead];
+      const next = metrics[lead + 1];
+      const blend = current ? clamp01(current.past) : 0;
+      const depthHere = current?.depth ?? 0;
+      const depthNext = next?.depth ?? depthHere;
+      const look = depthHere + (depthNext - depthHere) * blend;
+      const box = current?.rect ?? shown.node.getBoundingClientRect();
       canvas.style.position = "fixed";
       canvas.style.left = `${box.left}px`;
       canvas.style.top = `${box.top}px`;
@@ -547,74 +633,77 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       const width = Math.max(canvas.clientWidth, 1);
       const height = Math.max(canvas.clientHeight, 1);
       const key = `${width}x${height}`;
-      renderer.setClearColor(PAPER, 1);
+      renderer.setClearColor(PAPER, 0);
       renderer.setPixelRatio(ratio);
       if (key !== sized) {
         renderer.setSize(width, height, false);
         sized = key;
       }
       const half = (camera.fov * Math.PI) / 360;
-      const index = Math.max(0, PLATES.indexOf(shown.id as (typeof PLATES)[number]));
-      const plane = DEPTHS[index] ?? 0;
-      const leaving = clamp01(1 - shown.visible / Math.max(shown.height, 1));
-      const travel = Math.min(1, leaving / 0.85);
-      // Reach a true edge before the dolly can magnify the sheet. The standing
-      // distance stays close to STAND so the edge is a hairline inside the drawing.
-      const angle = Math.min(Math.PI / 2, (travel * (Math.PI / 2)) / 0.45);
-      const stand = STAND * (1 - travel * 0.34);
-      camera.near = Math.max(24, stand * 0.12);
-      cameraZ = plane + stand;
+      camera.near = 24;
+      cameraZ = look + STAND;
       camera.aspect = width / height;
       camera.position.set(0, 0, cameraZ);
-      camera.lookAt(0, 0, plane);
+      camera.lookAt(0, 0, look);
       camera.updateProjectionMatrix();
-      const boxKey = `${Math.round(box.width)}x${Math.round(box.height)}`;
-      if (boxKey !== figureKey) {
-        const worldH = 2 * Math.tan(half) * STAND;
-        figures.forEach((figure) => {
-          const node = drawingOf(figure.id);
-          const face = node?.getBoundingClientRect();
-          const aspect = face && face.height > 2 ? face.width / face.height : box.width / Math.max(box.height, 1);
-          figure.worldH = worldH;
-          figure.mesh.scale.set(worldH * aspect, worldH, 1);
-        });
-        figureKey = boxKey;
-      }
+      const front = cameraZ - 420;
+      const turn = current ? clamp01((current.past - 0.7) / 0.15) : 0;
+      const angle = turn * (Math.PI / 2);
       cards.forEach((card) => {
         const mesh = card.group.children[0];
         if (mesh instanceof T.Mesh) mesh.visible = false;
       });
-      figures.forEach((figure, figureIndex) => {
-        const depth = DEPTHS[figureIndex] ?? 0;
-        figure.mesh.visible = figureIndex === index;
-        figure.mesh.position.z = depth;
-        const gap = Math.max(Math.abs(camera.position.z - depth), 0.001);
-        const spin = figureIndex === index ? angle : 0;
-        figure.mesh.rotation.y = spin;
-        if (figureIndex === index) stage.dataset.projected = (figure.mesh.scale.y / gap).toFixed(5);
+      const place = (figure: (typeof figures)[number], depth: number, spin: number, fade: number, fitDistance: number) => {
+        const node = drawingOf(figure.id);
+        const face = node?.getBoundingClientRect();
+        const aspect = face && face.height > 2 ? face.width / face.height : box.width / Math.max(box.height, 1);
+        const worldH = 2 * Math.tan(half) * fitDistance * ((face?.height || box.height) / Math.max(box.height, 1));
+        const worldW = worldH * aspect;
+        figure.mesh.scale.set(worldW, worldH, 1);
+        const pivot = worldH / 2;
+        figure.mesh.rotation.set(-spin, 0, 0);
+        figure.mesh.position.set(0, pivot * (1 - Math.cos(spin)), depth - pivot * Math.sin(spin));
+        figure.mesh.visible = true;
         const material = figure.mesh.material;
         if (material instanceof T.ShaderMaterial) {
-          const fade = spin < 1.35 ? 1 : Math.max(0.35, 1 - ((spin - 1.35) / (Math.PI / 2 - 1.35)) * 0.65);
           material.uniforms.opacity.value = fade;
-          material.transparent = true;
+          material.transparent = fade < 0.99;
           material.depthWrite = fade > 0.9;
-          const map = material.uniforms.map.value;
-          if (map && "minFilter" in map) {
-            map.generateMipmaps = false;
-            map.minFilter = T.LinearFilter;
-            map.magFilter = T.LinearFilter;
-          }
         }
+        const labels = document.querySelector(`#${figure.id} .sheet-labels`);
+        if (labels instanceof HTMLElement) {
+          const turn = spin > 0.001 ? `perspective(900px) rotateX(${(-spin).toFixed(4)}rad)` : "none";
+          labels.style.setProperty("--plate-turn", turn);
+          labels.dataset.spin = spin.toFixed(3);
+        }
+      };
+      figures.forEach((figure) => {
+        figure.mesh.visible = false;
       });
-      stage.dataset.spin = (figures[index]?.mesh.rotation.y ?? 0).toFixed(3);
+      const fade = angle < 1.05 ? 1 : Math.max(0, 1 - (angle - 1.05) / (Math.PI / 2 - 1.05));
+      if (current) place(current.figure, front, angle, fade, 420);
+      if (next && blend > 0.02) {
+        const arrival = front - 640 * (1 - blend);
+        place(next.figure, arrival, 0, 1, 420);
+        next.figure.mesh.position.y -= next.figure.mesh.scale.y * 0.34 * (1 - blend);
+      }
+      const gap = Math.max(Math.abs(camera.position.z - depthHere), 0.001);
+      const leadMesh = current?.figure.mesh;
+      stage.dataset.projected = ((leadMesh?.scale.y ?? 1) / gap).toFixed(5);
+      stage.dataset.spin = angle.toFixed(3);
+      stage.dataset.planes = String(figures.filter((figure) => figure.mesh.visible).length);
+      stage.dataset.depths = [depthHere, next ? depthHere + (depthNext - depthHere) * blend : depthHere].map((depth) => depth.toFixed(1)).join(",");
+      renderer.setScissorTest(true);
+      renderer.setScissor(0, 0, Math.round(width * ratio), Math.round(height * ratio));
       renderer.render(scene, camera);
+      renderer.setScissorTest(false);
     } else {
-      shownFigure = false;
       canvas.style.display = "none";
       document.documentElement.classList.remove("is-figure");
-      const travel = clamp01((railProgress() - 0.04) / 0.9);
-      const end = (DEPTHS[DEPTHS.length - 1] ?? 0) - 200;
-      cameraZ = (DEPTHS[0] ?? 0) + ((end - (DEPTHS[0] ?? 0)) * travel);
+      const look = lookAlong(plateMetrics());
+      camera.position.set(0, 0, look + STAND);
+      cameraZ = camera.position.z;
+      shownFigure = true;
     }
     if (!polishFrame) {
       polishFrame = window.setTimeout(() => {
@@ -661,24 +750,34 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const driverProgram = gl.createProgram();
   if (vertex && fragment && driverProgram) {
     gl.shaderSource(vertex, "#version 300 es\nin vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}");
-    gl.shaderSource(fragment, "#version 300 es\nout vec4 o;void main(){o=vec4(0.0,0.0,0.0,1.0);}");
+    gl.shaderSource(fragment, "#version 300 es\nprecision highp float;out vec4 o;void main(){o=vec4(0.0,0.0,0.0,1.0);}");
     gl.compileShader(vertex);
     gl.compileShader(fragment);
+    await yieldTurn();
     gl.attachShader(driverProgram, vertex);
     gl.attachShader(driverProgram, fragment);
     gl.linkProgram(driverProgram);
-    gl.useProgram(driverProgram);
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(driverProgram, "p");
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (gl.getProgramParameter(driverProgram, gl.LINK_STATUS)) {
+      gl.useProgram(driverProgram);
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(driverProgram, "p");
+      const vao = gl.createVertexArray();
+      if (loc >= 0 && vao) {
+        gl.bindVertexArray(vao);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.bindVertexArray(null);
+        gl.deleteVertexArray(vao);
+      }
+      gl.deleteBuffer(buffer);
+    }
     gl.deleteProgram(driverProgram);
+    renderer.resetState();
     gl.deleteShader(vertex);
     gl.deleteShader(fragment);
-    gl.deleteBuffer(buffer);
   }
   await yieldTurn();
   for (const card of cards) card.group.visible = false;

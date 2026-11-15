@@ -961,3 +961,72 @@ for (const broken of ["decode", "taint"] as const) {
     }
   });
 }
+
+test("two plates stay visible through the middle of a turn", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate camera is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  await page.evaluate(() => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const box = node.getBoundingClientRect();
+    window.scrollTo(0, box.top + window.scrollY + box.height * 0.4);
+  });
+  await page.waitForTimeout(300);
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-planes", "2");
+});
+
+test("plate depth changes continuously while the page scrolls", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate camera is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  const samples = await page.evaluate(async () => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    const stage = document.querySelector(".schnitt-stage");
+    if (!node || !(stage instanceof HTMLElement)) return [];
+    const top = node.getBoundingClientRect().top + window.scrollY;
+    const height = node.getBoundingClientRect().height;
+    const read = () => (stage as HTMLElement & { schnittView?: { cameraZ: number } }).schnittView?.cameraZ ?? 0;
+    const out: { y: number; z: number }[] = [];
+    for (let step = 0; step <= height; step += 8) {
+      window.scrollTo(0, top + step);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      out.push({ y: step, z: read() });
+    }
+    return out;
+  });
+  expect(samples.length).toBeGreaterThan(10);
+  const span = Math.abs((samples.at(-1)?.z ?? 0) - (samples[0]?.z ?? 0));
+  expect(span).toBeGreaterThan(200);
+  for (let index = 1; index < samples.length; index += 1) {
+    const previous = samples[index - 1];
+    const current = samples[index];
+    if (!previous || !current) continue;
+    const perPixel = Math.abs(current.z - previous.z) / Math.max(current.y - previous.y, 1);
+    expect(perPixel).toBeLessThan(8);
+  }
+});
+
+test("a plate's labels turn with the plate", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "The plate transform is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+  await page.evaluate(() => {
+    const node = document.querySelector("#citebot svg.plate-drawing");
+    if (!node) return;
+    const box = node.getBoundingClientRect();
+    window.scrollTo(0, box.top + window.scrollY + box.height * 0.82);
+  });
+  await expect.poll(async () => page.locator(".schnitt-stage").getAttribute("data-spin")).toMatch(/^[1-9]/);
+  const spin = await page.locator(".schnitt-stage").getAttribute("data-spin");
+  const label = await page.locator("#citebot .sheet-labels").evaluate((node) => ({
+    turn: getComputedStyle(node).getPropertyValue("--plate-turn").trim(),
+    spin: (node as HTMLElement).dataset.spin ?? "",
+  }));
+  expect(Number(spin)).toBeGreaterThan(1);
+  expect(label.spin).toBe(spin);
+  expect(label.turn).toContain("rotateX");
+});

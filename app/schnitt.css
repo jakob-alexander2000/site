@@ -1053,7 +1053,7 @@ article.verdict-sheet,
 .label-rail {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .label-rail .leader-name {
@@ -1353,6 +1353,8 @@ html.is-cut svg.plate-drawing {
 
 .sheet-labels {
   z-index: 3;
+  transform-origin: center top;
+  transform: var(--plate-turn, none);
 }
 
 .skill-strip {
