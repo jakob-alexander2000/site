@@ -1118,7 +1118,7 @@ article.verdict-sheet,
   line-height: 1.35;
 }
 
-.answer-line {
+.word-align .answer-line {
   display: inline-flex;
   flex-flow: row nowrap;
   align-items: baseline;
