@@ -751,7 +751,7 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
         const known = kindOf.get(url);
         if (known) return known;
         const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
-        const framework = /rendererPackageName|reconcilerVersion|app-page/.test(text);
+        const framework = /rendererPackageName|reconcilerVersion|app-page|TURBOPACK/.test(text);
         const value = framework ? "framework" : "ours";
         kindOf.set(url, value);
         return value;
