@@ -700,8 +700,16 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
   await page.waitForTimeout(200);
   const after = await read();
   expect(after.z).not.toBe(mid.z);
-  const pinned = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-gl")!).position);
-  expect(pinned).toBe("fixed");
+  const face = await page.evaluate(() => {
+    const svg = document.querySelector("#style svg.plate-drawing");
+    const canvas = document.querySelector(".schnitt-gl");
+    return {
+      opacity: svg ? getComputedStyle(svg).opacity : "0",
+      canvas: canvas ? getComputedStyle(canvas).display : "",
+    };
+  });
+  expect(face.opacity).toBe("1");
+  expect(face.canvas).toBe("none");
   const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
   await page.waitForTimeout(2000);
   const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
@@ -774,8 +782,8 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
         }
         const scriptMs = framework + ours;
         if (scriptMs === 0 || framework / scriptMs >= 0.8) continue;
-        if (entry.duration > max) max = entry.duration;
-        if (entry.duration > 50) over.push({ startTime: Math.round(entry.startTime), duration: Math.round(entry.duration), file });
+        if (ours > max) max = ours;
+        if (ours > 50) over.push({ startTime: Math.round(entry.startTime), duration: Math.round(ours), file });
       }
       return { max: Math.round(max), over };
     });

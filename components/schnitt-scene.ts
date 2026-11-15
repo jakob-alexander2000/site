@@ -113,41 +113,6 @@ function onScreen() {
   return best;
 }
 
-async function textureFrom(node: Element) {
-  const rect = node.getBoundingClientRect();
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  const width = Math.max(2, Math.round(Math.max(rect.width, 320) * ratio));
-  const height = Math.max(2, Math.round(Math.max(rect.height, 180) * ratio));
-  const paint = document.createElement("canvas");
-  paint.width = width;
-  paint.height = height;
-  const ctx = paint.getContext("2d");
-  if (!ctx) throw new Error("texture surface is missing");
-  ctx.fillStyle = "#FBFAF7";
-  ctx.fillRect(0, 0, width, height);
-  const clone = node.cloneNode(true) as Element;
-  if (clone instanceof SVGSVGElement) {
-    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    clone.setAttribute("width", String(width));
-    clone.setAttribute("height", String(height));
-  }
-  const xml = new XMLSerializer().serializeToString(clone);
-  const markup = clone instanceof SVGSVGElement
-    ? xml
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${xml}</div></foreignObject></svg>`;
-  const image = new Image();
-  const url = URL.createObjectURL(new Blob([markup], { type: "image/svg+xml" }));
-  image.src = url;
-  try {
-    await image.decode();
-    ctx.drawImage(image, 0, 0, width, height);
-  } catch {
-    // The ruled border stays if the browser will not paint the markup.
-  }
-  URL.revokeObjectURL(url);
-  return paint;
-}
-
 const DEPTHS = [0, -800, -1600, -2400];
 const PAPER: [number, number, number, number] = [251 / 255, 250 / 255, 247 / 255, 1];
 const INK: [number, number, number, number] = [17 / 255, 17 / 255, 17 / 255, 1];
@@ -240,14 +205,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   await yieldTurn();
   gl.deleteTexture(warmupTexture);
 
-  const textures = new Map<string, WebGLTexture>();
-  for (const id of PLATES) {
-    await yieldTurn();
-    const node = drawingOf(id);
-    if (!node) continue;
-    textures.set(id, upload(gl, await textureFrom(node)));
-  }
-
   let cameraZ = 6;
   const view = {
     get cameraZ() {
@@ -286,9 +243,9 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     if (hero instanceof HTMLElement) stage.style.setProperty("--hero-fade", clamp01(hero.getBoundingClientRect().bottom / window.innerHeight).toFixed(3));
     const shown = past ? onScreen() : null;
     const drawing = shown?.node ?? null;
-    const hostId = shown?.id ?? "";
     const cutting = Boolean(shown && shown.visible < shown.height * 0.34);
-    if (drawing) {
+    document.documentElement.classList.toggle("is-cut", cutting);
+    if (cutting && drawing) {
       const box = drawing.getBoundingClientRect();
       canvas.style.position = "fixed";
       canvas.style.left = `${box.left}px`;
@@ -329,10 +286,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         const rect = sheet.getBoundingClientRect();
         pen.draw(rect.left - live.left, rect.top - live.top, rect.width, rect.height, live.width, live.height, sheet.classList.contains("verdict") ? INK : PAPER, null);
       }
-    } else if (drawing && live.width > 2) {
-      const texture = textures.get(hostId) ?? null;
-      if (cutting) pen.draw(live.width / 2 - 1, 0, 2, live.height, live.width, live.height, INK, null);
-      else if (texture) pen.draw(0, 0, live.width, live.height, live.width, live.height, PAPER, texture);
+    } else if (cutting && drawing && live.width > 2) {
+      pen.draw(live.width / 2 - 1, 0, 2, live.height, live.width, live.height, INK, null);
     }
     const travel = clamp01((railProgress() - 0.05) / 0.9);
     cameraZ = past ? 4 + (-2600 - 4) * travel : 6;
@@ -358,7 +313,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   render();
   await yieldTurn();
   render();
-  document.documentElement.dataset.plates = "drawn";
   const onScroll = () => {
     if (frame) return;
     frame = window.requestAnimationFrame(draw);
@@ -370,9 +324,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onScroll);
     document.documentElement.classList.remove("is-past");
-    delete document.documentElement.dataset.plates;
+    document.documentElement.classList.remove("is-cut");
     if (frame) window.cancelAnimationFrame(frame);
-    for (const texture of textures.values()) gl.deleteTexture(texture);
     gl.deleteProgram(pen.program);
     gl.deleteBuffer(pen.buffer);
     stage.dataset.gl = "off";

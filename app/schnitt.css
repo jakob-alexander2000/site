@@ -1314,7 +1314,7 @@ html[data-schnitt="gl"] .plate {
   background: transparent;
 }
 
-html[data-plates="drawn"] .plate svg.plate-drawing {
+html.is-cut svg.plate-drawing {
   opacity: 0;
 }
 
