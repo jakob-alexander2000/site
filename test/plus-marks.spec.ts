@@ -192,3 +192,28 @@ test.describe("P5 callouts stay in the viewport and off the card heading", () =>
     }
   });
 });
+
+for (const width of [900, 1024]) {
+  test(`with 3D on at ${width}px the plus opens a visible note and has a 44px target`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 768 });
+    await page.goto("/");
+    await page.waitForFunction(() => document.querySelector(".schnitt-stage")?.getAttribute("data-gl") === "ready");
+    const button = page.locator(".schnitt .callout button.plus-mark").first();
+    await expect(button).toBeVisible();
+    await expect(page.locator(".schnitt .callout .leader-note").first()).toBeHidden();
+    const target = await button.evaluate((el) => {
+      const glyph = el.getBoundingClientRect();
+      const after = getComputedStyle(el, "::before");
+      const inset = after.content === "none" ? 0 : -parseFloat(after.top);
+      return Math.min(glyph.width, glyph.height) + 2 * inset;
+    });
+    expect(target).toBeGreaterThanOrEqual(44);
+    await button.click();
+    const note = page.locator(`#${await button.getAttribute("aria-controls")}`);
+    await expect(note).toBeVisible();
+    const box = await note.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThan(20);
+    await page.keyboard.press("Escape");
+    await expect(note).toBeHidden();
+  });
+}

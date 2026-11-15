@@ -1837,4 +1837,16 @@ html.is-cut svg.plate-drawing {
   .schnitt-stage[data-gl="ready"] .part-note .register-mark {
     display: none;
   }
+
+  /* The note beside the label is hidden here, so the + must open it. */
+  .schnitt-stage[data-gl="ready"] .part-note .plus-callout:not([hidden]) {
+    display: block;
+  }
+
+  /* 44 by 44 touch target around the 20 px glyph. */
+  .schnitt-stage[data-gl="ready"] .part-note .plus-mark::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+  }
 }
