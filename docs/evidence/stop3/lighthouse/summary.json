@@ -1,19 +1,58 @@
 {
-  "commit": "19f9f2e3b7c35affab107ef4e9b2471dd46462ac",
-  "url": "https://jakobalex-otioryx6h-jakobalexander2000s-projects.vercel.app",
-  "method": "Lighthouse 13. Mobile: default simulated slow 4G, RTT 150 ms, CPU 4x. Desktop: --preset=desktop. No proxy.",
+  "commit": "f8fd4e3b71df1b73ae47831e7c8e21097bc13ff0",
+  "url": "https://jakobalex-ilo5bucx3-jakobalexander2000s-projects.vercel.app",
   "mobile": [
-    { "performance": 99, "lcpMs": 1026, "tbtMs": 126 },
-    { "performance": 99, "lcpMs": 990, "tbtMs": 111 },
-    { "performance": 99, "lcpMs": 914, "tbtMs": 113 },
-    { "performance": 99, "lcpMs": 926, "tbtMs": 141 },
-    { "performance": 99, "lcpMs": 917, "tbtMs": 118 }
+    {
+      "score": 99,
+      "tbt": 114,
+      "throttling": "simulate"
+    },
+    {
+      "score": 99,
+      "tbt": 97,
+      "throttling": "simulate"
+    },
+    {
+      "score": 99,
+      "tbt": 108,
+      "throttling": "simulate"
+    },
+    {
+      "score": 99,
+      "tbt": 108,
+      "throttling": "simulate"
+    },
+    {
+      "score": 99,
+      "tbt": 97,
+      "throttling": "simulate"
+    }
   ],
   "desktop": [
-    { "performance": 100, "lcpMs": 351, "tbtMs": 0 },
-    { "performance": 100, "lcpMs": 268, "tbtMs": 0 },
-    { "performance": 100, "lcpMs": 265, "tbtMs": 0 },
-    { "performance": 100, "lcpMs": 255, "tbtMs": 0 },
-    { "performance": 100, "lcpMs": 265, "tbtMs": 0 }
+    {
+      "score": 100,
+      "tbt": 0,
+      "throttling": "simulate"
+    },
+    {
+      "score": 100,
+      "tbt": 0,
+      "throttling": "simulate"
+    },
+    {
+      "score": 100,
+      "tbt": 0,
+      "throttling": "simulate"
+    },
+    {
+      "score": 100,
+      "tbt": 0,
+      "throttling": "simulate"
+    },
+    {
+      "score": 100,
+      "tbt": 0,
+      "throttling": "simulate"
+    }
   ]
 }
