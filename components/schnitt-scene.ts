@@ -1,4 +1,5 @@
 import { loadThree } from "@/components/load-three";
+import { bandForWidth, type PlateBand } from "@/lib/plate-bake";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
 import { placeThread } from "@/components/schnitt-fallback";
@@ -333,56 +334,67 @@ async function raster(node: Element, faces: string) {
   return paint;
 }
 
+function plateBand(id: string): PlateBand {
+  const frame = document.querySelector(`#${id} .drawing-frame`);
+  const width = frame instanceof HTMLElement ? frame.getBoundingClientRect().width : window.innerWidth;
+  return bandForWidth(width > 2 ? width : window.innerWidth);
+}
+
 /** A plate baked at build time. Decoding happens off the main thread. */
 async function loadBuiltPlate(id: string) {
   const scale = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
-  const response = await fetch(`/plates/${id}@${scale}.webp`);
+  const band = plateBand(id);
+  let response: Response;
+  try {
+    response = await fetch(`/plates/${id}@${band}@${scale}.webp`);
+  } catch {
+    return null;
+  }
   if (!response.ok) return null;
   const blob = await response.blob();
   await yieldTurn();
-  let bitmap: ImageBitmap;
   try {
-    bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+    return await createImageBitmap(blob, { imageOrientation: "flipY" });
   } catch {
     return null;
   }
+}
+
+/** One horizontal band of the plate per frame. Three allocates the store; the pixels arrive in slices. */
+async function uploadPlate(
+  renderer: { initTexture(texture: unknown): void; properties: { get(texture: unknown): unknown }; getContext(): WebGLRenderingContext | WebGL2RenderingContext },
+  texture: { image: ImageBitmap; source: { dataReady: boolean }; needsUpdate: boolean; flipY: boolean; generateMipmaps: boolean; minFilter: number; magFilter: number },
+  bitmap: ImageBitmap,
+  filters: { min: number; mag: number },
+) {
+  texture.image = bitmap;
+  texture.flipY = false;
+  texture.generateMipmaps = false;
+  texture.minFilter = filters.min;
+  texture.magFilter = filters.mag;
+  texture.source.dataReady = false;
+  texture.needsUpdate = true;
   await yieldTurn();
-  const scratch = document.createElement("canvas");
-  scratch.width = 1;
-  scratch.height = 1;
-  const ctx = scratch.getContext("2d");
-  if (!ctx) {
-    bitmap.close();
-    return null;
+  renderer.initTexture(texture);
+  texture.source.dataReady = true;
+  const gl = renderer.getContext();
+  const handle = (renderer.properties.get(texture) as { __webglTexture?: WebGLTexture }).__webglTexture;
+  if (!handle || !(gl instanceof WebGL2RenderingContext)) return;
+  const slices = 4;
+  const stripH = Math.ceil(bitmap.height / slices);
+  for (let index = 0; index < slices; index += 1) {
+    const y = index * stripH;
+    const height = Math.min(stripH, bitmap.height - y);
+    if (height <= 0) break;
+    const strip = await createImageBitmap(bitmap, 0, y, bitmap.width, height);
+    await yieldTurn();
+    gl.bindTexture(gl.TEXTURE_2D, handle);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, y, gl.RGBA, gl.UNSIGNED_BYTE, strip);
+    strip.close();
   }
-  try {
-    ctx.getImageData(0, 0, 1, 1);
-  } catch {
-    bitmap.close();
-    return null;
-  }
-  // The paint-failure check rejects every blob decode. A one-pixel blob is enough
-  // to honour it; the plate itself was already decoded off the main thread.
-  const probe = document.createElement("canvas");
-  probe.width = 1;
-  probe.height = 1;
-  const probeBlob = await new Promise<Blob | null>((resolve) => probe.toBlob(resolve));
-  if (!probeBlob) {
-    bitmap.close();
-    return null;
-  }
-  const image = new Image();
-  const objectUrl = URL.createObjectURL(probeBlob);
-  image.src = objectUrl;
-  try {
-    await image.decode();
-  } catch {
-    URL.revokeObjectURL(objectUrl);
-    bitmap.close();
-    return null;
-  }
-  URL.revokeObjectURL(objectUrl);
-  return bitmap;
+  texture.needsUpdate = false;
 }
 
 // The runtime raster stays in the file for the paint-failure path it documents.
@@ -512,14 +524,12 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     map.flipY = false;
     map.minFilter = T.LinearFilter as typeof map.minFilter;
     map.magFilter = T.LinearFilter as typeof map.magFilter;
-    map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    map.needsUpdate = true;
+    map.anisotropy = 1;
     const material = figure.mesh.material;
     if (material instanceof T.ShaderMaterial) material.uniforms.map.value = map;
     const sheetMaterial = figure.sheets[0]?.material;
     if (sheetMaterial instanceof T.ShaderMaterial) sheetMaterial.uniforms.map.value = map;
-    await yieldTurn();
-    renderer.initTexture(map);
+    await uploadPlate(renderer, map, bitmap, { min: T.LinearFilter, mag: T.LinearFilter });
   }
   const parallel = renderer.extensions.has("KHR_parallel_shader_compile");
   const meshes = [
@@ -548,6 +558,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   let proseTops: number[] | null = null;
   let laidWidth = 0;
   let polishFrame = 0;
+  let docWidth = -1;
+  const docBoxes = new Map<string, { top: number; left: number; width: number; height: number }>();
+  let heroReady = false;
+  let heroStart = 0;
+  let heroRange = 1;
+  let cropBottom = 21;
+  let cropRight = 21;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const laid = cards.map(() => 96);
 
@@ -562,10 +579,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
     cameraZ = dist;
-    const hero = document.querySelector(".schnitt");
-    const start = hero instanceof HTMLElement ? hero.getBoundingClientRect().top + window.scrollY : 0;
-    const range = hero instanceof HTMLElement ? Math.max(1, hero.clientHeight - window.innerHeight) : 1;
-    const progress = clamp01((window.scrollY - start) / range);
+    if (!heroReady || laidWidth !== width) {
+      const hero = document.querySelector(".schnitt");
+      heroStart = hero instanceof HTMLElement ? hero.getBoundingClientRect().top + window.scrollY : 0;
+      heroRange = hero instanceof HTMLElement ? Math.max(1, hero.clientHeight - window.innerHeight) : 1;
+      heroReady = true;
+    }
+    const progress = clamp01((window.scrollY - heroStart) / heroRange);
     const lane = Math.min(156, Math.max(108, width * 0.3));
     const sheetW = Math.max(160, width - lane - 28);
     if (laidWidth !== width) {
@@ -575,15 +595,15 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         card.sheet.style.transform = "none";
         laid[index] = Math.max(72, card.sheet.offsetHeight);
       });
+      const crop = stage.querySelector(".crops span");
+      const stageBox = stage.getBoundingClientRect();
+      cropBottom = crop ? crop.getBoundingClientRect().bottom - stageBox.top : 21;
+      cropRight = crop ? crop.getBoundingClientRect().right - stageBox.left : 21;
       laidWidth = width;
     }
     const extra = progress * 52;
     const natural = laid.reduce((sum, item) => sum + item, 0) + 14 * (cards.length - 1) + 28;
     const fit = Math.min(1, (height - 24) / Math.max(natural, 1));
-    const crop = stage.querySelector(".crops span");
-    const stageBox = stage.getBoundingClientRect();
-    const cropBottom = crop ? crop.getBoundingClientRect().bottom - stageBox.top : 21;
-    const cropRight = crop ? crop.getBoundingClientRect().right - stageBox.left : 21;
     let cursor = cropBottom + 18;
     figures.forEach((figure) => {
       figure.mesh.visible = false;
@@ -620,12 +640,36 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     renderer.render(scene, camera);
   };
 
+  const measureDocs = () => {
+    if (docWidth === window.innerWidth && docBoxes.size > 0) return;
+    docWidth = window.innerWidth;
+    docBoxes.clear();
+    const remember = (key: string, node: Element) => {
+      const rect = node.getBoundingClientRect();
+      docBoxes.set(key, {
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        height: rect.height,
+      });
+    };
+    for (const figure of figures) {
+      const frame = document.querySelector(`#${figure.id} .drawing-frame`);
+      if (frame) remember(figure.id, frame);
+    }
+    for (const section of document.querySelectorAll("section.plate")) remember(`section:${section.id}`, section);
+  };
+  const viewBox = (key: string) => {
+    const box = docBoxes.get(key);
+    if (!box || box.height < 2) return null;
+    return new DOMRect(box.left - window.scrollX, box.top - window.scrollY, box.width, box.height);
+  };
   const plateMetrics = () => {
+    measureDocs();
     const order = figures.filter((figure) => painted.has(figure.id));
     return order.map((figure, index) => {
-      const node = drawingOf(figure.id);
-      const rect = node?.getBoundingClientRect() ?? null;
-      const past = rect && rect.height > 2 ? clamp01(-rect.top / rect.height) : 0;
+      const rect = viewBox(figure.id);
+      const past = rect ? clamp01(-rect.top / rect.height) : 0;
       return { figure, rect, past, depth: DEPTHS[index] ?? 0 };
     });
   };
@@ -694,16 +738,35 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
           progress = 0;
         }
       }
+      const sectionIds = ["citebot", "autopsy", "style", "skills"] as const;
+      let owner: (typeof sectionIds)[number] = sectionIds[0];
+      for (const id of sectionIds) {
+        const section = viewBox(`section:${id}`);
+        if (section && section.top < pinTop + 120) owner = id;
+      }
+      const styleBox = viewBox("style");
+      const styleRun = styleBox ? runwayOf(styleBox) : null;
+      const citebotPin = mode === "pin" && current?.figure.id === "citebot";
+      const styleArriving = !citebotPin && Boolean(styleBox && styleRun && painted.has("style") && styleRun.progress > 0.02 && styleRun.progress < 0.4);
+      const assemblingId = styleArriving ? "style" : citebotPin ? "autopsy" : (sectionIds[sectionIds.indexOf(owner) + 1] ?? "");
+      stage.dataset.cut = styleArriving ? "autopsy" : owner;
+      stage.dataset.assembling = assemblingId;
+      const inStyleSlot = styleArriving;
+      if (inStyleSlot && styleRun) {
+        mode = "pin";
+        progress = clamp01((styleRun.progress - 0.02) / 0.38);
+        current = metrics.find((item) => item.figure.id === "style") ?? current;
+      }
       if ((mode === "pin" || mode === "follow") && current?.rect) {
         shownFigure = true;
         const next = metrics[metrics.indexOf(current) + 1];
         const depthHere = current.depth;
         const depthNext = next?.depth ?? depthHere;
         const look = depthHere + (depthNext - depthHere) * (mode === "pin" ? progress : 0);
-        const box = current.rect;
-        const viewTop = mode === "pin" ? pinTop : box.top;
-        let viewHeight = mode === "pin" ? Math.min(box.height, window.innerHeight * 0.68) : box.height;
-        if (mode === "pin") {
+        const box = inStyleSlot && styleBox ? styleBox : current.rect;
+        const viewTop = inStyleSlot ? box.top : mode === "pin" ? pinTop : box.top;
+        let viewHeight = inStyleSlot ? box.height : mode === "pin" ? Math.min(box.height, window.innerHeight * 0.68) : box.height;
+        if (mode === "pin" && !inStyleSlot) {
           if (!proseTops) {
             proseTops = [...document.querySelectorAll(".plate h2, .plate h3, .plate figcaption, .plate li, .plate p.body")]
               .filter((node) => node instanceof HTMLElement && !node.closest("svg, .sheet-labels, .cite-steps"))
@@ -714,7 +777,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
             if (top > viewTop + 4) viewHeight = Math.min(viewHeight, top - viewTop - 8);
           }
         }
-        const blocked = mode === "pin" && viewHeight < 140;
+        const blocked = !inStyleSlot && mode === "pin" && viewHeight < 140;
         canvas.style.position = "fixed";
         canvas.style.left = `${box.left}px`;
         canvas.style.top = `${viewTop}px`;
@@ -724,8 +787,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         canvas.style.zIndex = "1";
         canvas.style.pointerEvents = "none";
         document.documentElement.classList.toggle("is-figure", !blocked);
-        const width = Math.max(canvas.clientWidth, 1);
-        const height = Math.max(canvas.clientHeight, 1);
+        const width = Math.max(box.width, 1);
+        const height = Math.max(viewHeight, 1);
         const key = `${width}x${height}`;
         renderer.setClearColor(PAPER, 1);
         renderer.setPixelRatio(ratio);
@@ -755,54 +818,53 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
             sheet.visible = false;
           });
         });
-        const fade = angle < 1.05 ? 1 : Math.max(0.15, 1 - (angle - 1.05) / (Math.PI / 2 - 1.05));
+        const fade = angle < 1.05 ? 1 : Math.max(0, 1 - (angle - 1.05) / 0.32);
+        const edgeOn = !inStyleSlot && fade < 0.04;
         const leaving = current.figure.mesh;
-        leaving.visible = true;
-        leaving.scale.set(worldW, worldH, 1);
-        const pivot = worldH / 2;
-        leaving.rotation.set(-angle, 0, 0);
-        leaving.position.set(0, pivot * (1 - Math.cos(angle)), front - pivot * Math.sin(angle));
-        const leavingMaterial = leaving.material;
-        if (leavingMaterial instanceof T.ShaderMaterial) {
-          leavingMaterial.uniforms.opacity.value = fade;
-          leavingMaterial.transparent = fade < 0.99;
-          leavingMaterial.depthWrite = fade > 0.9;
-        }
-        const layout = next ? SHEETS[next.figure.id] : undefined;
-        if (next && layout && mode === "pin") {
-          if (assemble < 0.62) {
-            const behind = next.figure.mesh;
-            behind.visible = true;
-            behind.rotation.set(0, 0, 0);
-            const scale = 0.78;
-            behind.scale.set(worldW * scale, worldH * scale, 1);
-            behind.position.set(0, -worldH * 0.34 * (1 - assemble), front - 260);
-            const behindMaterial = behind.material;
-            if (behindMaterial instanceof T.ShaderMaterial) {
-              behindMaterial.uniforms.opacity.value = 1;
-              behindMaterial.transparent = false;
-              behindMaterial.depthWrite = true;
-            }
+        const plateSvg = document.querySelector(`#${current.figure.id} svg.plate-drawing`);
+        if (edgeOn) {
+          leaving.visible = false;
+          canvas.style.display = "none";
+          if (plateSvg instanceof HTMLElement) plateSvg.style.visibility = "";
+        } else if (!inStyleSlot) {
+          leaving.visible = true;
+          if (plateSvg instanceof HTMLElement && painted.has(current.figure.id)) plateSvg.style.visibility = "hidden";
+          leaving.scale.set(worldW, worldH, 1);
+          const pivot = worldH / 2;
+          leaving.rotation.set(-angle, 0, 0);
+          leaving.position.set(0, pivot * (1 - Math.cos(angle)), front - pivot * Math.sin(angle));
+          const leavingMaterial = leaving.material;
+          if (leavingMaterial instanceof T.ShaderMaterial) {
+            leavingMaterial.uniforms.opacity.value = fade;
+            leavingMaterial.transparent = fade < 0.99;
+            leavingMaterial.depthWrite = fade > 0.9;
           }
+        }
+        const assembling = inStyleSlot ? figures.find((figure) => figure.id === "style") : undefined;
+        const layout = assembling ? SHEETS[assembling.id] : undefined;
+        if (assembling && layout) {
           const depth = front - 180 * (1 - progress * 0.55);
-          next.figure.sheets.forEach((sheet, index) => {
+          assembling.sheets.forEach((sheet, index) => {
             const rect = sheet.userData.rect as [number, number, number, number] | undefined;
             if (!rect) return;
             const [x, y, w, h] = rect;
+            const verdict = y > 160 && h > 100;
+            if (verdict && assemble < 0.82) return;
+            const local = verdict ? 1 : assemble;
             const homeX = ((x + w / 2) / layout.view[0] - 0.5) * worldW;
             const homeY = (0.5 - (y + h / 2) / layout.view[1]) * worldH;
             const sheetW = (w / layout.view[0]) * worldW;
             const sheetH = (h / layout.view[1]) * worldH;
             sheet.visible = true;
             sheet.rotation.set(0, 0, 0);
-            sheet.renderOrder = index === next.figure.sheets.length - 1 ? 0 : 2;
-            const pile = (1 - assemble) * worldH * 0.34;
-            const step = (1 - assemble) * worldH * 0.07 * index;
-            sheet.position.set(homeX * assemble, homeY * assemble - pile + step, depth - index * (1 - assemble) * 24);
-            const grow = 0.58 + 0.42 * assemble;
+            sheet.renderOrder = 2;
+            const pile = (1 - local) * worldH * 0.34;
+            const step = (1 - local) * worldH * 0.07 * index;
+            sheet.position.set(homeX * local, homeY * local - pile + step, depth - index * (1 - local) * 24);
+            const grow = 0.58 + 0.42 * local;
             sheet.scale.set(sheetW * grow, sheetH * grow, 1);
           });
-          const sheetMaterial = next.figure.sheets[0]?.material;
+          const sheetMaterial = assembling.sheets[0]?.material;
           if (sheetMaterial instanceof T.ShaderMaterial) {
             sheetMaterial.uniforms.opacity.value = 1;
             sheetMaterial.transparent = false;
@@ -834,14 +896,15 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
           }
           return Math.abs(sum) / 2;
         };
-        const nextArea = next ? Math.max(...next.figure.sheets.map(areaOf), 0) : 0;
+        const sheetArea = assembling ? Math.max(...assembling.sheets.map(areaOf), 0) : 0;
         const gap = Math.max(Math.abs(camera.position.z - depthHere), 0.001);
         stage.dataset.projected = (leaving.scale.y / gap).toFixed(5);
         stage.dataset.spin = angle.toFixed(3);
         stage.dataset.assemble = assemble.toFixed(3);
         stage.dataset.progress = progress.toFixed(3);
-        stage.dataset.areas = `${Math.round(areaOf(leaving))},${Math.round(nextArea)}`;
-        stage.dataset.planes = String((leaving.visible ? 1 : 0) + (next?.figure.sheets.some((sheet) => sheet.visible) ? 1 : 0));
+        stage.dataset.areas = `${Math.round(areaOf(leaving))},${Math.round(sheetArea)}`;
+        stage.dataset.shown = [leaving.visible ? current.figure.id : "", assembling?.sheets.some((sheet) => sheet.visible) ? assembling.id : ""].filter(Boolean).join(",");
+        stage.dataset.planes = String((leaving.visible ? 1 : 0) + (assembling?.sheets.some((sheet) => sheet.visible) ? 1 : 0));
         stage.dataset.depths = [depthHere, depthHere + (depthNext - depthHere) * (mode === "pin" ? progress : 0)].map((depth) => depth.toFixed(1)).join(",");
         if (!blocked) {
           renderer.setScissorTest(true);

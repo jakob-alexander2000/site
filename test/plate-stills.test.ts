@@ -32,3 +32,16 @@ test("stop 4 evidence stills are not byte-identical", () => {
   }
   assert.ok(files.length >= 12);
 });
+
+test("stop 5 evidence stills are not byte-identical", () => {
+  const dir = "docs/evidence/stop5";
+  const files = readdirSync(dir).filter((name) => name.endsWith(".png")).sort();
+  const byHash = new Map<string, string>();
+  for (const name of files) {
+    const hash = createHash("sha256").update(readFileSync(join(dir, name))).digest("hex");
+    const previous = byHash.get(hash);
+    assert.equal(previous, undefined, `${name} is byte-identical to ${previous}`);
+    byHash.set(hash, name);
+  }
+  assert.ok(files.length >= 18);
+});

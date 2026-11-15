@@ -1203,6 +1203,31 @@ article.verdict-sheet,
   background: var(--ink);
 }
 
+@media (min-width: 801px) and (max-width: 1099px) {
+  .word-align .pair {
+    display: contents;
+  }
+
+  .word-align .hair {
+    display: none;
+  }
+
+  .word-align::before {
+    content: "";
+    order: 1;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .word-align .passage-line {
+    order: 0;
+  }
+
+  .word-align .answer-line {
+    order: 1;
+  }
+}
+
 @media (min-width: 801px) {
   html[data-schnitt="flat"] .draft-sheet {
     transform: translateZ(-80px);
