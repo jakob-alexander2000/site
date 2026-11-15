@@ -35,23 +35,14 @@ function clamp01(value: number) {
 }
 
 /**
- * End the animation frame before the next module evaluates.
- * scheduler.yield continues in the same frame when the machine is idle,
- * so the loader uses setTimeout(0), which returns to the event loop first.
+ * The animation frame only queues a timer. The next module evaluates in that
+ * timer, so the frame callback itself stays a schedule and not the import.
  */
-let turn = 0;
 function yieldTurn(): Promise<void> {
-  performance.mark(`schnitt-turn-${turn}`);
-  turn += 1;
-  // setTimeout returns to the event loop. The animation frame callback
-  // then waits for a paint, so the next module is not added to this frame.
   return new Promise((resolve) => {
-    const started = performance.now();
-    window.setTimeout(() => window.requestAnimationFrame(() => {
-      const host = window as Window & { __yields?: number[] };
-      (host.__yields ??= []).push(performance.now() - started);
-      resolve();
-    }), 0);
+    window.requestAnimationFrame(() => {
+      window.setTimeout(resolve, 0);
+    });
   });
 }
 
@@ -380,6 +371,10 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   let fitGap = 0;
   let deferredCallouts = false;
   let calloutsPlaced = false;
+  let steady = false;
+  let sizedW = 0;
+  let sizedH = 0;
+  let sawTraveling = false;
   let drawnFrames = 0;
   const pinRail = () => {
     const hero = document.querySelector(".schnitt");
@@ -425,8 +420,12 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     camera.updateProjectionMatrix();
     const half = (camera.fov * Math.PI) / 360;
     const dist = (height / 2) / Math.tan(half);
-    renderer.setSize(width, height, false);
-    css.setSize(width, height);
+    if (width !== sizedW || height !== sizedH) {
+      renderer.setSize(width, height, false);
+      css.setSize(width, height);
+      sizedW = width;
+      sizedH = height;
+    }
 
     const sample = cards[0];
     const rawH = sample?.cssH ?? 140;
@@ -513,11 +512,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     }
     const heroBottom = document.querySelector(".schnitt")?.getBoundingClientRect().bottom ?? window.innerHeight;
     const traveling = heroBottom <= window.innerHeight * 0.25;
-    for (const item of cards) {
-      item.card.visible = !traveling;
-      if (item.edge) item.edge.visible = !traveling;
-      item.sheet.element.style.visibility = traveling ? "hidden" : "visible";
-      item.sheet.element.style.display = traveling ? "none" : "";
+    if (traveling !== sawTraveling) {
+      sawTraveling = traveling;
+      for (const item of cards) {
+        item.card.visible = !traveling;
+        if (item.edge) item.edge.visible = !traveling;
+        item.sheet.element.style.visibility = traveling ? "hidden" : "visible";
+        item.sheet.element.style.display = traveling ? "none" : "";
+      }
     }
     for (const plane of planes) {
       const behind = plane.position.z > camera.position.z - 80;
@@ -530,6 +532,16 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       cut.rotation.y = clamp01(1 - gapToCut / 900) * (Math.PI / 2);
     }
     css.domElement.style.pointerEvents = "none";
+    layoutPlates();
+    if (steady) {
+      drawnFrames += 1;
+      const info = renderer.info.render;
+      stage.dataset.draws = String(info.calls);
+      stage.dataset.triangles = String(info.triangles);
+      stage.dataset.ratio = String(renderer.getPixelRatio());
+      stage.dataset.frames = String(drawnFrames);
+      return;
+    }
     if (!calloutsPlaced) {
       if (!deferredCallouts) {
         deferredCallouts = true;
@@ -545,7 +557,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       node.style.visibility = traveling ? "hidden" : "";
     });
     placeThread(stage);
-    layoutPlates();
     drawnFrames += 1;
     const info = renderer.info.render;
     stage.dataset.draws = String(info.calls);
@@ -555,30 +566,61 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   };
 
   let frame = 0;
+  let calloutTimer = 0;
   const draw = () => {
     frame = 0;
     render();
   };
   const schedule = () => {
-    if (frame) return;
-    frame = window.requestAnimationFrame(draw);
+    if (!frame) frame = window.requestAnimationFrame(draw);
+    if (calloutTimer) return;
+    calloutTimer = window.setTimeout(() => {
+      calloutTimer = 0;
+      placeCallouts(stage);
+      placeThread(stage);
+    }, 0);
   };
   const onResize = () => {
     resize();
     schedule();
   };
 
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", onResize);
   await yieldTurn();
-  renderer.compile(scene, camera);
+  const compiling = renderer as WebGLRenderer & {
+    compileAsync: (target: Scene, view: PerspectiveCamera) => Promise<unknown>;
+    initTexture: (texture: { isTexture?: boolean }) => void;
+  };
+  await compiling.compileAsync(scene, camera);
+  await yieldTurn();
+  const pending: { isTexture?: boolean }[] = [];
+  scene.traverse((object) => {
+    const material = (object as Mesh).material;
+    const list = Array.isArray(material) ? material : material ? [material] : [];
+    for (const item of list) {
+      const mapped = item as MeshBasicMaterial & { map?: { isTexture?: boolean } | null };
+      if (mapped.map) pending.push(mapped.map);
+    }
+  });
+  const { DataTexture } = (await import("three/src/textures/DataTexture.js")) as {
+    DataTexture: new (data: Uint8Array, width: number, height: number) => { isTexture?: boolean; dispose: () => void };
+  };
+  const warmup = new DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+  pending.push(warmup);
+  for (const texture of pending) {
+    compiling.initTexture(texture);
+    await yieldTurn();
+  }
+  warmup.dispose();
   resize();
-  for (let pass = 0; pass < 9; pass += 1) {
+  for (let pass = 0; pass < 12; pass += 1) {
     render();
     const fitted = fittedWidth === stage.clientWidth || window.innerWidth < 700;
     if (fitted && calloutsPlaced) break;
     await yieldTurn();
   }
+  steady = true;
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", onResize);
   stage.dataset.engine = "WebGLRenderer";
   stage.dataset.gl = "ready";
 

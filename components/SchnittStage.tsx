@@ -15,8 +15,10 @@ function kick(task: () => void) {
       idle(run, { timeout: 800 });
       return;
     }
-    // setTimeout leaves this idle callback. The import then runs as its own task.
-    window.setTimeout(task, 0);
+    // After a paint, a timer starts the import. The frame callback only schedules it.
+    window.requestAnimationFrame(() => {
+      window.setTimeout(task, 0);
+    });
   };
   idle(run, { timeout: 800 });
 }

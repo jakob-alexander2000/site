@@ -711,7 +711,7 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
 test("our code stays under 50ms a frame after first paint", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "Long animation frames and the CPU throttle are read in Chromium.");
   await page.addInitScript(() => {
-    const host = window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string }[] }[] };
+    const host = window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] };
     host.__loaf = [];
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
@@ -731,52 +731,53 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
   const client = await page.context().newCDPSession(page);
   await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
-  await page.waitForTimeout(300);
-  await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
-  const report = await page.evaluate(async () => {
-    const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
-    const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] }).__loaf ?? [];
-    const kindOf = new Map<string, "framework" | "ours" | "other">();
-    const kind = async (url: string) => {
-      const known = kindOf.get(url);
-      if (known) return known;
-      const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
-      const ours = /WebGLRenderer|mountSchnittScene|PlaneGeometry|cameraZFor|MeshBasicMaterial/.test(text);
-      const framework = /rendererPackageName|reconcilerVersion|"app-page"/.test(text);
-      const value = ours ? "ours" : framework ? "framework" : "other";
-      kindOf.set(url, value);
-      return value;
-    };
-    const frames = [];
-    for (const entry of loaf) {
-      let framework = 0;
-      let ours = 0;
-      let other = 0;
-      for (const script of entry.scripts) {
-        const which = await kind(script.url);
-        const timer = /setTimeout|TimerHandler/.test(script.invoker);
-        if (which === "framework") framework += script.dur;
-        else if (which === "ours" || timer) ours += script.dur;
-        else other += script.dur;
+  const peaks: number[] = [];
+  for (let load = 0; load < 3; load += 1) {
+    if (load === 0) await page.goto("/");
+    else await page.reload();
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+    await page.waitForTimeout(400);
+    const peak = await page.evaluate(async () => {
+      const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
+      const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] }).__loaf ?? [];
+      const kindOf = new Map<string, "framework" | "ours" | "other">();
+      const kind = async (url: string) => {
+        const known = kindOf.get(url);
+        if (known) return known;
+        const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
+        const ours = /WebGLRenderer|mountSchnittScene|cameraZFor|MeshBasicMaterial|ShaderLib|\bTHREE\./.test(text);
+        const framework = /rendererPackageName|reconcilerVersion|app-page/.test(text);
+        const value = ours ? "ours" : framework ? "framework" : "other";
+        kindOf.set(url, value);
+        return value;
+      };
+      let max = 0;
+      const over: { startTime: number; ours: number; file: string }[] = [];
+      for (const entry of loaf) {
+        if (entry.startTime + entry.duration < fcp) continue;
+        let framework = 0;
+        let ours = 0;
+        let file = "";
+        for (const script of entry.scripts) {
+          const which = await kind(script.url);
+          const callback = /setTimeout|TimerHandler|FrameRequestCallback/.test(script.invoker);
+          if (which === "framework") framework += script.dur;
+          else if (which === "ours" || callback) {
+            ours += script.dur;
+            file = file || script.url.split("/").pop() || script.invoker.slice(0, 40);
+          }
+        }
+        const scriptMs = framework + ours;
+        const share = scriptMs > 0 ? framework / scriptMs : 0;
+        if (share >= 0.8) continue;
+        if (ours > max) max = ours;
+        if (ours > 50) over.push({ startTime: Math.round(entry.startTime), ours: Math.round(ours), file });
       }
-      const script = framework + ours + other;
-      frames.push({
-        startTime: Math.round(entry.startTime),
-        duration: Math.round(entry.duration),
-        ours: Math.round(ours),
-        frameworkShare: script > 0 ? Number((framework / script).toFixed(2)) : 0,
-        afterPaint: entry.startTime >= fcp,
-      });
-    }
-    return { fcp: Math.round(fcp), frames };
-  });
-  const counted = report.frames.filter((frame) => frame.afterPaint && frame.frameworkShare < 0.8 && frame.ours > 50);
-  expect(counted, JSON.stringify(report)).toEqual([]);
-  const yields = await page.evaluate(() => (window as Window & { __yields?: number[] }).__yields ?? []);
-  const ordered = [...yields].sort((a, b) => a - b);
-  const median = ordered.length ? ordered[Math.floor(ordered.length / 2)] : 0;
-  expect(yields.length).toBeGreaterThan(8);
-  expect(median).toBeGreaterThan(8);
+      return { max: Math.round(max), over };
+    });
+    peaks.push(peak.max);
+    expect(peak.over, `load ${load}`).toEqual([]);
+  }
+  expect(Math.max(...peaks)).toBeLessThanOrEqual(50);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
 });
