@@ -545,6 +545,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
 
   let drawn = 0;
   let sized = "";
+  let proseTops: number[] | null = null;
   let laidWidth = 0;
   let polishFrame = 0;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -703,10 +704,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         const viewTop = mode === "pin" ? pinTop : box.top;
         let viewHeight = mode === "pin" ? Math.min(box.height, window.innerHeight * 0.68) : box.height;
         if (mode === "pin") {
-          const blockers = document.querySelectorAll(".plate h2, .plate h3, .plate figcaption, .plate li, .plate p.body");
-          for (const node of blockers) {
-            if (!(node instanceof HTMLElement) || node.closest("svg, .sheet-labels, .cite-steps")) continue;
-            const top = node.getBoundingClientRect().top;
+          if (!proseTops) {
+            proseTops = [...document.querySelectorAll(".plate h2, .plate h3, .plate figcaption, .plate li, .plate p.body")]
+              .filter((node) => node instanceof HTMLElement && !node.closest("svg, .sheet-labels, .cite-steps"))
+              .map((node) => node.getBoundingClientRect().top + window.scrollY);
+          }
+          for (const docTop of proseTops) {
+            const top = docTop - window.scrollY;
             if (top > viewTop + 4) viewHeight = Math.min(viewHeight, top - viewTop - 8);
           }
         }
@@ -806,13 +810,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
           }
         }
         const view = { left: box.left, top: viewTop, width, height };
+        const corner = new T.Vector3();
         const areaOf = (mesh: Mesh) => {
           if (!mesh.visible) return 0;
           mesh.updateWorldMatrix(true, false);
           const xs = [-0.5, 0.5, 0.5, -0.5];
           const ys = [0.5, 0.5, -0.5, -0.5];
           const points = xs.map((x, index) => {
-            const projected = new T.Vector3(x, ys[index] ?? 0, 0).applyMatrix4(mesh.matrixWorld).project(camera);
+            const projected = corner.set(x, ys[index] ?? 0, 0).applyMatrix4(mesh.matrixWorld).project(camera);
             return {
               x: Math.min(window.innerWidth, Math.max(0, (projected.x * 0.5 + 0.5) * view.width + view.left)),
               y: Math.min(window.innerHeight, Math.max(0, (-projected.y * 0.5 + 0.5) * view.height + view.top)),
