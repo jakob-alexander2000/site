@@ -380,13 +380,14 @@ async function uploadPlate(
   const gl = renderer.getContext();
   const handle = (renderer.properties.get(texture) as { __webglTexture?: WebGLTexture }).__webglTexture;
   if (!handle || !(gl instanceof WebGL2RenderingContext)) return;
-  const slices = 4;
+  const slices = 6;
   const stripH = Math.ceil(bitmap.height / slices);
   for (let index = 0; index < slices; index += 1) {
     const y = index * stripH;
     const height = Math.min(stripH, bitmap.height - y);
     if (height <= 0) break;
     const strip = await createImageBitmap(bitmap, 0, y, bitmap.width, height);
+    await yieldTurn();
     gl.bindTexture(gl.TEXTURE_2D, handle);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
