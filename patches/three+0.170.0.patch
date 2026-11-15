@@ -1,3 +1,59 @@
+diff --git a/node_modules/three/src/renderers/WebGLRenderer.js b/node_modules/three/src/renderers/WebGLRenderer.js
+index dc62197..2e6dceb 100644
+--- a/node_modules/three/src/renderers/WebGLRenderer.js
++++ b/node_modules/three/src/renderers/WebGLRenderer.js
+@@ -38,23 +38,33 @@ import { WebGLGeometries } from './webgl/WebGLGeometries.js';
+ import { WebGLIndexedBufferRenderer } from './webgl/WebGLIndexedBufferRenderer.js';
+ import { WebGLInfo } from './webgl/WebGLInfo.js';
+ import { WebGLMorphtargets } from './webgl/WebGLMorphtargets.js';
+-import { WebGLObjects } from './webgl/WebGLObjects.js';
+-import { WebGLPrograms } from './webgl/WebGLPrograms.js';
+ import { WebGLProperties } from './webgl/WebGLProperties.js';
+-import { WebGLRenderLists } from './webgl/WebGLRenderLists.js';
+ import { WebGLRenderStates } from './webgl/WebGLRenderStates.js';
+ import { WebGLRenderTarget } from './WebGLRenderTarget.js';
+-import { WebGLShadowMap } from './webgl/WebGLShadowMap.js';
+-import { WebGLState } from './webgl/WebGLState.js';
+-import { WebGLTextures } from './webgl/WebGLTextures.js';
+-import { WebGLUniforms } from './webgl/WebGLUniforms.js';
+ import { WebGLUtils } from './webgl/WebGLUtils.js';
+-import { WebXRManager } from './webxr/WebXRManager.js';
+-import { WebGLMaterials } from './webgl/WebGLMaterials.js';
+ import { WebGLUniformsGroups } from './webgl/WebGLUniformsGroups.js';
+ import { createCanvasElement, probeAsync, toNormalizedProjectionMatrix, toReversedProjectionMatrix, warnOnce } from '../utils.js';
+ import { ColorManagement } from '../math/ColorManagement.js';
+ 
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLTextures } = await import('./webgl/WebGLTextures.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLPrograms } = await import('./webgl/WebGLPrograms.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLState } = await import('./webgl/WebGLState.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLUniforms } = await import('./webgl/WebGLUniforms.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLObjects } = await import('./webgl/WebGLObjects.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLRenderLists } = await import('./webgl/WebGLRenderLists.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLShadowMap } = await import('./webgl/WebGLShadowMap.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebGLMaterials } = await import('./webgl/WebGLMaterials.js');
++await new Promise((resolve) => setTimeout(resolve, 0));
++const { WebXRManager } = await import('./webxr/WebXRManager.js');
++
+ class WebGLRenderer {
+ 
+ 	constructor( parameters = {} ) {
+@@ -2835,6 +2845,8 @@ class WebGLRenderer {
+ 
+ 		}
+ 
++
++
+ 	}
+ 
+ 	get coordinateSystem() {
 diff --git a/node_modules/three/src/renderers/shaders/ShaderChunk.js b/node_modules/three/src/renderers/shaders/ShaderChunk.js
 index 0682c0f..970bc2c 100644
 --- a/node_modules/three/src/renderers/shaders/ShaderChunk.js

@@ -751,8 +751,9 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
         const known = kindOf.get(url);
         if (known) return known;
         const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
-        // Every Turbopack chunk carries the TURBOPACK push, so only react-dom and the Next.js app runtime count as framework.
-        const framework = /rendererPackageName|reconcilerVersion|app-page/.test(text);
+        // Every Turbopack chunk carries the TURBOPACK push, so that string cannot mark framework.
+        // react-dom, the Next.js app runtime, and Next's own error screen are framework.
+        const framework = /rendererPackageName|reconcilerVersion|app-page|errorThemeCss/.test(text);
         const value = framework ? "framework" : "ours";
         kindOf.set(url, value);
         return value;

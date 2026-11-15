@@ -1,57 +1,57 @@
 {
-  "commit": "f8fd4e3b71df1b73ae47831e7c8e21097bc13ff0",
-  "url": "https://jakobalex-ilo5bucx3-jakobalexander2000s-projects.vercel.app",
+  "commit": "f60391bc7ace3fba9cb8335ff398205c115943a3",
+  "url": "https://jakobalex-4y42btj3w-jakobalexander2000s-projects.vercel.app",
   "mobile": [
     {
-      "score": 99,
-      "tbt": 114,
+      "score": 98,
+      "tbt": 169,
+      "throttling": "simulate"
+    },
+    {
+      "score": 100,
+      "tbt": 88,
       "throttling": "simulate"
     },
     {
       "score": 99,
-      "tbt": 97,
+      "tbt": 94,
       "throttling": "simulate"
     },
     {
       "score": 99,
-      "tbt": 108,
+      "tbt": 104,
       "throttling": "simulate"
     },
     {
       "score": 99,
-      "tbt": 108,
-      "throttling": "simulate"
-    },
-    {
-      "score": 99,
-      "tbt": 97,
+      "tbt": 104,
       "throttling": "simulate"
     }
   ],
   "desktop": [
     {
       "score": 100,
-      "tbt": 0,
+      "tbt": 32,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 0,
+      "tbt": 34,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 0,
+      "tbt": 31,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 0,
+      "tbt": 33,
       "throttling": "simulate"
     },
     {
       "score": 100,
-      "tbt": 0,
+      "tbt": 31,
       "throttling": "simulate"
     }
   ]
