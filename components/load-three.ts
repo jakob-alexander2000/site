@@ -1,7 +1,8 @@
 import type { CanvasTexture } from "three/src/textures/CanvasTexture.js";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
-import type { MeshBasicMaterial } from "three/src/materials/MeshBasicMaterial.js";
+import type { ShaderMaterial } from "three/src/materials/ShaderMaterial.js";
+import type { Color } from "three/src/math/Color.js";
 import type { PerspectiveCamera } from "three/src/cameras/PerspectiveCamera.js";
 import type { PlaneGeometry } from "three/src/geometries/PlaneGeometry.js";
 import type { Scene } from "three/src/scenes/Scene.js";
@@ -13,7 +14,8 @@ export type ThreeBits = {
   CanvasTexture: typeof CanvasTexture;
   Group: typeof Group;
   Mesh: typeof Mesh;
-  MeshBasicMaterial: typeof MeshBasicMaterial;
+  ShaderMaterial: typeof ShaderMaterial;
+  Color: typeof Color;
   PerspectiveCamera: typeof PerspectiveCamera;
   PlaneGeometry: typeof PlaneGeometry;
   Scene: typeof Scene;
@@ -22,7 +24,7 @@ export type ThreeBits = {
 
 function tick() {
   return new Promise<void>((resolve) => {
-    window.setTimeout(resolve, 0);
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
   });
 }
 
@@ -44,7 +46,8 @@ export async function loadThree(): Promise<ThreeBits> {
     CanvasTexture: objects.CanvasTexture,
     Group: objects.Group,
     Mesh: objects.Mesh,
-    MeshBasicMaterial: objects.MeshBasicMaterial,
+    ShaderMaterial: objects.ShaderMaterial,
+    Color: objects.Color,
     PerspectiveCamera: objects.PerspectiveCamera,
     PlaneGeometry: objects.PlaneGeometry,
     Scene: objects.Scene,

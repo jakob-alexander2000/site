@@ -1,8 +1,8 @@
 diff --git a/node_modules/three/src/renderers/WebGLRenderer.js b/node_modules/three/src/renderers/WebGLRenderer.js
-index dc62197..d3a3ec2 100644
+index dc62197..60069f6 100644
 --- a/node_modules/three/src/renderers/WebGLRenderer.js
 +++ b/node_modules/three/src/renderers/WebGLRenderer.js
-@@ -38,2804 +38,73 @@ import { WebGLGeometries } from './webgl/WebGLGeometries.js';
+@@ -38,2804 +38,80 @@ import { WebGLGeometries } from './webgl/WebGLGeometries.js';
  import { WebGLIndexedBufferRenderer } from './webgl/WebGLIndexedBufferRenderer.js';
  import { WebGLInfo } from './webgl/WebGLInfo.js';
  import { WebGLMorphtargets } from './webgl/WebGLMorphtargets.js';
@@ -379,7 +379,9 @@ index dc62197..d3a3ec2 100644
 -		this.setSize = function ( width, height, updateStyle = true ) {
 -
 -			if ( xr.isPresenting ) {
--
++		const locals = {};
++		this.ready = this._schnittBoot( parameters, locals );
+ 
 -				console.warn( 'THREE.WebGLRenderer: Can\'t change size while VR device is presenting.' );
 -				return;
 -
@@ -392,9 +394,7 @@ index dc62197..d3a3ec2 100644
 -			canvas.height = Math.floor( height * _pixelRatio );
 -
 -			if ( updateStyle === true ) {
-+		const locals = {};
-+		this.ready = this._schnittBoot( parameters, locals );
- 
+-
 -				canvas.style.width = width + 'px';
 -				canvas.style.height = height + 'px';
 -
@@ -682,23 +682,9 @@ index dc62197..d3a3ec2 100644
 -		}
 -
 -		function onContextCreationError( event ) {
--
--			console.error( 'THREE.WebGLRenderer: A WebGL context could not be created. Reason: ', event.statusMessage );
--
--		}
--
--		function onMaterialDispose( event ) {
--
--			const material = event.target;
--
--			material.removeEventListener( 'dispose', onMaterialDispose );
--
--			deallocateMaterial( material );
--
--		}
 +	}
  
--		// Buffer deallocation
+-			console.error( 'THREE.WebGLRenderer: A WebGL context could not be created. Reason: ', event.statusMessage );
 +	async _schnittBoot( parameters, locals ) {
 +
 +		const deps = { BackSide, Color, ColorManagement, DoubleSide, FrontSide, Frustum, HalfFloatType, LinearMipmapLinearFilter, LinearSRGBColorSpace, Matrix4, NoToneMapping, REVISION, RGBAIntegerFormat, RGIntegerFormat, RedIntegerFormat, SRGBColorSpace, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, Vector3, Vector4, WebGLAnimation, WebGLAttributes, WebGLBackground, WebGLBindingStates, WebGLBufferRenderer, WebGLCapabilities, WebGLClipping, WebGLCoordinateSystem, WebGLCubeMaps, WebGLCubeUVMaps, WebGLExtensions, WebGLGeometries, WebGLIndexedBufferRenderer, WebGLInfo, WebGLMaterials, WebGLMorphtargets, WebGLObjects, WebGLPrograms, WebGLProperties, WebGLRenderLists, WebGLRenderStates, WebGLRenderTarget, WebGLShadowMap, WebGLState, WebGLTextures, WebGLUniforms, WebGLUniformsGroups, WebGLUtils, WebXRManager, createCanvasElement, probeAsync, toNormalizedProjectionMatrix, toReversedProjectionMatrix, warnOnce };
@@ -727,10 +713,29 @@ index dc62197..d3a3ec2 100644
 +		( await import( './WebGLRenderer.part8.js' ) ).install( this, locals, parameters, deps );
 +		await frame();
 +		( await import( './WebGLRenderer.part9.js' ) ).install( this, locals, parameters, deps );
++		const stages = this.initGLStages || [];
++		for ( const stage of stages ) {
++
++			await frame();
++			stage();
  
--		function deallocateMaterial( material ) {
+ 		}
+ 
+-		function onMaterialDispose( event ) {
 +	}
  
+-			const material = event.target;
+-
+-			material.removeEventListener( 'dispose', onMaterialDispose );
+-
+-			deallocateMaterial( material );
+-
+-		}
+-
+-		// Buffer deallocation
+-
+-		function deallocateMaterial( material ) {
+-
 -			releaseMaterialProgramReferences( material );
 -
 -			properties.remove( material );
@@ -2860,10 +2865,10 @@ index dc62197..d3a3ec2 100644
  
 diff --git a/node_modules/three/src/renderers/WebGLRenderer.part0.js b/node_modules/three/src/renderers/WebGLRenderer.part0.js
 new file mode 100644
-index 0000000..064fd95
+index 0000000..7ec5826
 --- /dev/null
 +++ b/node_modules/three/src/renderers/WebGLRenderer.part0.js
-@@ -0,0 +1,283 @@
+@@ -0,0 +1,310 @@
 +export function install( __renderer, locals, parameters, deps ) {
 +locals.getTargetPixelRatio = function getTargetPixelRatio() {
 +
@@ -2875,54 +2880,81 @@ index 0000000..064fd95
 +			return locals.canvas.getContext( contextName, contextAttributes );
 +
 +		}
-+locals.initGLContext = function initGLContext() {
++locals.initGLStages = [
++			function () {
 +
-+			locals.extensions = new deps.WebGLExtensions( locals._gl );
-+			locals.extensions.init();
++				locals.extensions = new deps.WebGLExtensions( locals._gl );
++				locals.extensions.init();
++				locals.utils = new deps.WebGLUtils( locals._gl, locals.extensions );
++				locals.capabilities = new deps.WebGLCapabilities( locals._gl, locals.extensions, parameters, locals.utils );
 +
-+			locals.utils = new deps.WebGLUtils( locals._gl, locals.extensions );
++			},
++			function () {
 +
-+			locals.capabilities = new deps.WebGLCapabilities( locals._gl, locals.extensions, parameters, locals.utils );
++				locals.state = new deps.WebGLState( locals._gl, locals.extensions );
++				if ( locals.capabilities.reverseDepthBuffer && locals.reverseDepthBuffer ) {
 +
-+			locals.state = new deps.WebGLState( locals._gl, locals.extensions );
++					locals.state.buffers.depth.setReversed( true );
 +
-+			if ( locals.capabilities.reverseDepthBuffer && locals.reverseDepthBuffer ) {
++				}
 +
-+				locals.state.buffers.depth.setReversed( true );
++			},
++			function () {
++
++				locals.info = new deps.WebGLInfo( locals._gl );
++				locals.properties = new deps.WebGLProperties();
++				locals.textures = new deps.WebGLTextures( locals._gl, locals.extensions, locals.state, locals.properties, locals.capabilities, locals.utils, locals.info );
++
++			},
++			function () {
++
++				locals.cubemaps = new deps.WebGLCubeMaps( locals._this );
++				locals.cubeuvmaps = new deps.WebGLCubeUVMaps( locals._this );
++				locals.attributes = new deps.WebGLAttributes( locals._gl );
++				locals.bindingStates = new deps.WebGLBindingStates( locals._gl, locals.attributes );
++
++			},
++			function () {
++
++				locals.geometries = new deps.WebGLGeometries( locals._gl, locals.attributes, locals.info, locals.bindingStates );
++				locals.objects = new deps.WebGLObjects( locals._gl, locals.geometries, locals.attributes, locals.info );
++				locals.morphtargets = new deps.WebGLMorphtargets( locals._gl, locals.capabilities, locals.textures );
++				locals.clipping = new deps.WebGLClipping( locals.properties );
++
++			},
++			function () {
++
++				locals.programCache = new deps.WebGLPrograms( locals._this, locals.cubemaps, locals.cubeuvmaps, locals.extensions, locals.capabilities, locals.bindingStates, locals.clipping );
++				locals.materials = new deps.WebGLMaterials( locals._this, locals.properties );
++
++			},
++			function () {
++
++				locals.renderLists = new deps.WebGLRenderLists();
++				locals.renderStates = new deps.WebGLRenderStates( locals.extensions );
++				locals.background = new deps.WebGLBackground( locals._this, locals.cubemaps, locals.cubeuvmaps, locals.state, locals.objects, locals._alpha, locals.premultipliedAlpha );
++				locals.shadowMap = new deps.WebGLShadowMap( locals._this, locals.objects, locals.capabilities );
++				locals.uniformsGroups = new deps.WebGLUniformsGroups( locals._gl, locals.info, locals.capabilities, locals.state );
++				locals.bufferRenderer = new deps.WebGLBufferRenderer( locals._gl, locals.extensions, locals.info );
++				locals.indexedBufferRenderer = new deps.WebGLIndexedBufferRenderer( locals._gl, locals.extensions, locals.info );
++				locals.info.programs = locals.programCache.programs;
++				locals._this.capabilities = locals.capabilities;
++				locals._this.extensions = locals.extensions;
++				locals._this.properties = locals.properties;
++				locals._this.renderLists = locals.renderLists;
++				locals._this.shadowMap = locals.shadowMap;
++				locals._this.state = locals.state;
++				locals._this.info = locals.info;
 +
 +			}
++		];
++locals.initGLContext = function initGLContext() {
 +
-+			locals.info = new deps.WebGLInfo( locals._gl );
-+			locals.properties = new deps.WebGLProperties();
-+			locals.textures = new deps.WebGLTextures( locals._gl, locals.extensions, locals.state, locals.properties, locals.capabilities, locals.utils, locals.info );
-+			locals.cubemaps = new deps.WebGLCubeMaps( locals._this );
-+			locals.cubeuvmaps = new deps.WebGLCubeUVMaps( locals._this );
-+			locals.attributes = new deps.WebGLAttributes( locals._gl );
-+			locals.bindingStates = new deps.WebGLBindingStates( locals._gl, locals.attributes );
-+			locals.geometries = new deps.WebGLGeometries( locals._gl, locals.attributes, locals.info, locals.bindingStates );
-+			locals.objects = new deps.WebGLObjects( locals._gl, locals.geometries, locals.attributes, locals.info );
-+			locals.morphtargets = new deps.WebGLMorphtargets( locals._gl, locals.capabilities, locals.textures );
-+			locals.clipping = new deps.WebGLClipping( locals.properties );
-+			locals.programCache = new deps.WebGLPrograms( locals._this, locals.cubemaps, locals.cubeuvmaps, locals.extensions, locals.capabilities, locals.bindingStates, locals.clipping );
-+			locals.materials = new deps.WebGLMaterials( locals._this, locals.properties );
-+			locals.renderLists = new deps.WebGLRenderLists();
-+			locals.renderStates = new deps.WebGLRenderStates( locals.extensions );
-+			locals.background = new deps.WebGLBackground( locals._this, locals.cubemaps, locals.cubeuvmaps, locals.state, locals.objects, locals._alpha, locals.premultipliedAlpha );
-+			locals.shadowMap = new deps.WebGLShadowMap( locals._this, locals.objects, locals.capabilities );
-+			locals.uniformsGroups = new deps.WebGLUniformsGroups( locals._gl, locals.info, locals.capabilities, locals.state );
++			for ( let index = 0; index < locals.initGLStages.length; index ++ ) {
 +
-+			locals.bufferRenderer = new deps.WebGLBufferRenderer( locals._gl, locals.extensions, locals.info );
-+			locals.indexedBufferRenderer = new deps.WebGLIndexedBufferRenderer( locals._gl, locals.extensions, locals.info );
++				locals.initGLStages[ index ]();
 +
-+			locals.info.programs = locals.programCache.programs;
-+
-+			locals._this.capabilities = locals.capabilities;
-+			locals._this.extensions = locals.extensions;
-+			locals._this.properties = locals.properties;
-+			locals._this.renderLists = locals.renderLists;
-+			locals._this.shadowMap = locals.shadowMap;
-+			locals._this.state = locals.state;
-+			locals._this.info = locals.info;
++			}
 +
 +		}
 +locals.onContextLost = function onContextLost( event ) {
@@ -3911,7 +3943,7 @@ index 0000000..a851888
 +}
 diff --git a/node_modules/three/src/renderers/WebGLRenderer.part3.js b/node_modules/three/src/renderers/WebGLRenderer.part3.js
 new file mode 100644
-index 0000000..be75c3b
+index 0000000..7ee5cca
 --- /dev/null
 +++ b/node_modules/three/src/renderers/WebGLRenderer.part3.js
 @@ -0,0 +1,174 @@
@@ -4080,9 +4112,9 @@ index 0000000..be75c3b
 +locals.programCache, locals.materials, locals.renderLists, locals.renderStates, locals.clipping, locals.shadowMap;
 +locals.background, locals.morphtargets, locals.bufferRenderer, locals.indexedBufferRenderer;
 +locals.utils, locals.bindingStates, locals.uniformsGroups;
-+locals.initGLContext();
 +locals.xr = new deps.WebXRManager( locals._this, locals._gl );
 +__renderer.xr = locals.xr;
++__renderer.initGLStages = locals.initGLStages;
 +__renderer.getContext = function () {
 +
 +			return locals._gl;

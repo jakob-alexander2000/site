@@ -1,4 +1,6 @@
 import { loadThree } from "@/components/load-three";
+import type { Group } from "three/src/objects/Group.js";
+import type { Mesh } from "three/src/objects/Mesh.js";
 import { placeThread } from "@/components/schnitt-fallback";
 import { alignCiteLeaders } from "@/lib/align-leaders";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
@@ -120,6 +122,55 @@ function onScreen() {
 
 const PAPER = 0xf7f7f5;
 
+const PLATE_VERT = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+const CARD_FRAG = `
+uniform vec3 diffuse;
+void main() {
+  gl_FragColor = vec4(diffuse, 1.0);
+}
+`;
+
+const PLATE_FRAG = `
+uniform sampler2D map;
+uniform float opacity;
+varying vec2 vUv;
+void main() {
+  gl_FragColor = texture2D(map, vUv);
+  gl_FragColor.a *= opacity;
+}
+`;
+
+function cardMaterial(T: Awaited<ReturnType<typeof loadThree>>, color: number) {
+  return new T.ShaderMaterial({
+    uniforms: { diffuse: { value: new T.Color(color) } },
+    vertexShader: PLATE_VERT,
+    fragmentShader: CARD_FRAG,
+    toneMapped: false,
+  });
+}
+
+function figureMaterial(T: Awaited<ReturnType<typeof loadThree>>) {
+  return new T.ShaderMaterial({
+    uniforms: {
+      map: { value: null },
+      opacity: { value: 1 },
+    },
+    vertexShader: PLATE_VERT,
+    fragmentShader: PLATE_FRAG,
+    toneMapped: false,
+    transparent: true,
+    depthWrite: true,
+    side: 2,
+  });
+}
+
 let plateFaces: Promise<string> | null = null;
 
 function tick() {
@@ -193,6 +244,7 @@ async function raster(node: Element, faces: string) {
     width = Math.max(2, Math.round(width * scale));
     height = Math.max(2, Math.round(height * scale));
   }
+  await yieldTurn();
   const paint = document.createElement("canvas");
   paint.width = width;
   paint.height = height;
@@ -200,6 +252,7 @@ async function raster(node: Element, faces: string) {
   if (!ctx) throw new Error("texture surface is missing");
   ctx.fillStyle = "#F7F7F5";
   ctx.fillRect(0, 0, width, height);
+  await yieldTurn();
   const clone = node.cloneNode(true) as Element;
   if (clone instanceof SVGSVGElement) {
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -211,7 +264,9 @@ async function raster(node: Element, faces: string) {
       clone.insertBefore(style, clone.firstChild);
     }
   }
+  await yieldTurn();
   const xml = new XMLSerializer().serializeToString(clone);
+  await yieldTurn();
   const markup = clone instanceof SVGSVGElement
     ? xml
     : `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${xml}</div></foreignObject></svg>`;
@@ -246,6 +301,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     failIfMajorPerformanceCaveat: false,
   });
   await (renderer as unknown as { ready: Promise<void> }).ready;
+  renderer.debug.checkShaderErrors = false;
   await yieldTurn();
   renderer.setClearColor(0x000000, 0);
   const scene = new T.Scene();
@@ -265,7 +321,9 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   labels.className = "schnitt-labels";
   stage.appendChild(labels);
 
-  const cards = sheets.map((sheet) => {
+  const cards: { sheet: HTMLElement; group: Group; width: number; height: number; callout: HTMLElement | null }[] = [];
+  for (const sheet of sheets) {
+    await yieldTurn();
     const slot = sheet.closest(".plane-slot");
     const callout = slot?.querySelector<HTMLElement>(".callout") ?? null;
     if (callout) labels.appendChild(callout);
@@ -274,26 +332,29 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     sheet.style.width = `${width}px`;
     sheet.style.height = `${height}px`;
     rig.appendChild(sheet);
+    await yieldTurn();
     const group = new T.Group();
     group.add(new T.Mesh(
       new T.PlaneGeometry(width, height),
-      new T.MeshBasicMaterial({ color: sheet.classList.contains("verdict") ? 0x111111 : 0xfbfaf7, toneMapped: false }),
+        cardMaterial(T, sheet.classList.contains("verdict") ? 0x111111 : 0xfbfaf7),
     ));
     scene.add(group);
-    return { sheet, group, width, height, callout };
-  });
+    cards.push({ sheet, group, width, height, callout });
+  }
   await yieldTurn();
 
-  const figures = PLATES.map((id, index) => {
+  const figures: { id: (typeof PLATES)[number]; mesh: Mesh; worldH: number }[] = [];
+  for (const [index, id] of PLATES.entries()) {
+    await yieldTurn();
     const mesh = new T.Mesh(
       new T.PlaneGeometry(1, 1),
-      new T.MeshBasicMaterial({ color: PAPER, toneMapped: false, side: 2, transparent: true, opacity: 1 }),
+      figureMaterial(T),
     );
     mesh.position.z = DEPTHS[index] ?? 0;
     mesh.visible = false;
     scene.add(mesh);
-    return { id, mesh, worldH: 1 };
-  });
+    figures.push({ id, mesh, worldH: 1 });
+  }
 
   let cameraZ = 6;
   const exposed = {
@@ -319,6 +380,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     const node = drawingOf(figure.id);
     if (!node) continue;
     const paint = await raster(node, faces);
+    await yieldTurn();
     const map = new T.CanvasTexture(paint);
     map.colorSpace = "srgb";
     map.generateMipmaps = false;
@@ -327,21 +389,30 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     map.needsUpdate = true;
     const material = figure.mesh.material;
-    if (material instanceof T.MeshBasicMaterial) {
-      material.map = map;
-      material.color.set(0xffffff);
-      material.needsUpdate = true;
-      renderer.initTexture(map);
+    if (material instanceof T.ShaderMaterial) {
+      material.uniforms.map.value = map;
     }
     await yieldTurn();
+    renderer.initTexture(map);
   }
-  for (const figure of figures) {
+  const parallel = renderer.extensions.has("KHR_parallel_shader_compile");
+  const meshes = [
+    ...cards.flatMap((card) => card.group.children),
+    ...figures.map((figure) => figure.mesh),
+  ];
+  for (const mesh of meshes) {
     await yieldTurn();
     const solo = new T.Scene();
-    figure.mesh.visible = true;
-    solo.add(figure.mesh);
-    renderer.compile(solo, camera);
-    figure.mesh.visible = false;
+    const parent = mesh.parent;
+    if (mesh instanceof T.Mesh) mesh.visible = true;
+    solo.add(mesh);
+    if (parallel) await renderer.compileAsync(solo, camera);
+    else {
+      renderer.compile(solo, camera);
+      await yieldTurn();
+    }
+    parent?.add(mesh);
+    if (mesh instanceof T.Mesh && figures.some((figure) => figure.mesh === mesh)) mesh.visible = false;
   }
   await yieldTurn();
 
@@ -353,7 +424,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const laid = cards.map(() => 96);
 
-  const placeHero = () => {
+  const placeHero = (paint = true) => {
     const width = Math.max(stage.clientWidth, 1);
     const height = Math.max(stage.clientHeight, 1);
     const half = (camera.fov * Math.PI) / 360;
@@ -415,13 +486,14 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       cursor += boxH + 14 * fit;
     });
     rig.style.transform = "";
+    if (!paint) return;
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
     renderer.render(scene, camera);
   };
 
-  const render = () => {
+  const render = (paint = true) => {
     const past = pastHero();
     document.documentElement.classList.toggle("is-past", past);
     const shown = past ? onScreen() : null;
@@ -435,7 +507,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
       canvas.style.display = "";
       canvas.style.zIndex = "0";
       document.documentElement.classList.remove("is-figure");
-      placeHero();
+      placeHero(paint);
       if (!polishFrame) {
         polishFrame = window.setTimeout(() => {
           polishFrame = 0;
@@ -504,15 +576,16 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         figure.mesh.rotation.y = spin;
         if (figureIndex === index) stage.dataset.projected = (figure.mesh.scale.y / gap).toFixed(5);
         const material = figure.mesh.material;
-        if (material instanceof T.MeshBasicMaterial) {
+        if (material instanceof T.ShaderMaterial) {
           const fade = spin < 1.35 ? 1 : Math.max(0.35, 1 - ((spin - 1.35) / (Math.PI / 2 - 1.35)) * 0.65);
-          material.opacity = fade;
+          material.uniforms.opacity.value = fade;
           material.transparent = true;
           material.depthWrite = fade > 0.9;
-          if (material.map) {
-            material.map.generateMipmaps = false;
-            material.map.minFilter = T.LinearFilter as typeof material.map.minFilter;
-            material.map.magFilter = T.LinearFilter as typeof material.map.magFilter;
+          const map = material.uniforms.map.value;
+          if (map && "minFilter" in map) {
+            map.generateMipmaps = false;
+            map.minFilter = T.LinearFilter;
+            map.magFilter = T.LinearFilter;
           }
         }
       });
@@ -546,10 +619,69 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     frame = 0;
     render();
   };
-  stage.dataset.gl = "ready";
-  render();
+  const stageWidth = Math.max(stage.clientWidth, 1);
+  const lane = Math.min(156, Math.max(108, stageWidth * 0.3));
+  const sheetW = Math.max(160, stageWidth - lane - 28);
+  for (let index = 0; index < cards.length; index += 1) {
+    await yieldTurn();
+    const card = cards[index];
+    if (!card) continue;
+    card.sheet.style.width = `${sheetW}px`;
+    card.sheet.style.height = "auto";
+    card.sheet.style.transform = "none";
+    laid[index] = Math.max(72, card.sheet.offsetHeight);
+  }
+  laidWidth = stageWidth;
   await yieldTurn();
-  render();
+  render(false);
+  await yieldTurn();
+  renderer.setPixelRatio(ratio);
+  renderer.setSize(Math.max(stage.clientWidth, 1), Math.max(stage.clientHeight, 1), false);
+  await yieldTurn();
+  const vertex = gl.createShader(gl.VERTEX_SHADER);
+  const fragment = gl.createShader(gl.FRAGMENT_SHADER);
+  const driverProgram = gl.createProgram();
+  if (vertex && fragment && driverProgram) {
+    gl.shaderSource(vertex, "#version 300 es\nin vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}");
+    gl.shaderSource(fragment, "#version 300 es\nout vec4 o;void main(){o=vec4(0.0,0.0,0.0,1.0);}");
+    gl.compileShader(vertex);
+    gl.compileShader(fragment);
+    gl.attachShader(driverProgram, vertex);
+    gl.attachShader(driverProgram, fragment);
+    gl.linkProgram(driverProgram);
+    gl.useProgram(driverProgram);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(driverProgram, "p");
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.deleteProgram(driverProgram);
+    gl.deleteShader(vertex);
+    gl.deleteShader(fragment);
+    gl.deleteBuffer(buffer);
+  }
+  await yieldTurn();
+  for (const card of cards) card.group.visible = false;
+  if (cards[0]) cards[0].group.visible = true;
+  renderer.setSize(2, 2, false);
+  await yieldTurn();
+  renderer.render(scene, camera);
+  await yieldTurn();
+  for (const card of cards) card.group.visible = true;
+  renderer.setSize(Math.max(stage.clientWidth, 1), Math.max(stage.clientHeight, 1), false);
+  renderer.render(scene, camera);
+  await yieldTurn();
+  for (const figure of figures) {
+    await yieldTurn();
+    figure.mesh.visible = true;
+    renderer.render(scene, camera);
+    figure.mesh.visible = false;
+  }
+  await yieldTurn();
+  render(true);
+  stage.dataset.gl = "ready";
   const onScroll = () => {
     if (frame) return;
     frame = window.requestAnimationFrame(draw);
