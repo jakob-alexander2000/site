@@ -40,6 +40,10 @@ export function alignAutopsyLabels() {
   const answer = rail?.querySelectorAll<HTMLElement>(".leader-name")[1];
   if (!(rail instanceof HTMLElement) || !(line instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
   answer.style.marginTop = "0";
-  const delta = line.getBoundingClientRect().top - answer.getBoundingClientRect().top;
-  answer.style.marginTop = `${Math.round(delta)}px`;
+  // On phones the drawn row is display:none and reports top 0. Measuring it
+  // against a scrolled label grew the rail by the scroll offset on every resize.
+  const lineBox = line.getBoundingClientRect();
+  if (lineBox.width < 2 || lineBox.height < 2) return;
+  const delta = lineBox.top - answer.getBoundingClientRect().top;
+  answer.style.marginTop = `${Math.max(0, Math.round(delta))}px`;
 }

@@ -497,10 +497,13 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   stage.appendChild(labels);
 
   const cards: { sheet: HTMLElement; group: Group; width: number; height: number; callout: HTMLElement | null }[] = [];
+  const inlineStyles = new Map<HTMLElement, string | null>();
   for (const sheet of sheets) {
     await yieldTurn();
     const slot = sheet.closest(".plane-slot");
     const callout = slot?.querySelector<HTMLElement>(".callout") ?? null;
+    inlineStyles.set(sheet, sheet.getAttribute("style"));
+    if (callout) inlineStyles.set(callout, callout.getAttribute("style"));
     if (callout) labels.appendChild(callout);
     const width = Math.max(sheet.offsetWidth, 180);
     const height = Math.max(sheet.offsetHeight, 72);
@@ -624,10 +627,22 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   let cropRight = 21;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const laid = cards.map(() => 96);
+  // A phone toolbar changes the height by less than 150px. On touch screens the
+  // hero keeps the height it had at this width, so the canvas never thrashes.
+  const touch = (navigator.maxTouchPoints || 0) > 0 || window.matchMedia("(pointer: coarse)").matches;
+  let heroW = 0;
+  let heroH = 0;
+  let heroSized = "";
+  const stableHeight = (width: number, height: number) => {
+    if (touch && width === heroW && Math.abs(height - heroH) < 150) return heroH;
+    heroW = width;
+    heroH = height;
+    return height;
+  };
 
   const placeHero = (paint = true) => {
     const width = Math.max(stage.clientWidth, 1);
-    const height = Math.max(stage.clientHeight, 1);
+    const height = stableHeight(width, Math.max(stage.clientHeight, 1));
     const half = (camera.fov * Math.PI) / 360;
     const dist = (height / 2) / Math.tan(half);
     camera.near = 1;
@@ -692,8 +707,12 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     rig.style.transform = "";
     if (!paint) return;
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(ratio);
-    renderer.setSize(width, height, false);
+    const key = `${width}x${height}`;
+    if (key !== heroSized) {
+      renderer.setPixelRatio(ratio);
+      renderer.setSize(width, height, false);
+      heroSized = key;
+    }
     renderer.render(scene, camera);
   };
 
@@ -852,6 +871,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         if (key !== sized) {
           renderer.setSize(width, height, false);
           sized = key;
+          heroSized = "";
         }
         const half = (camera.fov * Math.PI) / 360;
         camera.near = 24;
@@ -1093,6 +1113,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   return () => {
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onScroll);
+    if (polishFrame) window.clearTimeout(polishFrame);
     document.documentElement.classList.remove("is-past", "is-figure");
     if (frame) window.cancelAnimationFrame(frame);
     const stack = stage.querySelector(".stack");
@@ -1103,9 +1124,18 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         if (card.callout) slot?.prepend(card.callout);
       }
     }
+    for (const [node, style] of inlineStyles) {
+      if (style === null) node.removeAttribute("style");
+      else node.setAttribute("style", style);
+    }
+    canvas.removeAttribute("style");
     labels.remove();
     world.remove();
-    renderer.dispose();
+    try {
+      renderer.dispose();
+    } catch {
+      // A lost context has nothing left to free.
+    }
     stage.dataset.gl = "off";
   };
 }

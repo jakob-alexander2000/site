@@ -58,6 +58,22 @@ export function SchnittMount() {
     if (document.documentElement.dataset.schnitt !== "gl") return;
     let destroy = () => {};
     let cancelled = false;
+    // A lost context (memory pressure on a phone) stops the scene for good and
+    // leaves the static hero. Nothing waits for a restore.
+    const flatten = () => {
+      if (cancelled) return;
+      cancelled = true;
+      try {
+        destroy();
+      } catch {
+        // The scene is already gone.
+      }
+      destroy = () => {};
+      document.documentElement.dataset.schnitt = "flat";
+      showExplodedFallback(stage);
+    };
+    const onLost = () => flatten();
+    canvas.addEventListener("webglcontextlost", onLost);
     const start = () => {
       kick(() => {
         if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
@@ -65,8 +81,14 @@ export function SchnittMount() {
           .then(async ({ mountSchnittScene }) => {
             if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
             try {
-              destroy = await mountSchnittScene(stage, canvas);
+              const teardown = await mountSchnittScene(stage, canvas);
+              if (cancelled) {
+                teardown();
+                return;
+              }
+              destroy = teardown;
             } catch {
+              if (cancelled) return;
               document.documentElement.dataset.schnitt = "flat";
               showExplodedFallback(stage);
             }
@@ -82,6 +104,7 @@ export function SchnittMount() {
     else window.addEventListener("load", start, { once: true });
     return () => {
       cancelled = true;
+      canvas.removeEventListener("webglcontextlost", onLost);
       window.removeEventListener("load", start);
       destroy();
     };
