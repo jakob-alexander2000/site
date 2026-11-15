@@ -1699,6 +1699,19 @@ html.is-cut svg.plate-drawing {
   vertical-align: middle;
 }
 
+/* When the layer note is already visible, the + is a quiet register mark. */
+.part-note .plus-mark,
+.part-note .plus-callout {
+  display: none;
+}
+
+.part-note .register-mark {
+  position: relative;
+  display: inline-block;
+  margin-left: 6px;
+  flex: 0 0 auto;
+}
+
 .plus-mark {
   position: relative;
   display: inline-flex;
@@ -1767,16 +1780,41 @@ html.is-cut svg.plate-drawing {
   letter-spacing: 0;
 }
 
+.plus-callout[hidden] {
+  display: none !important;
+}
+
 @media (max-width: 800px) {
-  .plus-mark {
+  .callout-head {
+    flex-wrap: wrap;
+  }
+
+  .part-note {
+    display: contents;
+  }
+
+  .part-note .plus-mark {
+    display: inline-flex;
     width: 44px;
     height: 44px;
     margin-left: 0;
   }
 
-  .plus-callout {
-    left: 0;
+  .part-note .register-mark {
+    display: none;
+  }
+
+  .plus-callout:not([hidden]) {
+    position: static;
+    display: block;
+    flex: 1 0 100%;
+    max-width: 100%;
+    margin: 6px 0 8px;
+    left: auto;
     right: auto;
+    top: auto;
+    bottom: auto;
+    translate: none;
   }
 
   .callout::after {
@@ -1788,5 +1826,15 @@ html.is-cut svg.plate-drawing {
     font-family: var(--font-mono), ui-monospace, monospace;
     letter-spacing: 0.04em;
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 1100px) {
+  .schnitt-stage[data-gl="ready"] .part-note .plus-mark {
+    display: inline-flex;
+  }
+
+  .schnitt-stage[data-gl="ready"] .part-note .register-mark {
+    display: none;
   }
 }

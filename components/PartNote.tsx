@@ -4,8 +4,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const OPEN = "partnote-open";
 
-export function RegisterMark() {
-  return <span className="register-mark" data-mark="register" aria-hidden="true" />;
+export function RegisterMark({ className }: { className?: string } = {}) {
+  return (
+    <span
+      className={className ? `register-mark ${className}` : "register-mark"}
+      data-mark="register"
+      aria-hidden="true"
+    />
+  );
 }
 
 export function PartNote({ id, label, note }: { id: string; label: string; note: string }) {
@@ -33,6 +39,18 @@ export function PartNote({ id, label, note }: { id: string; label: string; note:
   useLayoutEffect(() => {
     const node = panel.current;
     if (!open || !node) return;
+    node.style.translate = "";
+    node.style.top = "";
+    node.style.bottom = "";
+    node.style.marginTop = "";
+    node.style.marginBottom = "";
+    if (getComputedStyle(node).position !== "absolute") {
+      const inFlow = node.getBoundingClientRect();
+      if (inFlow.bottom > window.innerHeight - 8) {
+        window.scrollBy(0, inFlow.bottom - window.innerHeight + 8);
+      }
+      return;
+    }
     node.style.translate = "0 0";
     node.style.top = "100%";
     node.style.bottom = "auto";
@@ -53,6 +71,7 @@ export function PartNote({ id, label, note }: { id: string; label: string; note:
 
   return (
     <span className="part-note">
+      <RegisterMark className="part-note-register" />
       <button
         type="button"
         className="plus-mark"

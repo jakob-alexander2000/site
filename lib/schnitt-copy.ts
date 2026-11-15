@@ -12,6 +12,7 @@ export const BUILT_LINK = "How it is built";
 export const PROJECT_INDEX = "01";
 export const PROJECT_NAME = "CITEBOT";
 export const PARTS_LABEL = "The parts in detail";
+export const PARTS_LINK = "See the parts";
 
 export const LAYERS = [
   { id: "handbook", letter: "A", name: "HANDBOOK", note: "Source document" },

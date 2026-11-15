@@ -3,7 +3,7 @@ import { RunLink } from "@/components/RunLink";
 import { SchnittMount } from "@/components/SchnittStage";
 import { SchnittSheets } from "@/components/SchnittSheets";
 import { contact } from "@/lib/contact";
-import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PARTS_LABEL, PROJECT_INDEX, PROJECT_NAME, RUN_LINK } from "@/lib/schnitt-copy";
+import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PARTS_LINK, PROJECT_INDEX, PROJECT_NAME, RUN_LINK } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
 import { LOOKS } from "@/lib/looks";
 import { SHEETS } from "@/lib/plates";
@@ -53,7 +53,7 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
         <footer className="schnitt-foot">
           <p className="hero-continue">
             <a href="#citebot" data-hero-thread>
-              {PARTS_LABEL}
+              {PARTS_LINK}
               <span className="hero-thread" aria-hidden="true" />
             </a>
           </p>

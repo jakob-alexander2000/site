@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { CITEBOT_PLATE } from "../lib/diagrams";
+import { PARTS_LABEL, PARTS_LINK } from "../lib/schnitt-copy";
 
 const views = [
   { width: 390, height: 844 },
@@ -71,8 +72,11 @@ test.describe("H3 thread into section 1", () => {
       const link = page.locator("a[data-hero-thread]");
       await expect(link).toBeVisible();
       await expect(link).toHaveAttribute("href", "#citebot");
+      await expect(link).toHaveText(PARTS_LINK);
+      await expect(link).not.toHaveText(PARTS_LABEL);
       const thread = link.locator(".hero-thread");
       await expect(thread).toBeVisible();
+      await expect(page.locator("#citebot")).toContainText(PARTS_LABEL);
       const target = page.locator("#citebot");
       await expect(target).toHaveCount(1);
     });
