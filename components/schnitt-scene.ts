@@ -1,5 +1,6 @@
 import { loadThree } from "@/components/load-three";
 import { bandForWidth, type PlateBand } from "@/lib/plate-bake";
+import { SECTION_RAIL } from "@/lib/section-rail";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
 import { placeThread } from "@/components/schnitt-fallback";
@@ -423,10 +424,40 @@ async function uploadPlate(
 void pageFaces;
 void raster;
 
+/** The baked still for each painted section. A failed image leaves the SVG figure. */
+function mountSectionStills() {
+  const scale = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
+  for (const id of ["citebot", "style"] as const) {
+    const frame = document.querySelector(`#${id} .drawing-frame`);
+    if (!(frame instanceof HTMLElement) || frame.querySelector(".plate-still")) continue;
+    const width = frame.getBoundingClientRect().width;
+    const band = bandForWidth(width > 2 ? width : window.innerWidth);
+    const img = new Image();
+    img.className = "plate-still";
+    img.alt = "";
+    img.decoding = "sync";
+    img.src = `/plates/${id}@${band}@${scale}.webp`;
+    img.addEventListener("load", () => {
+      frame.dataset.still = id;
+      const svg = frame.querySelector("svg.plate-drawing");
+      if (svg instanceof HTMLElement) svg.style.visibility = "hidden";
+      const labels = frame.querySelector(".sheet-labels");
+      if (labels instanceof HTMLElement) labels.style.visibility = "hidden";
+    });
+    img.addEventListener("error", () => {
+      img.remove();
+      frame.dataset.still = "figure";
+    });
+    frame.appendChild(img);
+  }
+}
+
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   painted.clear();
   const plateLoads = new Map<string, Promise<ImageBitmap | null>>();
-  for (const id of ["citebot", "style"]) plateLoads.set(id, loadBuiltPlate(id));
+  if (SECTION_RAIL) {
+    for (const id of ["citebot", "style"]) plateLoads.set(id, loadBuiltPlate(id));
+  }
   await yieldTurn();
   const T = await loadThree();
   await yieldTurn();
@@ -488,7 +519,9 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   await yieldTurn();
 
   const figures: { id: (typeof PLATES)[number]; mesh: Mesh; sheets: Mesh[]; worldH: number }[] = [];
-  for (const [index, id] of PLATES.entries()) {
+  if (!SECTION_RAIL) {
+    // The hero is the last three.js work. Section plates stay baked stills.
+  } else for (const [index, id] of PLATES.entries()) {
     await yieldTurn();
     const mesh = new T.Mesh(
       new T.PlaneGeometry(1, 1),
@@ -733,7 +766,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
           layoutPlates();
         }, 0);
       }
-    } else {
+    } else if (SECTION_RAIL) {
       const metrics = plateMetrics();
       const pinTop = Math.round(window.innerHeight * 0.16);
       const runwayOf = (rect: DOMRect) => {
@@ -951,6 +984,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
         stage.dataset.assemble = "1.000";
         stage.dataset.areas = "0,0";
       }
+    } else {
+      document.documentElement.classList.remove("is-figure");
     }
     if (!polishFrame) {
       polishFrame = window.setTimeout(() => {
@@ -1045,6 +1080,8 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   }
   await yieldTurn();
   render(true);
+  stage.dataset.rail = SECTION_RAIL ? "on" : "off";
+  if (!SECTION_RAIL) mountSectionStills();
   stage.dataset.gl = "ready";
   const onScroll = () => {
     if (frame) return;
