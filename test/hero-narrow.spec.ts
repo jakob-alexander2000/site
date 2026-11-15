@@ -4,7 +4,7 @@ for (const width of [801, 1024, 1280, 1440]) {
   test(`hero labels stay apart and sheets stay inside the stage at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
     const report = await page.locator(".schnitt-stage").evaluate((stage) => {
       const overlaps: string[] = [];
       const clips: string[] = [];

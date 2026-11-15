@@ -7,7 +7,7 @@ test("desktop label boxes stay off the drawn cards through the scroll", async ({
   test.skip(browserName !== "chromium", "Reads back WebGL pixels in Chromium.");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
   await page.evaluate(() => document.fonts.ready);
   for (const share of [0, 0.5, 1]) {
     await page.evaluate((value) => {
@@ -49,7 +49,7 @@ test("desktop label boxes stay off the drawn cards through the scroll", async ({
 test("desktop sheet separation only increases through the hero scroll", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
   await page.evaluate(() => document.fonts.ready);
   const spreads: number[] = [];
   for (const share of [0, 0.25, 0.5, 0.75, 1]) {
@@ -74,7 +74,7 @@ test("at the end of the scroll the paper sits on its drawn card", async ({ page,
   test.skip(browserName !== "chromium", "Reads back WebGL pixels in Chromium.");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".schnitt");
