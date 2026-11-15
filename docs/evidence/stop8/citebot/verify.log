@@ -1,5 +1,5 @@
-dc752f5b11eff38f0888ada03b9f5eeeb9b55471
-tree verified: 97c8b052e95d6ae63aa3fe89876cf801dc311f30 (code dc752f5 + regenerated bakes)
+23507c34e21813ee9b441a68961974d6d3b2f985
+
 
 > site@0.1.0 verify
 > npm run typecheck && npm run lint && npm run build && npm test
@@ -17,20 +17,20 @@ tree verified: 97c8b052e95d6ae63aa3fe89876cf801dc311f30 (code dc752f5 + regenera
 > next build
 
 ▲ Next.js 16.4.5 (Turbopack)
-✓ Running next.config.ts took 21ms
+✓ Running next.config.ts took 24ms
 - Cache Components enabled
 - Partial Prefetching enabled
 
   Creating an optimized production build ...
-✓ Compiled successfully in 108ms
+✓ Compiled successfully in 282ms
   Running TypeScript ...
-  Finished TypeScript in 1386ms ...
-  Collecting page data using 5 workers ...
-  Generating static pages using 5 workers (0/4) ...
-  Generating static pages using 5 workers (1/4)
-  Generating static pages using 5 workers (2/4)
-  Generating static pages using 5 workers (3/4)
-✓ Generating static pages using 5 workers (4/4) in 331ms
+  Finished TypeScript in 1359ms ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/4) ...
+  Generating static pages using 3 workers (1/4) 
+  Generating static pages using 3 workers (2/4) 
+  Generating static pages using 3 workers (3/4) 
+✓ Generating static pages using 3 workers (4/4) in 200ms
   Finalizing page optimization ...
 
 Route (app)
@@ -49,40 +49,172 @@ Route (app)
 > site@0.1.0 test:unit
 > node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/plate-stills.test.ts test/scan.test.ts test/schnitt-run.test.ts
 
-✔ production contact shows the one address and GitHub (5.496621ms)
-✔ null contact renders no phone and no email row (1.055999ms)
-✔ a set phone and email become links (0.621042ms)
-✔ opening line and reveal length are fixed (1.187566ms)
-✔ each shown sentence is backed by a proof excerpt (0.618515ms)
-✔ the lookbook files are gone (0.189419ms)
-✔ proof lines still match the repositories (1423.39046ms)
-✔ desktop plate stills at scroll 0, mid and end differ (2.75572ms)
-✔ stop 4 evidence stills are not byte-identical (4.68117ms)
-✔ stop 5 evidence stills are not byte-identical (4.93386ms)
-✔ plate copy is real and the scan is clean (3.297917ms)
-✔ every rendered proof link returns 200 (7061.222448ms)
-✔ style figures are in the public readme (11.920403ms)
-✔ style figures and fins are recomputed from the pinned public sample (18.059771ms)
-✔ the autopsy verdict sheet is the scorer's own output for the public sample (34.372776ms)
-✔ a caption only names what its drawing shows (0.354907ms)
-✔ the site carries only the contact address (1.942902ms)
-✔ every banned rule fires on the fixture (0.651518ms)
-✔ case, lookalike, invisible and spacing tricks are folded (0.369778ms)
-✔ the public scan names no private figure (1.029697ms)
-✔ approved copy stays clean (0.78481ms)
-✔ pinned fixture files match the manifest (2.712333ms)
-✔ the vendored fixtures regenerate from the pinned commits (86.030756ms)
-✔ the run is the paid-leave fixture (0.845946ms)
-✔ the run text passes the copy scan (0.445654ms)
-✔ the phone frame-time record is the static stack (0.481568ms)
-ℹ tests 26
-ℹ suites 0
-ℹ pass 26
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 7332.167161
+TAP version 13
+# Subtest: production contact shows the one address and GitHub
+ok 1 - production contact shows the one address and GitHub
+  ---
+  duration_ms: 5.136324
+  type: 'test'
+  ...
+# Subtest: null contact renders no phone and no email row
+ok 2 - null contact renders no phone and no email row
+  ---
+  duration_ms: 1.086666
+  type: 'test'
+  ...
+# Subtest: a set phone and email become links
+ok 3 - a set phone and email become links
+  ---
+  duration_ms: 0.876655
+  type: 'test'
+  ...
+# Subtest: opening line and reveal length are fixed
+ok 4 - opening line and reveal length are fixed
+  ---
+  duration_ms: 0.909896
+  type: 'test'
+  ...
+# Subtest: each shown sentence is backed by a proof excerpt
+ok 5 - each shown sentence is backed by a proof excerpt
+  ---
+  duration_ms: 0.261795
+  type: 'test'
+  ...
+# Subtest: the lookbook files are gone
+ok 6 - the lookbook files are gone
+  ---
+  duration_ms: 0.115307
+  type: 'test'
+  ...
+# Subtest: proof lines still match the repositories
+ok 7 - proof lines still match the repositories
+  ---
+  duration_ms: 401.684725
+  type: 'test'
+  ...
+# Subtest: desktop plate stills at scroll 0, mid and end differ
+ok 8 - desktop plate stills at scroll 0, mid and end differ
+  ---
+  duration_ms: 5.495536
+  type: 'test'
+  ...
+# Subtest: stop 4 evidence stills are not byte-identical
+ok 9 - stop 4 evidence stills are not byte-identical
+  ---
+  duration_ms: 11.160682
+  type: 'test'
+  ...
+# Subtest: stop 5 evidence stills are not byte-identical
+ok 10 - stop 5 evidence stills are not byte-identical
+  ---
+  duration_ms: 15.542001
+  type: 'test'
+  ...
+# Subtest: plate copy is real and the scan is clean
+ok 11 - plate copy is real and the scan is clean
+  ---
+  duration_ms: 3.87862
+  type: 'test'
+  ...
+# Subtest: every rendered proof link returns 200
+ok 12 - every rendered proof link returns 200
+  ---
+  duration_ms: 2016.154738
+  type: 'test'
+  ...
+# Subtest: style figures are in the public readme
+ok 13 - style figures are in the public readme
+  ---
+  duration_ms: 9.196716
+  type: 'test'
+  ...
+# Subtest: style figures and fins are recomputed from the pinned public sample
+ok 14 - style figures and fins are recomputed from the pinned public sample
+  ---
+  duration_ms: 118.306654
+  type: 'test'
+  ...
+# Subtest: the autopsy verdict sheet is the scorer's own output for the public sample
+ok 15 - the autopsy verdict sheet is the scorer's own output for the public sample
+  ---
+  duration_ms: 88.039382
+  type: 'test'
+  ...
+# Subtest: a caption only names what its drawing shows
+ok 16 - a caption only names what its drawing shows
+  ---
+  duration_ms: 0.309258
+  type: 'test'
+  ...
+# Subtest: the site carries only the contact address
+ok 17 - the site carries only the contact address
+  ---
+  duration_ms: 2.708394
+  type: 'test'
+  ...
+# Subtest: every banned rule fires on the fixture
+ok 18 - every banned rule fires on the fixture
+  ---
+  duration_ms: 0.702467
+  type: 'test'
+  ...
+# Subtest: case, lookalike, invisible and spacing tricks are folded
+ok 19 - case, lookalike, invisible and spacing tricks are folded
+  ---
+  duration_ms: 0.323826
+  type: 'test'
+  ...
+# Subtest: the public scan names no private figure
+ok 20 - the public scan names no private figure
+  ---
+  duration_ms: 0.217989
+  type: 'test'
+  ...
+# Subtest: approved copy stays clean
+ok 21 - approved copy stays clean
+  ---
+  duration_ms: 0.550171
+  type: 'test'
+  ...
+# Subtest: pinned fixture files match the manifest
+ok 22 - pinned fixture files match the manifest
+  ---
+  duration_ms: 4.268207
+  type: 'test'
+  ...
+# Subtest: the vendored fixtures regenerate from the pinned commits
+ok 23 - the vendored fixtures regenerate from the pinned commits
+  ---
+  duration_ms: 137.023256
+  type: 'test'
+  ...
+# Subtest: the run is the paid-leave fixture
+ok 24 - the run is the paid-leave fixture
+  ---
+  duration_ms: 0.755081
+  type: 'test'
+  ...
+# Subtest: the run text passes the copy scan
+ok 25 - the run text passes the copy scan
+  ---
+  duration_ms: 0.467971
+  type: 'test'
+  ...
+# Subtest: the phone frame-time record is the static stack
+ok 26 - the phone frame-time record is the static stack
+  ---
+  duration_ms: 2.256543
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2591.534068
 
 > site@0.1.0 test:scan
 > node --import tsx scripts/scan-copy.ts
@@ -93,24 +225,18 @@ copy scan ok (221 files, only the contact address allowed)
 > playwright test --retries=0
 
 
-Running 292 tests using 4 workers
+Running 292 tests using 2 workers
 
-(node:1291614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:568213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
-(node:1291612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:568214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
-(node:1291620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-(Use `node --trace-warnings ...` to show where the warning was created)
-
-(node:1291613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-(Use `node --trace-warnings ...` to show where the warning was created)
-
-[1/292] [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
-[2/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 375px phone
+[1/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 375px phone
+[2/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 390px phone
 [3/292] [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
-[4/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 390px phone
+[4/292] [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
 [5/292] [chromium] › test/b1-drawn-cards.spec.ts:73:1 › at the end of the scroll the paper sits on its drawn card
 [6/292] [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 390px
 [7/292] [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 1440px
@@ -130,8 +256,8 @@ Running 292 tests using 4 workers
 [21/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1920px
 [22/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 375px
 [23/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 390px
-[24/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 375x812
-[25/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 430px
+[24/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 430px
+[25/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 375x812
 [26/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 812x375
 [27/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 390x844
 [28/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 844x390
@@ -172,8 +298,8 @@ Running 292 tests using 4 workers
 [63/292] [chromium] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1280px
 [64/292] [chromium] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1440px
 [65/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 801px
-[66/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1099px
-[67/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1024px
+[66/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1024px
+[67/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1099px
 [68/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1100px
 [69/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1280px
 [70/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1339px
@@ -216,12 +342,12 @@ Running 292 tests using 4 workers
 [107/292] [chromium] › test/schnitt.spec.ts:361:1 › axe, console, and hero layout shift
 [108/292] [chromium] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
 [109/292] [chromium] › test/schnitt.spec.ts:449:1 › scroll pulls the tilted planes apart
+[chromium] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
+{"viewport":"390x844","frames":69,"medianMs":16.7,"p95Ms":16.7,"maxMs":83.4,"shareOver20ms":0.014}
+
 [110/292] [chromium] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
 [111/292] [chromium] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
 [112/292] [chromium] › test/schnitt.spec.ts:538:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
-[chromium] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
-{"viewport":"390x844","frames":71,"medianMs":16.7,"p95Ms":16.8,"maxMs":50,"shareOver20ms":0.014}
-
 [113/292] [chromium] › test/schnitt.spec.ts:578:1 › theme color is paper
 [114/292] [chromium] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x844
 [115/292] [chromium] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x780
@@ -256,22 +382,16 @@ Running 292 tests using 4 workers
 [144/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1440px
 [145/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1920px
 [146/292] [chromium] › test/skills-strip.spec.ts:3:1 › a skill strip opens on hover, focus, and tap, with a hairline stroke
-(node:1294422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:570217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
 [147/292] [webkit] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 375px phone
-(node:1294431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-(Use `node --trace-warnings ...` to show where the warning was created)
-
 [148/292] [webkit] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 390px phone
-(node:1294438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-(Use `node --trace-warnings ...` to show where the warning was created)
-
 [149/292] [webkit] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
-(node:1294462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[150/292] [webkit] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+(node:570440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
-[150/292] [webkit] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
 [151/292] [webkit] › test/b1-drawn-cards.spec.ts:73:1 › at the end of the scroll the paper sits on its drawn card
 [152/292] [webkit] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 390px
 [153/292] [webkit] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 1440px
@@ -358,8 +478,8 @@ Running 292 tests using 4 workers
 [234/292] [webkit] › test/schnitt-page.spec.ts:115:1 › about returns home
 [235/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x844
 [236/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x780
-[237/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 375x667
-[238/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x664
+[237/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x664
+[238/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 375x667
 [239/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 744x1133
 [240/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x390
 [241/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x340
@@ -415,4 +535,4 @@ Running 292 tests using 4 workers
 [291/292] [webkit] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1920px
 [292/292] [webkit] › test/skills-strip.spec.ts:3:1 › a skill strip opens on hover, focus, and tap, with a hairline stroke
   40 skipped
-  252 passed (1.2m)
+  252 passed (2.3m)
