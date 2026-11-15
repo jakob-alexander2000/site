@@ -63,15 +63,19 @@ function yieldTurn(): Promise<void> {
 /** Wall-clock budget for one resumed loader turn. A single upload or compile stays inside it. */
 const FRAME_BUDGET_MS = 8;
 
-function openBudget() {
+function openBudget(maxUnits: number) {
   let spent = 0;
+  let units = 0;
   return async function account(used: number): Promise<void> {
-    // A frozen clock during a throttled task reports 0. Treat that as a full budget
-    // so the next unit cannot join this callback.
-    spent += used > 0 ? used : FRAME_BUDGET_MS;
-    if (spent < FRAME_BUDGET_MS) return;
-    await yieldTurn();
+    units += 1;
+    // A frozen clock reports 0. Count that as a share of the budget so units still stop.
+    spent += used > 0 ? used : FRAME_BUDGET_MS / maxUnits;
+    if (spent < FRAME_BUDGET_MS && units < maxUnits) return;
+    await new Promise<void>((resolve) => {
+      window.requestAnimationFrame(() => resolve());
+    });
     spent = 0;
+    units = 0;
   };
 }
 
@@ -399,8 +403,8 @@ async function uploadPlate(
   const gl = renderer.getContext();
   const handle = (renderer.properties.get(texture) as { __webglTexture?: WebGLTexture }).__webglTexture;
   if (!handle || !(gl instanceof WebGL2RenderingContext)) return;
-  const bandRows = 4;
-  const account = openBudget();
+  const bandRows = 8;
+  const account = openBudget(2);
   for (let y = 0; y < bitmap.height; y += bandRows) {
     const height = Math.min(bandRows, bitmap.height - y);
     const started = performance.now();
@@ -558,7 +562,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
     ...figures.map((figure) => figure.mesh),
     ...figures.flatMap((figure) => figure.sheets),
   ];
-  const account = openBudget();
+  const account = openBudget(1);
   for (const mesh of meshes) {
     const started = performance.now();
     const solo = new T.Scene();
