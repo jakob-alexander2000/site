@@ -387,7 +387,6 @@ async function uploadPlate(
     const height = Math.min(stripH, bitmap.height - y);
     if (height <= 0) break;
     const strip = await createImageBitmap(bitmap, 0, y, bitmap.width, height);
-    await yieldTurn();
     gl.bindTexture(gl.TEXTURE_2D, handle);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -403,6 +402,8 @@ void raster;
 
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   painted.clear();
+  const plateLoads = new Map<string, Promise<ImageBitmap | null>>();
+  for (const id of ["citebot", "style"]) plateLoads.set(id, loadBuiltPlate(id));
   await yieldTurn();
   const T = await loadThree();
   await yieldTurn();
@@ -510,7 +511,7 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   for (const figure of figures) {
     await yieldTurn();
     if (!drawingOf(figure.id)) continue;
-    const bitmap = await loadBuiltPlate(figure.id);
+    const bitmap = await (plateLoads.get(figure.id) ?? Promise.resolve(null));
     if (!bitmap) continue;
     painted.add(figure.id);
     const svg = document.querySelector(`#${figure.id} svg.plate-drawing`);
