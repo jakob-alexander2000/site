@@ -51,184 +51,128 @@ function SheetRule({ index }: { index: string }) {
   );
 }
 
+/** Label anchors on the 1280 x 380 CiteBot sheet, as shares of its box: x 0, 340, 780 and y 30. */
+const LABEL_LEFT = { question: "0%", source: "26.5625%", answer: "60.9375%" } as const;
+const LABEL_TOP = "7.8947%";
+
 export function Plates({ run }: { run: SchnittRun }) {
+  const cited = run.sentences.find((sentence) => sentence.verdict === "pass");
   const fail = run.sentences.find((sentence) => sentence.verdict === "fail");
-  const steps = [
-    { name: "Question", lines: [run.question] },
-    { name: "Retrieve", lines: [run.handbook.file, run.passage.span] },
-    { name: "Draft", lines: run.sentences.map((sentence) => sentence.text) },
-    { name: "Split", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.text}`) },
-    { name: "Check", lines: run.sentences.map((sentence, index) => `S${index + 1} · ${sentence.verdict === "fail" ? "FAIL" : "PASS"}`) },
-    {
-      name: "Verdict",
-      lines: run.sentences.flatMap((sentence, index) =>
-        sentence.verdict === "fail"
-          ? [`S${index + 1} · FAIL · ${sentence.text}`, sentence.evidence]
-          : [`S${index + 1} · PASS · ${sentence.text}`],
-      ),
-    },
-  ];
-  const x0 = 150;
-  const y0 = 28;
-  const dx = 156;
-  const dy = 56;
-  const sw = 340;
-  const sh = 68;
-  const sheetBox = (index: number) => ({ x: x0 + index * dx, y: y0 + index * dy, w: sw, h: index === 5 ? 168 : sh });
+  const spanAt = run.passage.text.indexOf(run.passage.span);
+  const before = run.passage.text.slice(0, spanAt).trim();
+  const after = run.passage.text.slice(spanAt + run.passage.span.length).trim();
+  const question = wrapLines(run.question, 22);
+  // Question, then source, then answer: one row of three columns on a 1280 x 380 sheet.
+  const col = { question: 0, source: 340, answer: 780 };
+  const spanY = 166;
   return (
     <div className="plates">
       <AlignLeaders />
       <section className="plate" id="citebot" aria-labelledby="citebot-title">
         <p className="kicker">01 · CITEBOT</p>
         <h2 id="citebot-title">{CITEBOT_PLATE.headline}</h2>
-        <p className="body">{CITEBOT_PLATE.body}</p>
-        <figure>
-          <div className="drawing-frame">
-          <svg className="plate-drawing" viewBox="0 0 1280 520" role="img" aria-labelledby="citebot-drawing">
-            <title id="citebot-drawing">Six sheets on a diagonal rail for the paid-leave question.</title>
-            {steps.map((step, index) => {
-              const box = sheetBox(index);
-              const verdict = step.name === "Verdict";
-              const ink = verdict ? "#F7F7F5" : "#111111";
-              const rowY = box.y + 16;
-              return (
-                <g key={step.name} className="draw-sheet" data-step={step.name.toLowerCase()}>
-                  <line className="leader-line" data-for={step.name.toLowerCase()} x1={108} y1={rowY} x2={box.x} y2={rowY} stroke="#111111" strokeWidth="1" />
-                  <rect className={`sheet-face${verdict ? " verdict-sheet" : ""}`} x={box.x} y={box.y} width={box.w} height={box.h} fill={verdict ? "#111111" : "#FBFAF7"} stroke="#111111" />
-                  {step.name === "Split"
-                    ? run.sentences.map((sentence, sentenceIndex) => (
-                        <text key={sentence.text} x={box.x + 12} y={box.y + 28 + sentenceIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
-                          {`S${sentenceIndex + 1} · `}
-                          <tspan className={sentence.verdict === "fail" ? "split-fail-sentence" : undefined}>{sentence.text}</tspan>
-                        </text>
-                      ))
-                    : step.name === "Verdict"
-                      ? (() => {
-                        // Rows stack from a cursor so a wrapped pass line never runs into the FAIL loop below it.
-                        let cursor = box.y + 28;
-                        return run.sentences.flatMap((sentence, sentenceIndex) => {
-                          if (sentence.verdict !== "fail") {
-                            const lines = wrapLines(`S${sentenceIndex + 1} · PASS · ${sentence.text}`, 32);
-                            const top = cursor;
-                            cursor += lines.length * 18 + 12;
-                            return lines.map((line, lineIndex) => (
-                              <text key={line} x={box.x + 12} y={top + lineIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
-                                {line}
-                              </text>
-                            ));
-                          }
-                          const y = cursor + 14;
-                          cursor = y + 58;
-                          return [
-                            <g key="mark" className="fail-mark">
-                              <text className="fail-word" x={box.x + 16} y={y} fill="#FF8A84" fontSize="15" fontFamily="ui-monospace, monospace">
-                                {`S${sentenceIndex + 1} · FAIL`}
-                              </text>
-                              <ellipse className="pen-loop" cx={box.x + 58} cy={y - 5} rx="54" ry="14" fill="none" stroke="#C6302A" strokeWidth="1.6" />
-                            </g>,
-                            <text key="sentence" className="verdict-fail-sentence" x={box.x + 128} y={y} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
-                              {sentence.text}
-                            </text>,
-                            <text key="why" className="verdict-fail-reason" x={box.x + 16} y={y + 36} fill="#F7F7F5" fontSize="15" fontFamily="Geist, sans-serif">
-                              {sentence.evidence}
-                            </text>,
-                          ];
-                        });
-                      })()
-                      : step.lines.flatMap((line) => wrapLines(line, 42)).map((line, lineIndex) => (
-                          <text key={line} x={box.x + 12} y={box.y + 26 + lineIndex * 18} fill={ink} fontSize="15" fontFamily="Geist, sans-serif">
-                            {line}
-                          </text>
-                        ))}
-                </g>
-              );
-            })}
-            {(["retrieve", "check"] as const).map((id) => {
-              const index = id === "retrieve" ? 1 : 4;
-              const box = sheetBox(index);
-              // The path leaves the right edge, clear of the next sheet, and the
-              // hang sits beside that edge. Nothing about it enters the label column.
-              const edgeX = box.x + box.w;
-              const edgeY = id === "retrieve" ? box.y + 26 : box.y + 18;
-              const hang = id === "retrieve"
-                ? { x: edgeX + 16, y: edgeY - 18, w: 312, h: 40 }
-                : { x: edgeX + 14, y: edgeY - 100, w: 148, h: 128 };
-              const evidenceLines = wrapLines(fail?.evidence ?? "", 16);
-              return (
-                <g key={id} data-hang={id}>
-                  <line className="hang-leader" data-leader={id} x1={edgeX} y1={edgeY} x2={hang.x + 8} y2={edgeY} stroke="#111111" strokeWidth="1" strokeDasharray="4 4" />
-                  <rect className="sheet-face hang-sheet" x={hang.x} y={hang.y} width={hang.w} height={hang.h} fill="#FBFAF7" stroke="#111111" strokeDasharray="6 4" />
-                  {id === "retrieve" ? (
-                    <text x={hang.x + 12} y={hang.y + 26} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">
-                      {CITEBOT_PLATE.refusal}
-                    </text>
-                  ) : (
-                    <>
-                      <g className="fail-mark">
-                        <text className="fail-word" x={hang.x + 36} y={hang.y + 22} textAnchor="middle" fill="#C6302A" fontSize="15" fontFamily="ui-monospace, monospace">FAIL</text>
-                        <ellipse className="pen-loop" cx={hang.x + 36} cy={hang.y + 17} rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.4" />
-                      </g>
-                      <text className="verdict-fail-sentence" x={hang.x + 10} y={hang.y + 64} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{fail?.text}</text>
-                      {evidenceLines.map((line, lineIndex) => (
-                        <text key={line} x={hang.x + 10} y={hang.y + 86 + lineIndex * 18} fill="#111111" fontSize="15" fontFamily="Geist, sans-serif">{line}</text>
-                      ))}
-                    </>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-          <div className="sheet-labels">
-            {steps.map((step, index) => {
-              const box = sheetBox(index);
-              const rowY = box.y + 16;
-              return (
-                <p key={step.name} className="leader-name" data-for={step.name.toLowerCase()} style={{ left: "12px", top: `${(rowY / 520) * 100}%`, transform: "translateY(-50%)" }}>
-                  {step.name.toUpperCase()}
-                </p>
-              );
-            })}
-          </div>
-          </div>
-          <div className="cut-runway" aria-hidden="true" />
+        <figure className="cite-figure">
           <ol className="cite-steps">
-            {steps.map((step) => (
-              <li key={step.name}>
-                {step.name}. {step.lines.join(" ")}
-              </li>
-            ))}
+            <li>Question. {run.question}</li>
+            <li>
+              Source. {run.handbook.file}: {run.passage.text}
+            </li>
+            <li>
+              Answer. {cited?.text} PASS, cited from {run.handbook.file}. {fail?.text} FAIL. {fail?.evidence}
+            </li>
           </ol>
-          <div className="plate-stack">
-            <ol className="rail-steps">
-              {steps.map((step) => (
-                <li key={step.name} className={`rail-sheet${step.name === "Verdict" ? " verdict-sheet" : ""}`}>
-                  <p className="leader-name kicker">{step.name}</p>
-                  {step.lines.map((line) => (
-                    <p className="body" key={line}>
-                      {line}
-                    </p>
-                  ))}
-                </li>
-              ))}
-            </ol>
-            <ul className="rail-fails">
-              <li className="rail-fail" data-hang="retrieve">
-                <p className="kicker">Nothing retrieved</p>
-                <p className="body">{CITEBOT_PLATE.refusal}</p>
-              </li>
-              <li className="rail-fail" data-hang="check">
-                <p className="kicker">Contradiction</p>
-                <p className="body">
-                  <svg className="fail-mark" viewBox="0 0 78 32" width="78" height="32" role="img" aria-label="FAIL">
-                    <text className="fail-word" x="39" y="21" textAnchor="middle" fill="#C6302A" fontSize="13" fontFamily="ui-monospace, monospace">FAIL</text>
-                    <ellipse className="pen-loop" cx="39" cy="16" rx="32" ry="13" fill="none" stroke="#C6302A" strokeWidth="1.6" />
-                  </svg>
-                  <span className="verdict-fail-sentence">{fail?.text}</span> {fail?.evidence}
+          <div className="drawing-frame">
+            <svg className="plate-drawing" viewBox="0 0 1280 380" role="img" aria-labelledby="citebot-drawing">
+              <title id="citebot-drawing">{`${run.question} ${run.passage.text} ${cited?.text ?? ""} ${fail?.text ?? ""} FAIL. ${fail?.evidence ?? ""}`}</title>
+              <g data-col="question">
+                {question.map((line, index) => (
+                  <text key={line} className="cite-question" x={col.question} y={92 + index * 38} fill="#111111" fontSize="30" fontWeight="300" fontFamily="Geist, sans-serif">
+                    {line}
+                  </text>
+                ))}
+              </g>
+              <g data-col="source">
+                <rect className="sheet-face source-sheet" x={col.source} y={52} width={400} height={170} fill="#FBFAF7" stroke="#111111" />
+                <text className="cite-file" x={col.source + 22} y={86} fill="#5A5A55" fontSize="15" fontFamily="ui-monospace, monospace">
+                  {run.handbook.file}
+                </text>
+                <text x={col.source + 22} y={spanY - 36} fill="#111111" fontSize="24" fontWeight="300" fontFamily="Geist, sans-serif">
+                  {before}
+                </text>
+                <text className="cite-span" x={col.source + 22} y={spanY} fill="#111111" fontSize="24" fontWeight="400" fontFamily="Geist, sans-serif">
+                  {run.passage.span}
+                </text>
+                <line className="cite-underline" x1={col.source + 22} y1={spanY + 8} x2={col.source + 290} y2={spanY + 8} stroke="#111111" strokeWidth="1.5" />
+                <text x={col.source + 22} y={spanY + 36} fill="#111111" fontSize="24" fontWeight="300" fontFamily="Geist, sans-serif">
+                  {after}
+                </text>
+                <text className="cite-refusal" x={col.source} y={256} fill="#5A5A55" fontSize="15" fontFamily="ui-monospace, monospace">
+                  {CITEBOT_PLATE.refusal}
+                </text>
+              </g>
+              <g data-col="answer">
+                <rect className="sheet-face verdict-sheet answer-sheet" x={col.answer} y={52} width={500} height={300} fill="#FBFAF7" stroke="#111111" />
+                <text className="cite-mark" x={col.answer + 22} y={spanY} fill="#111111" fontSize="16" fontFamily="ui-monospace, monospace">
+                  [1]
+                </text>
+                <text className="cite-sentence" x={col.answer + 62} y={spanY} fill="#111111" fontSize="22" fontWeight="400" fontFamily="Geist, sans-serif">
+                  {cited?.text}
+                </text>
+                <g className="fail-mark">
+                  <text className="fail-word verdict-fail-sentence cite-sentence" x={col.answer + 50} y={252} fill="#111111" fontSize="40" fontWeight="400" fontFamily="Geist, sans-serif">
+                    {fail?.text}
+                  </text>
+                  <ellipse className="pen-loop" cx={col.answer + 200} cy={238} rx="176" ry="34" fill="none" stroke="#C6302A" strokeWidth="1.6" />
+                </g>
+                <text className="cite-fail-label" x={col.answer + 410} y={246} fill="#111111" fontSize="15" fontFamily="ui-monospace, monospace">
+                  FAIL
+                </text>
+                <text className="verdict-fail-reason" x={col.answer + 50} y={318} fill="#3A3A36" fontSize="18" fontWeight="300" fontFamily="Geist, sans-serif">
+                  {fail?.evidence}
+                </text>
+              </g>
+              <line className="cite-line" data-from="mark" data-to="span" x1={col.answer + 18} y1={spanY - 8} x2={col.source + 294} y2={spanY - 8} stroke="#111111" strokeWidth="1" />
+            </svg>
+            <div className="sheet-labels">
+              {(["question", "source", "answer"] as const).map((id) => (
+                <p key={id} className="leader-name" data-for={id} style={{ left: LABEL_LEFT[id], top: LABEL_TOP, transform: "translateY(-50%)" }}>
+                  {id === "question" ? "Question" : id === "source" ? "Source" : "Answer"}
                 </p>
-              </li>
-            </ul>
+              ))}
+            </div>
           </div>
-          <figcaption>Six sheets on a diagonal rail. Step names sit on leaders. Failure paths are dashed and hang from Retrieve and from Check.</figcaption>
+          <div className="plate-stack cite-stack">
+            <p className="leader-name" data-for="question">Question</p>
+            <p className="cite-question">{run.question}</p>
+            <p className="leader-name" data-for="source">Source</p>
+            <div className="cite-source">
+              <p className="cite-file">{run.handbook.file}</p>
+              <p className="cite-passage">
+                {before} <span className="cite-span">{run.passage.span}</span> {after}
+              </p>
+            </div>
+            <p className="leader-name" data-for="answer">Answer</p>
+            <div className="cite-answer">
+              <p className="cite-sentence">
+                <span className="cite-mark">[1]</span> {cited?.text}
+              </p>
+              <p className="cite-sentence cite-fail">
+                <span className="cite-loop">
+                  <span className="verdict-fail-sentence">{fail?.text}</span>
+                  <svg className="cite-ring" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+                    <ellipse cx="50" cy="20" rx="49" ry="19" fill="none" stroke="#C6302A" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+                  </svg>
+                </span>{" "}
+                <span className="cite-fail-label">FAIL</span>
+              </p>
+              <p className="cite-why verdict-fail-reason">{fail?.evidence}</p>
+            </div>
+            <p className="cite-refusal">{CITEBOT_PLATE.refusal}</p>
+            <svg className="cite-link" aria-hidden="true">
+              <path className="cite-line" d="M 0 0" fill="none" stroke="#111111" strokeWidth="1" />
+            </svg>
+          </div>
+          <figcaption>{CITEBOT_PLATE.body}</figcaption>
         </figure>
         <ul className="cases">
           {FLAGSHIP_CASES.map((item) => (

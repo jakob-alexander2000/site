@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { CITEBOT_PLATE, DROPPED, STYLE_DISTANCE } from "../lib/diagrams";
 
-test("the citebot plate is a six-step rail with source and harness only", async ({ page }) => {
+test("the citebot plate reads question, source, answer with source and harness only", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const three: string[] = [];
   page.on("response", async (response) => {
@@ -14,16 +14,9 @@ test("the citebot plate is a six-step rail with source and harness only", async 
     if (body.includes("WebGLRenderer")) three.push(url);
   });
   await page.goto("/");
-  await expect(page.locator("#citebot .rail-sheet")).toHaveCount(6);
-  for (const name of ["Question", "Retrieve", "Draft", "Split", "Check", "Verdict"]) {
-    await expect(page.locator("#citebot .rail-sheet .kicker", { hasText: name })).toHaveCount(1);
-  }
+  await expect(page.locator("#citebot .cite-stack > .leader-name")).toHaveText(["Question", "Source", "Answer"]);
   await expect(page.locator("#citebot")).toContainText("How many paid vacation days do full-time employees get?");
-  await expect(page.locator("#citebot .rail-fail")).toHaveCount(2);
-  const dashed = await page.locator("#citebot .rail-fail").first().evaluate((node) => getComputedStyle(node).borderTopStyle);
-  expect(dashed).toBe("dashed");
-  const direction = await page.locator("#citebot .rail-steps").evaluate((node) => getComputedStyle(node).flexDirection);
-  expect(direction).toBe("column");
+  await expect(page.locator("#citebot .cite-stack")).toBeVisible();
   await expect(page.locator('#citebot a[href*="/ask"]')).toHaveCount(0);
   await expect(page.locator("#citebot").getByRole("link", { name: "Source" })).toHaveAttribute("href", CITEBOT_PLATE.source);
   await expect(page.locator("#citebot").getByRole("link", { name: "Harness" })).toHaveAttribute("href", CITEBOT_PLATE.harness);

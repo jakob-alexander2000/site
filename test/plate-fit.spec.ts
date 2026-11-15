@@ -4,26 +4,27 @@ import { loadSchnittRun } from "../lib/schnitt-run";
 
 // The CiteBot drawing prints the fixture on its sheets. Every line must sit
 // inside its own sheet, lines must not run into each other, nothing may be cut
-// off, and a pen loop may ring only its own FAIL.
+// off, and the pen loop may ring only the failed sentence.
 for (const width of [1280, 1366, 1440]) {
   test(`CiteBot sheet text fits, stays whole, and keeps clear of the loops at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     await page.evaluate(() => document.fonts.ready);
-    const report = await page.locator("#citebot svg.plate-drawing").evaluate((svg) => {
+    const report = await page.locator("#citebot svg.plate-drawing").evaluate((svg, refusal) => {
       const outside: string[] = [];
       const crowded: string[] = [];
       const ringed: string[] = [];
-      const hangs: Record<string, string> = {};
-      const groups = [...svg.querySelectorAll("g.draw-sheet, g[data-hang]")];
+      const columns: Record<string, string> = {};
+      const groups = [...svg.querySelectorAll("g[data-col]")];
       for (const group of groups) {
         const face = group.querySelector(":scope > rect.sheet-face")?.getBoundingClientRect();
         const texts = [...group.querySelectorAll("text")].filter((text) => (text.textContent ?? "").trim());
         const boxes = texts.map((text) => ({ text: (text.textContent ?? "").trim(), box: text.getBoundingClientRect(), mark: !!text.closest(".fail-mark") }));
-        const name = group.getAttribute("data-step") ?? group.getAttribute("data-hang") ?? "?";
-        if (group.hasAttribute("data-hang")) hangs[name] = boxes.filter((item) => !item.mark).map((item) => item.text).join(" ");
+        const name = group.getAttribute("data-col") ?? "?";
+        columns[name] = boxes.map((item) => item.text).join(" ");
         for (const item of boxes) {
           if (!face) continue;
+          if (item.text === refusal) continue;
           if (item.box.left < face.left - 1 || item.box.right > face.right + 1 || item.box.top < face.top - 1 || item.box.bottom > face.bottom + 1) outside.push(`${name}: "${item.text}"`);
         }
         for (let i = 0; i < boxes.length; i += 1) {
@@ -53,14 +54,14 @@ for (const width of [1280, 1366, 1440]) {
           if (across > 0 && down > 0) ringed.push(`"${(text.textContent ?? "").trim()}"`);
         }
       }
-      return { outside, crowded, ringed, hangs };
-    });
+      return { outside, crowded, ringed, columns };
+    }, CITEBOT_PLATE.refusal);
     const fail = loadSchnittRun().sentences.find((sentence) => sentence.verdict === "fail");
     expect(report.outside).toEqual([]);
     expect(report.crowded).toEqual([]);
     expect(report.ringed).toEqual([]);
-    expect(report.hangs.retrieve).toBe(CITEBOT_PLATE.refusal);
-    expect(report.hangs.check).toBe(`${fail?.text} ${fail?.evidence}`);
+    expect(report.columns.source).toContain(CITEBOT_PLATE.refusal);
+    expect(report.columns.answer).toContain(`${fail?.text} FAIL ${fail?.evidence}`);
   });
 }
 

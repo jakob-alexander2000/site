@@ -1,36 +1,56 @@
-/** Put each CiteBot leader on its label's row and on the left edge of its sheet. */
+/**
+ * CiteBot: the hairline runs from the [1] mark to the underlined span, and the
+ * pen loop sits around the failed sentence. Measured, so the type can wrap.
+ */
 export function alignCiteLeaders() {
   const frame = document.querySelector("#citebot .drawing-frame");
   const svg = frame?.querySelector("svg.plate-drawing");
-  if (!(frame instanceof HTMLElement) || !(svg instanceof SVGSVGElement)) return;
-  if (svg.getBoundingClientRect().width < 2) return;
-  const ctm = svg.getScreenCTM();
-  if (!ctm) return;
-  const inverse = ctm.inverse();
-  const point = svg.createSVGPoint();
-  const toUser = (x: number, y: number) => {
-    point.x = x;
-    point.y = y;
-    const mapped = point.matrixTransform(inverse);
-    return { x: mapped.x, y: mapped.y };
-  };
-  for (const line of svg.querySelectorAll<SVGLineElement>("line.leader-line[data-for]")) {
-    const id = line.dataset.for ?? "";
-    const label = frame.querySelector<HTMLElement>(`.leader-name[data-for="${id}"]`);
-    const face = svg.querySelector<SVGGraphicsElement>(`.draw-sheet[data-step="${id}"] > rect.sheet-face`);
-    if (!label || !(face instanceof SVGGraphicsElement)) continue;
-    const labelBox = label.getBoundingClientRect();
-    const faceBox = face.getBoundingClientRect();
-    if (labelBox.width < 2 || faceBox.width < 2) continue;
-    const y = (labelBox.top + labelBox.bottom) / 2;
-    const start = toUser(labelBox.right, y);
-    const end = toUser(faceBox.left, y);
-    line.setAttribute("x1", start.x.toFixed(2));
-    line.setAttribute("y1", start.y.toFixed(2));
-    line.setAttribute("x2", end.x.toFixed(2));
-    line.setAttribute("y2", end.y.toFixed(2));
+  if (frame instanceof HTMLElement && svg instanceof SVGSVGElement && svg.getBoundingClientRect().width >= 2) {
+    const span = svg.querySelector<SVGTextElement>("text.cite-span");
+    const mark = svg.querySelector<SVGTextElement>("text.cite-mark");
+    const line = svg.querySelector<SVGLineElement>("line.cite-line");
+    const underline = svg.querySelector<SVGLineElement>("line.cite-underline");
+    const word = svg.querySelector<SVGTextElement>(".fail-mark .fail-word");
+    const loop = svg.querySelector<SVGEllipseElement>(".fail-mark .pen-loop");
+    const label = svg.querySelector<SVGTextElement>("text.cite-fail-label");
+    if (span && mark && line && underline) {
+      const a = span.getBBox();
+      const m = mark.getBBox();
+      const y = a.y + a.height / 2;
+      underline.setAttribute("x2", (a.x + a.width).toFixed(2));
+      line.setAttribute("x1", (m.x - 4).toFixed(2));
+      line.setAttribute("y1", y.toFixed(2));
+      line.setAttribute("x2", (a.x + a.width + 2).toFixed(2));
+      line.setAttribute("y2", y.toFixed(2));
+    }
+    if (word && loop) {
+      const w = word.getBBox();
+      const rx = w.width / 2 + 24;
+      loop.setAttribute("cx", (w.x + w.width / 2).toFixed(2));
+      loop.setAttribute("cy", (w.y + w.height / 2).toFixed(2));
+      loop.setAttribute("rx", rx.toFixed(2));
+      loop.setAttribute("ry", (w.height / 2 + 10).toFixed(2));
+      if (label) label.setAttribute("x", (w.x + w.width / 2 + rx + 16).toFixed(2));
+    }
+    frame.dataset.leaders = "ready";
   }
-  frame.dataset.leaders = "ready";
+  const stack = document.querySelector("#citebot .cite-stack");
+  const link = stack?.querySelector("svg.cite-link path");
+  const stackSpan = stack?.querySelector(".cite-passage .cite-span");
+  const stackMark = stack?.querySelector(".cite-mark");
+  if (!(stack instanceof HTMLElement) || !link || !stackSpan || !stackMark) return;
+  const root = stack.getBoundingClientRect();
+  if (root.width < 2) return;
+  const a = stackSpan.getBoundingClientRect();
+  const m = stackMark.getBoundingClientRect();
+  const gutter = 6;
+  const ya = a.top + a.height / 2 - root.top;
+  const ym = m.top + m.height / 2 - root.top;
+  link.setAttribute(
+    "d",
+    `M ${(m.left - root.left - 4).toFixed(1)} ${ym.toFixed(1)} H ${gutter} V ${ya.toFixed(1)} H ${(a.left - root.left - 3).toFixed(1)}`,
+  );
+  stack.dataset.leaders = "ready";
 }
 
 /** Keep the Answer label on the first answer line, including when the row wraps. */

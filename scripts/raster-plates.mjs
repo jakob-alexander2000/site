@@ -34,6 +34,8 @@ for (const scale of [1, 2]) {
     let page = null;
     for (let attempt = 0; attempt < 6; attempt += 1) {
       page = await browser.newPage({ deviceScaleFactor: scale, viewport: { width: viewport, height: 900 } });
+      // Bake the live drawing, never an older still laid over it.
+      await page.route("**/plates/**", (route) => route.abort());
       await page.goto(base, { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
       const frame = page.locator("#citebot .drawing-frame");

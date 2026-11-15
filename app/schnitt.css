@@ -1540,3 +1540,131 @@ html.is-cut svg.plate-drawing {
   min-height: 1.2em;
   font-size: 15px;
 }
+
+/* CiteBot: question, then source, then answer. */
+.cite-figure {
+  margin: 0;
+}
+
+.cite-stack {
+  position: relative;
+  max-width: 34rem;
+  padding-left: 18px;
+}
+
+.cite-stack .leader-name {
+  margin: 0 0 8px;
+  color: #5a5a55;
+  font-size: 12px;
+}
+
+.cite-stack .cite-question {
+  margin: 0 0 28px;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.cite-stack .cite-source {
+  margin-bottom: 28px;
+  background: var(--sheet);
+  border: 1px solid var(--ink);
+  padding: 12px 14px;
+}
+
+.cite-stack .cite-file,
+.cite-stack .cite-refusal,
+.cite-stack .cite-mark,
+.cite-stack .cite-fail-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.cite-stack .cite-file {
+  margin: 0 0 6px;
+  color: #5a5a55;
+  font-size: 13px;
+}
+
+.cite-stack .cite-passage {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.cite-stack .cite-span {
+  display: block;
+  width: fit-content;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.cite-stack .cite-refusal {
+  margin: 20px 0 0;
+  color: #5a5a55;
+  font-size: 13px;
+}
+
+.cite-stack .cite-answer {
+  display: grid;
+  gap: 12px;
+}
+
+.cite-stack .cite-sentence {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.cite-stack .cite-mark {
+  font-size: 14px;
+}
+
+.cite-stack .cite-fail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 6px;
+  font-size: 28px;
+}
+
+.cite-stack .cite-loop {
+  position: relative;
+  display: inline-block;
+  padding: 2px 0;
+  margin: 0 22px;
+}
+
+.cite-stack .cite-ring {
+  position: absolute;
+  top: -5px;
+  left: -22px;
+  width: calc(100% + 44px);
+  height: calc(100% + 10px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cite-stack .cite-fail-label {
+  font-size: 13px;
+}
+
+.cite-stack .cite-why {
+  margin: 0;
+  color: #3a3a36;
+  font-size: 15px;
+}
+
+.cite-stack .cite-link {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
