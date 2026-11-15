@@ -192,6 +192,13 @@ export function Plates({ run }: { run: SchnittRun }) {
             })}
           </div>
           </div>
+          <ol className="cite-steps">
+            {steps.map((step) => (
+              <li key={step.name}>
+                {step.name}. {step.lines.join(" ")}
+              </li>
+            ))}
+          </ol>
           <div className="plate-stack">
             <ol className="rail-steps">
               {steps.map((step) => (

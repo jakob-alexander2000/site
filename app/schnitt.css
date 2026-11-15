@@ -414,16 +414,26 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
 
 html[data-schnitt="gl"] .stack {
   position: absolute;
-  inset: 0;
+  inset: 8px 12px 8px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
   height: auto;
   overflow: visible;
 }
 
 html[data-schnitt="gl"] .plane-slot {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 160px;
+  position: relative;
+  height: auto;
+  min-height: 0;
+}
+
+html[data-schnitt="gl"] .sheet,
+html[data-schnitt="gl"] .callout,
+html[data-schnitt="gl"] .leaders,
+html[data-schnitt="gl"] .tie-svg {
+  opacity: var(--hero-fade, 1);
 }
 
 html[data-schnitt="gl"] .sheet,
@@ -441,15 +451,38 @@ html[data-schnitt="gl"] .callout {
 }
 
 .schnitt-stage[data-gl="ready"] .callout {
-  position: absolute;
-  left: 0;
-  top: 0;
   z-index: 5;
-  width: 8.6rem;
   margin: 0;
-  padding: 2px 4px;
-  background: var(--paper);
+  background: transparent;
   pointer-events: none;
+}
+
+html.is-past .schnitt-stage .sheet,
+html.is-past .schnitt-stage .callout,
+html.is-past .schnitt-stage .leaders,
+html.is-past .schnitt-stage .tie-svg {
+  display: none;
+}
+
+html.is-past .plate h2,
+html.is-past .plate h3,
+html.is-past .plate p,
+html.is-past .plate li,
+html.is-past .plate figcaption {
+  position: relative;
+  z-index: 2;
+}
+
+.cite-steps {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .schnitt-stage[data-gl="ready"] .callout::after {
@@ -1263,16 +1296,6 @@ article.verdict-sheet,
 
 
 @media (max-width: 1100px) {
-  .schnitt-stage[data-gl="ready"] .sheet {
-    width: 28% !important;
-    max-width: 28% !important;
-    justify-self: end;
-  }
-
-  .schnitt-stage[data-gl="ready"] .callout {
-    width: 7.4rem;
-  }
-
   .schnitt-stage[data-gl="ready"] .callout .leader-note {
     display: none;
   }
@@ -1291,8 +1314,12 @@ html[data-schnitt="gl"] .plate {
   background: transparent;
 }
 
-html[data-schnitt="gl"] .plate .drawing-frame {
+html[data-plates="drawn"] .plate svg.plate-drawing {
   opacity: 0;
+}
+
+.sheet-labels {
+  z-index: 3;
 }
 
 .skill-strip {

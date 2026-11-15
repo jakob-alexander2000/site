@@ -73,7 +73,7 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
 | Frame time, 4× CPU, hero method | `docs/evidence/schnitt-frame-timing.json` | 390×844, static HTML stack, WebGL off: 58 frames, median 16.7 ms, p95 16.7 ms, max 266.7 ms, share above 20 ms = 0.017. 1440×900, WebGL on, with the fit loop: 62 frames, median 16.7 ms, p95 16.7 ms, max 200 ms, share above 20 ms = 0.016. Phone is not a 73-frame WebGL run. The single long phone frame is recorded and explained before M7. |
 | Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on `19f9f2e`. Unit 24 passed. Copy scan 191 files. Playwright 139 passed and 7 skipped. The WebKit skips are canvas ink, frame time, the two drawn-card pixel reads, three.js paint order, the rail budget, and the loader frame budget. Separation runs on WebKit. |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on the stop-3 r3 head. Unit 24 passed. Copy scan 141 files. Playwright 146 passed and 8 skipped. The WebKit skips are canvas ink, frame time, the two drawn-card pixel reads, three.js paint order, the rail budget, the loader frame budget, and the after-paint byte budget. Separation and the plate-text intersection run on WebKit. |
 | Screenshots at 1280, 1366, and 1440, and at 390×844, scroll 0, mid, end, and reduced motion, for the hero and plates 01–03. Rail stills at 1440, 16 frames | `docs/evidence/stop3/` | Pass on `56b97b2` |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |
@@ -91,7 +91,8 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 9. Evidence scripts live in `tools/evidence` and no page imports them.
 10. The hero fit loop runs once per width, then later frames place the sheets a single time.
 11. Initial JavaScript is the sum of the module scripts, without the `noModule` polyfill.
-12. The loader frame budget is Chromium-only because long-animation-frame entries and the CPU throttle are read in Chromium. Headless WebKit cannot time that work.
+12. The loader frame budget is Chromium-only because long-animation-frame entries and the CPU throttle are read in Chromium. Headless WebKit cannot time that work. It counts every chunk that is not react-dom or the Next.js runtime, on a quiet load and a full wheel scroll, and takes the max of 5 loads.
+13. The after-paint byte budget is Chromium-only because it sums gzip of every script whose start time is after first paint, which headless WebKit does not time the same way.
 
 ## Not checked
 

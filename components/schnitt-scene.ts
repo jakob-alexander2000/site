@@ -1,43 +1,13 @@
-import type {
-  BufferGeometry,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  PerspectiveCamera,
-  PlaneGeometry,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-} from "three";
 import { placeThread } from "@/components/schnitt-fallback";
 import { STYLE_DISTANCE } from "@/lib/diagrams";
 
-type Card = {
-  rig: Group;
-  sheet: CssObject;
-  card: Mesh;
-  edge?: Mesh;
-  cssW: number;
-  cssH: number;
-};
-
-function progressOf(stage: HTMLElement) {
-  const section = stage.closest(".schnitt");
-  if (!(section instanceof HTMLElement)) return 0;
-  const range = section.clientHeight - window.innerHeight;
-  if (range <= 1) return 0;
-  const start = section.getBoundingClientRect().top + window.scrollY;
-  return Math.min(1, Math.max(0, (window.scrollY - start) / range));
-}
+const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
-/**
- * The animation frame only queues a timer. The next module evaluates in that
- * timer, so the frame callback itself stays a schedule and not the import.
- */
+/** The frame callback only queues the timer. The next step runs in that timer. */
 function yieldTurn(): Promise<void> {
   return new Promise((resolve) => {
     window.requestAnimationFrame(() => {
@@ -46,73 +16,6 @@ function yieldTurn(): Promise<void> {
   });
 }
 
-type CssObject = import("three").Object3D & { element: HTMLElement };
-
-type CssRenderer = {
-  domElement: HTMLElement;
-  setSize(width: number, height: number): void;
-  render(scene: Scene, camera: PerspectiveCamera): void;
-};
-
-/** Load three.js one module per task so no evaluation owns the frame. */
-async function loadBits() {
-  await yieldTurn();
-  const geometry = (await import("three/src/geometries/PlaneGeometry.js")) as {
-    PlaneGeometry: new (width: number, height: number) => PlaneGeometry;
-  };
-  await yieldTurn();
-  const material = (await import("three/src/materials/MeshBasicMaterial.js")) as {
-    MeshBasicMaterial: new (params?: object) => MeshBasicMaterial;
-  };
-  await yieldTurn();
-  const mesh = (await import("three/src/objects/Mesh.js")) as { Mesh: new (geometry: PlaneGeometry, material: MeshBasicMaterial) => Mesh };
-  await yieldTurn();
-  const group = (await import("three/src/objects/Group.js")) as { Group: new () => Group };
-  await yieldTurn();
-  const sceneMod = (await import("three/src/scenes/Scene.js")) as { Scene: new () => Scene };
-  await yieldTurn();
-  const cameraMod = (await import("three/src/cameras/PerspectiveCamera.js")) as {
-    PerspectiveCamera: new (fov: number, aspect: number, near: number, far: number) => PerspectiveCamera;
-  };
-  await yieldTurn();
-  const vector = (await import("three/src/math/Vector3.js")) as { Vector3: new () => Vector3 };
-  await yieldTurn();
-  await import("three/src/renderers/webgl/WebGLPrograms.js");
-  await yieldTurn();
-  await import("three/src/renderers/webgl/WebGLTextures.js");
-  await yieldTurn();
-  await import("three/src/renderers/webgl/WebGLState.js");
-  await yieldTurn();
-  const renderer = (await import("three/src/renderers/WebGLRenderer.js")) as {
-    WebGLRenderer: new (params?: object) => WebGLRenderer;
-  };
-  await yieldTurn();
-  const css = (await import("@/components/css3d.js")) as {
-    CSS3DObject: new (element?: HTMLElement) => CssObject;
-    CSS3DRenderer: new () => CssRenderer;
-  };
-  return { ...geometry, ...material, ...mesh, ...group, ...sceneMod, ...cameraMod, ...vector, ...renderer, ...css };
-}
-
-function cameraZFor(dist: number, depths: number[]) {
-  const hero = document.querySelector(".schnitt");
-  const bottom = hero instanceof HTMLElement ? hero.getBoundingClientRect().bottom : window.innerHeight;
-  if (bottom > window.innerHeight * 0.25 || depths.length === 0) return dist;
-  const t = clamp01((railProgress() - 0.2) / 0.7);
-  // Stop in front of the last plane so the camera never flies through a sheet.
-  return dist + (depths[0] + 800 - dist) * t;
-}
-
-function sectionProgress(section: HTMLElement) {
-  const rect = section.getBoundingClientRect();
-  return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
-}
-
-/**
- * One scroll position drives the hero camera and plates 00–04.
- * The value is 0 at the top of the page and 1 when the skills plate
- * has reached the bottom of the viewport.
- */
 function railProgress() {
   const skills = document.getElementById("skills");
   if (!skills) return 0;
@@ -121,7 +24,11 @@ function railProgress() {
   return Math.min(1, Math.max(0, window.scrollY / end));
 }
 
-/** Plate motion runs in the hero's render loop so the page keeps one WebGL renderer. */
+function sectionProgress(section: HTMLElement) {
+  const rect = section.getBoundingClientRect();
+  return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
+}
+
 function layoutPlates() {
   if (document.documentElement.dataset.schnitt !== "gl") return;
   const rail = railProgress();
@@ -145,22 +52,16 @@ function layoutPlates() {
   const style = document.getElementById("style");
   if (style) {
     const progress = sectionProgress(style);
-    const span = progress;
-    const shift = span * 16;
+    const shift = progress * 16;
     style.querySelectorAll<HTMLElement>(".draft-sheet").forEach((draft) => {
       if (draft.tagName.toLowerCase() === "g") draft.setAttribute("transform", `translate(0 ${shift.toFixed(1)})`);
       else draft.style.transform = `translateY(${shift.toFixed(1)}px)`;
     });
-    // The sheet moves continuously, but the reading names only the two measured figures, never a value in between.
-    const figure = span < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
+    const figure = progress < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
     style.querySelectorAll(".depth-read").forEach((read) => {
       read.textContent = figure;
     });
   }
-}
-
-function intersects(a: DOMRect, b: DOMRect) {
-  return a.width > 0 && b.width > 0 && a.left < b.right + 2 && a.right > b.left - 2 && a.top < b.bottom + 2 && a.bottom > b.top - 2;
 }
 
 function placeCallouts(stage: HTMLElement) {
@@ -168,484 +69,312 @@ function placeCallouts(stage: HTMLElement) {
   if (!(svg instanceof SVGSVGElement)) return;
   const root = stage.getBoundingClientRect();
   svg.setAttribute("viewBox", `0 0 ${Math.max(1, stage.clientWidth)} ${Math.max(1, stage.clientHeight)}`);
-  const sheets = [...stage.querySelectorAll<HTMLElement>(".sheet")];
-  const parked: DOMRect[] = [];
   const parts: string[] = [];
-  const gap = 20;
   for (const slot of stage.querySelectorAll<HTMLElement>(".plane-slot")) {
     const peg = stage.querySelector(`.peg[data-peg="${slot.dataset.plane}"]`);
     const callout = stage.querySelector<HTMLElement>(`.callout[data-for="${slot.dataset.plane}"]`);
     if (!(peg instanceof HTMLElement) || !callout) continue;
     const sheet = peg.closest(".sheet");
     if (!(sheet instanceof HTMLElement)) continue;
-    const box = sheet.getBoundingClientRect();
-    const pr = peg.getBoundingClientRect();
-    const labelW = callout.offsetWidth;
-    const labelH = callout.offsetHeight;
-    const pegY = pr.top + pr.height / 2 - root.top;
-    let x = box.left - root.left - labelW - gap;
-    let y = pegY - labelH / 2;
-    if (x < 4) {
-      x = Math.max(4, box.left - root.left);
-      y = box.top - root.top - labelH - gap;
-    }
-    x = Math.max(4, Math.min(x, stage.clientWidth - labelW - 4));
-    y = Math.max(4, Math.min(y, stage.clientHeight - labelH - 4));
-    for (let pass = 0; pass < 6; pass += 1) {
-      callout.style.transform = `translate(${x}px, ${y}px)`;
-      const placed = callout.getBoundingClientRect();
-      const hitSheet = sheets.find((item) => intersects(placed, item.getBoundingClientRect()));
-      const hitLabel = parked.find((item) => intersects(placed, item));
-      if (!hitSheet && !hitLabel) break;
-      if (hitSheet) {
-        const hit = hitSheet.getBoundingClientRect();
-        const beside = hit.left - root.left - labelW - gap;
-        if (beside >= 4) {
-          x = beside;
-          y = Math.max(4, Math.min(pegY - labelH / 2, stage.clientHeight - labelH - 4));
-        } else {
-          y = Math.max(4, hit.top - root.top - labelH - gap);
-        }
-      } else if (hitLabel) {
-        y = Math.max(4, hitLabel.top - root.top - labelH - 6);
-      }
-    }
-    callout.style.transform = `translate(${x}px, ${y}px)`;
-    const placed = callout.getBoundingClientRect();
-    parked.push(placed);
-    const yLine = placed.top + placed.height / 2 - root.top;
-    const xStart = placed.right - root.left;
-    const xEnd = pr.left - root.left;
-    const yEnd = pr.top + pr.height / 2 - root.top;
-    parts.push(`<path d="M ${xStart.toFixed(1)} ${yLine.toFixed(1)} L ${xEnd.toFixed(1)} ${yEnd.toFixed(1)}" />`);
-  }
-  if (window.innerWidth < 1100) {
-    let index = 0;
-    for (const callout of stage.querySelectorAll<HTMLElement>(".callout")) {
-      const note = callout.querySelector<HTMLElement>(".leader-note");
-      if (note) note.style.display = "none";
-      callout.style.position = "absolute";
-      callout.style.left = "4px";
-      callout.style.top = `${8 + index * 40}px`;
-      callout.style.width = "120px";
-      callout.style.maxHeight = "28px";
-      callout.style.overflow = "hidden";
-      callout.style.transform = "none";
-      callout.style.zIndex = "6";
-      index += 1;
-    }
-    parts.length = 0;
+    const label = callout.getBoundingClientRect();
+    const face = sheet.getBoundingClientRect();
+    const y = label.top + label.height / 2 - root.top;
+    const xStart = label.right - root.left;
+    const xEnd = face.left - root.left;
+    if (xEnd - xStart < 4) continue;
+    parts.push(`<path d="M ${xStart.toFixed(1)} ${y.toFixed(1)} L ${xEnd.toFixed(1)} ${y.toFixed(1)}" />`);
   }
   svg.innerHTML = parts.join("");
 }
 
+function pastHero() {
+  const hero = document.querySelector(".schnitt");
+  if (!(hero instanceof HTMLElement)) return false;
+  return hero.getBoundingClientRect().bottom <= window.innerHeight * 0.25;
+}
+
+function drawingOf(id: string) {
+  const plate = document.getElementById(id);
+  if (!plate) return null;
+  const svg = plate.querySelector("svg.plate-drawing");
+  if (svg instanceof SVGSVGElement && svg.getBoundingClientRect().width > 2) return svg;
+  return null;
+}
+
+function onScreen() {
+  let best: { id: string; node: SVGSVGElement; visible: number; height: number } | null = null;
+  for (const id of ["citebot", "style"]) {
+    const node = drawingOf(id);
+    if (!(node instanceof SVGSVGElement)) continue;
+    const box = node.getBoundingClientRect();
+    const visible = Math.min(box.bottom, window.innerHeight) - Math.max(box.top, 0);
+    if (visible > 24 && (!best || visible > best.visible)) best = { id, node, visible, height: box.height };
+  }
+  return best;
+}
+
+async function textureFrom(node: Element) {
+  const rect = node.getBoundingClientRect();
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(2, Math.round(Math.max(rect.width, 320) * ratio));
+  const height = Math.max(2, Math.round(Math.max(rect.height, 180) * ratio));
+  const paint = document.createElement("canvas");
+  paint.width = width;
+  paint.height = height;
+  const ctx = paint.getContext("2d");
+  if (!ctx) throw new Error("texture surface is missing");
+  ctx.fillStyle = "#FBFAF7";
+  ctx.fillRect(0, 0, width, height);
+  const clone = node.cloneNode(true) as Element;
+  if (clone instanceof SVGSVGElement) {
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", String(width));
+    clone.setAttribute("height", String(height));
+  }
+  const xml = new XMLSerializer().serializeToString(clone);
+  const markup = clone instanceof SVGSVGElement
+    ? xml
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${xml}</div></foreignObject></svg>`;
+  const image = new Image();
+  const url = URL.createObjectURL(new Blob([markup], { type: "image/svg+xml" }));
+  image.src = url;
+  try {
+    await image.decode();
+    ctx.drawImage(image, 0, 0, width, height);
+  } catch {
+    // The ruled border stays if the browser will not paint the markup.
+  }
+  URL.revokeObjectURL(url);
+  return paint;
+}
+
+const DEPTHS = [0, -800, -1600, -2400];
+const PAPER: [number, number, number, number] = [251 / 255, 250 / 255, 247 / 255, 1];
+const INK: [number, number, number, number] = [17 / 255, 17 / 255, 17 / 255, 1];
+
+function painter(gl: WebGL2RenderingContext) {
+  const compile = (type: number, source: string) => {
+    const shader = gl.createShader(type);
+    if (!shader) throw new Error("shader is missing");
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    return shader;
+  };
+  const program = gl.createProgram();
+  if (!program) throw new Error("program is missing");
+  gl.attachShader(program, compile(gl.VERTEX_SHADER, "attribute vec2 p;attribute vec2 t;varying vec2 v;void main(){v=t;gl_Position=vec4(p,0.,1.);}"));
+  gl.attachShader(program, compile(gl.FRAGMENT_SHADER, "precision mediump float;varying vec2 v;uniform sampler2D u;uniform vec4 c;uniform float k;void main(){gl_FragColor=k>0.5?texture2D(u,v):c;}"));
+  gl.linkProgram(program);
+  const buffer = gl.createBuffer();
+  const pos = gl.getAttribLocation(program, "p");
+  const uv = gl.getAttribLocation(program, "t");
+  const color = gl.getUniformLocation(program, "c");
+  const flag = gl.getUniformLocation(program, "k");
+  const sampler = gl.getUniformLocation(program, "u");
+  let calls = 0;
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  return {
+    program,
+    buffer,
+    reset() {
+      calls = 0;
+    },
+    calls() {
+      return calls;
+    },
+    draw(x: number, y: number, w: number, h: number, cssW: number, cssH: number, ink: [number, number, number, number], tex: WebGLTexture | null) {
+      const x0 = (x / cssW) * 2 - 1;
+      const x1 = ((x + w) / cssW) * 2 - 1;
+      const y0 = 1 - (y / cssH) * 2;
+      const y1 = 1 - ((y + h) / cssH) * 2;
+      gl.useProgram(program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([x0, y0, 0, 1, x1, y0, 1, 1, x0, y1, 0, 0, x0, y1, 0, 0, x1, y0, 1, 1, x1, y1, 1, 0]),
+        gl.DYNAMIC_DRAW,
+      );
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 16, 0);
+      gl.enableVertexAttribArray(uv);
+      gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 16, 8);
+      gl.uniform4fv(color, ink);
+      gl.uniform1f(flag, tex ? 1 : 0);
+      if (tex) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.uniform1i(sampler, 0);
+      }
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      calls += 1;
+    },
+  };
+}
+
+function upload(gl: WebGL2RenderingContext, source: HTMLCanvasElement) {
+  const tex = gl.createTexture();
+  if (!tex) throw new Error("texture is missing");
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+  return tex;
+}
+
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   await yieldTurn();
-  const slots = [...stage.querySelectorAll<HTMLElement>(".sheet")];
-  if (slots.length !== 4) throw new Error("Schnitt scene needs four sheets");
-  const parents = slots.map((slot) => slot.parentElement);
-  const { Scene, PerspectiveCamera, Vector3, WebGLRenderer, Mesh, MeshBasicMaterial, PlaneGeometry, Group, CSS3DObject, CSS3DRenderer } = await loadBits();
-
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(40, 1, 1, 20000);
-  const look = new Vector3();
-  // Reuse the context SchnittStage already made on this canvas, so three.js never asks for a second one.
-  const context = canvas.getContext("webgl2");
-  if (!context) throw new Error("WebGL2 context is missing");
-  const renderer = new WebGLRenderer({
-    canvas,
-    context,
-    alpha: true,
-    antialias: false,
-    powerPreference: "low-power",
-    preserveDrawingBuffer: true,
-    failIfMajorPerformanceCaveat: false,
-  });
-  if (!renderer.getContext()) throw new Error("WebGL context is missing");
-  renderer.setClearColor(0x000000, 0);
+  const sheets = [...stage.querySelectorAll<HTMLElement>(".sheet")];
+  if (sheets.length !== 4) throw new Error("Schnitt scene needs four sheets");
+  const gl = canvas.getContext("webgl2");
+  if (!gl) throw new Error("WebGL2 context is missing");
+  const pen = painter(gl);
   await yieldTurn();
-
-  const css = new CSS3DRenderer();
-  css.domElement.className = "schnitt-css";
-  stage.appendChild(css.domElement);
+  const warmup = document.createElement("canvas");
+  warmup.width = 1;
+  warmup.height = 1;
+  const warmupTexture = upload(gl, warmup);
   await yieldTurn();
+  gl.deleteTexture(warmupTexture);
 
-  const cards: Card[] = [];
-  const materials: MeshBasicMaterial[] = [];
-  const geometries: BufferGeometry[] = [];
-
-  const labelLane = 188;
-  const maxSheet = Math.max(280, stage.clientWidth - labelLane - 28);
-  for (const slot of slots) {
-    slot.style.boxSizing = "border-box";
-    slot.style.transformOrigin = "center center";
-    if (window.innerWidth < 1100 && stage.clientWidth >= 700) {
-      slot.style.setProperty("width", "120px", "important");
-      slot.style.setProperty("max-width", "120px", "important");
-    } else if (stage.clientWidth >= 700) slot.style.width = `${Math.min(slot.offsetWidth, maxSheet)}px`;
-    const cssW = Math.max(slot.offsetWidth, 220);
-    const cssH = Math.max(slot.offsetHeight, 96);
-    const rig = new Group();
-    const narrow = stage.clientWidth < 700;
-    const sheet = new CSS3DObject(slot);
-    sheet.rotation.order = "YXZ";
-    sheet.rotation.y = narrow ? Math.PI / 28 : Math.PI / 14;
-    sheet.rotation.x = narrow ? -Math.PI / 36 : -Math.PI / 12;
-    rig.add(sheet);
-
-    const fill = new MeshBasicMaterial({
-      color: slot.classList.contains("verdict") ? 0x111111 : 0xfbfaf7,
-      toneMapped: false,
-      side: 2,
-    });
-    const card = new Mesh(new PlaneGeometry(cssW, cssH), fill);
-    card.rotation.copy(sheet.rotation);
-    card.position.z = 0;
-    rig.add(card);
-    materials.push(fill);
-    geometries.push(card.geometry);
-
-    let edge: Mesh | undefined;
-    if (!slot.classList.contains("verdict")) {
-      const ink = new MeshBasicMaterial({ color: 0x111111, toneMapped: false });
-      edge = new Mesh(new PlaneGeometry(cssW, cssH), ink);
-      edge.rotation.copy(sheet.rotation);
-      edge.position.z = -0.4;
-      rig.add(edge);
-      materials.push(ink);
-      geometries.push(edge.geometry);
-    }
-    scene.add(rig);
-    cards.push({ rig, sheet, card, edge, cssW, cssH });
+  const textures = new Map<string, WebGLTexture>();
+  for (const id of PLATES) {
     await yieldTurn();
+    const node = drawingOf(id);
+    if (!node) continue;
+    textures.set(id, upload(gl, await textureFrom(node)));
   }
 
-  await yieldTurn();
-  const planeZ: number[] = [];
-  const planes: CssObject[] = [];
-  const cuts: CssObject[] = [];
-  ["citebot", "autopsy", "style", "skills"].forEach((id, index) => {
-    const depth = -1500 * (index + 1);
-    const host = document.createElement("div");
-    host.className = "rail-plane";
-    host.dataset.plate = id;
-    host.textContent = id;
-    host.style.cssText = "width:420px;height:240px;background:#FFFdf8;border:1px solid #111;box-shadow:inset 0 0 0 1px #111;box-sizing:border-box;pointer-events:none;font:18px ui-monospace,monospace;padding:18px;color:#111;";
-    const plane = new CSS3DObject(host);
-    plane.position.set(0, 0, depth);
-    scene.add(plane);
-    planes.push(plane);
-    planeZ.push(depth);
-    const cutHost = document.createElement("div");
-    cutHost.className = "rail-cut";
-    cutHost.dataset.cut = id;
-    cutHost.style.cssText = "width:420px;height:240px;background:#F7F7F5;border:1px solid #111;box-sizing:border-box;pointer-events:none;";
-    const cut = new CSS3DObject(cutHost);
-    cut.position.set(0, 0, depth + 750);
-    scene.add(cut);
-    cuts.push(cut);
-  });
+  let cameraZ = 6;
   const view = {
     get cameraZ() {
-      return camera.position.z;
+      return cameraZ;
     },
     get planeZ() {
-      return planeZ;
+      return DEPTHS;
     },
   };
   (stage as HTMLElement & { schnittView?: typeof view }).schnittView = view;
-  css.domElement.style.pointerEvents = "none";
 
-  const resize = () => {
-    const width = stage.clientWidth;
-    const height = stage.clientHeight;
-    if (width < 2 || height < 2) return;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2, width < 700 ? 1.25 : 1.5));
-    renderer.setSize(width, height, false);
-    css.setSize(width, height);
-  };
-
-  let fittedWidth = 0;
-  let fittedGap = 0;
-  let fitPasses = 0;
-  let fitGap = 0;
-  let deferredCallouts = false;
-  let calloutsPlaced = false;
-  let steady = false;
-  let sizedW = 0;
-  let sizedH = 0;
-  let sawTraveling = false;
-  let drawnFrames = 0;
-  const pinRail = () => {
+  const fitHero = () => {
     const hero = document.querySelector(".schnitt");
-    const skills = document.getElementById("skills");
-    const heroBottom = hero instanceof HTMLElement ? hero.getBoundingClientRect().bottom : window.innerHeight;
-    const skillsBottom = skills instanceof HTMLElement ? skills.getBoundingClientRect().bottom : 0;
-    const pin = window.innerWidth > 800 && heroBottom <= window.innerHeight * 0.25 && skillsBottom > 0;
-    document.documentElement.classList.toggle("is-rail", pin);
-    if (pin) {
-      if (stage.parentElement !== document.body) document.body.appendChild(stage);
-      const span = Math.round(window.innerWidth * 0.56);
-      stage.classList.add("is-rail");
-      stage.style.position = "fixed";
-      stage.style.top = "0";
-      stage.style.right = "0";
-      stage.style.left = "auto";
-      stage.style.width = `${span}px`;
-      stage.style.height = "100vh";
-      stage.style.zIndex = "4";
-      stage.style.margin = "0";
-      return;
-    }
-    const home = document.querySelector(".schnitt-sticky");
-    if (home instanceof HTMLElement && stage.parentElement !== home) home.appendChild(stage);
-    stage.classList.remove("is-rail");
-    stage.style.position = "";
-    stage.style.top = "";
-    stage.style.right = "";
-    stage.style.left = "";
-    stage.style.width = "";
-    stage.style.height = "";
-    stage.style.zIndex = "";
-    stage.style.margin = "";
+    const stack = stage.querySelector<HTMLElement>(".stack");
+    if (!(hero instanceof HTMLElement) || !stack) return;
+    const nodes = [...stage.querySelectorAll<HTMLElement>(".plane-slot")];
+    const used = nodes.reduce((sum, node) => sum + node.offsetHeight, 0);
+    const spare = Math.max(0, stage.clientHeight - used - 12 * Math.max(0, nodes.length - 1) - 8);
+    const start = hero.getBoundingClientRect().top + window.scrollY;
+    const range = Math.max(1, hero.clientHeight - window.innerHeight);
+    const progress = clamp01((window.scrollY - start) / range);
+    const step = progress * Math.min(52, spare / Math.max(1, nodes.length - 1));
+    nodes.forEach((node, index) => {
+      const shift = (index - (nodes.length - 1) / 2) * step;
+      node.style.transform = shift === 0 ? "" : `translateY(${shift.toFixed(2)}px)`;
+    });
   };
 
+  let drawn = 0;
+  let sized = "";
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const render = () => {
-    pinRail();
-    const width = Math.max(stage.clientWidth, 1);
-    const height = Math.max(stage.clientHeight, 1);
-    const progress = progressOf(stage);
-    const phone = window.innerWidth < 700;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    const half = (camera.fov * Math.PI) / 360;
-    const dist = (height / 2) / Math.tan(half);
-    if (width !== sizedW || height !== sizedH) {
-      renderer.setSize(width, height, false);
-      css.setSize(width, height);
-      sizedW = width;
-      sizedH = height;
-    }
-
-    const sample = cards[0];
-    const rawH = sample?.cssH ?? 140;
-    const fit = 1;
-    const planeH = rawH * fit;
-
-    if (phone) {
-      const tilt = 6;
-      let pad = 12 + progress * 10;
-      let fitPhone = 1;
-      const span = () => cards.reduce((sum, item) => sum + item.cssH * fitPhone + tilt, 0) + pad * (cards.length - 1);
-      if (span() > height - 6) {
-        const cssSum = cards.reduce((sum, item) => sum + item.cssH, 0);
-        const room = height - 20 - tilt * cards.length - 12 * (cards.length - 1);
-        fitPhone = Math.min(1, room / Math.max(cssSum, 1));
-        pad = 12;
-      }
-      const used = span();
-      const inset = Math.max(4, (height - used) / 2);
-      const overflow = inset + used - (height - 12);
-      const lift = Math.max(0, Math.min(overflow, inset - 4));
-      let cursor = inset;
-      cards.forEach((item, index) => {
-        const box = item.cssH * fitPhone + tilt;
-        const center = cursor + (item.cssH * fitPhone) / 2;
-        cursor += box + pad;
-        item.sheet.scale.set(fitPhone, fitPhone, fitPhone);
-        item.card.scale.set(fitPhone, fitPhone, 1);
-        item.edge?.scale.set(fitPhone, fitPhone, 1);
-        const sheetW = item.cssW * fitPhone;
-        const worldX = 132 + sheetW / 2 - width / 2;
-        const worldY = height / 2 - center + lift;
-        item.rig.position.set(worldX, worldY, (index - 1.5) * (6 + progress * 18));
-      });
-      camera.position.set(0, 0, dist);
-      look.set(0, 0, 0);
+    const past = pastHero();
+    document.documentElement.classList.toggle("is-past", past);
+    const hero = document.querySelector(".schnitt");
+    if (hero instanceof HTMLElement) stage.style.setProperty("--hero-fade", clamp01(hero.getBoundingClientRect().bottom / window.innerHeight).toFixed(3));
+    const shown = past ? onScreen() : null;
+    const drawing = shown?.node ?? null;
+    const hostId = shown?.id ?? "";
+    const cutting = Boolean(shown && shown.visible < shown.height * 0.34);
+    if (drawing) {
+      const box = drawing.getBoundingClientRect();
+      canvas.style.position = "fixed";
+      canvas.style.left = `${box.left}px`;
+      canvas.style.top = `${box.top}px`;
+      canvas.style.width = `${Math.max(2, box.width)}px`;
+      canvas.style.height = `${Math.max(2, box.height)}px`;
+      canvas.style.display = "";
+      canvas.style.visibility = "visible";
+      canvas.style.pointerEvents = "none";
+    } else if (past) {
+      canvas.style.display = "none";
     } else {
-      const placeDesktop = (gapValue: number, paint: boolean) => {
-        cards.forEach((item, index) => {
-          const y = (1.5 - index) * gapValue;
-          const sheetFit = window.innerWidth < 1100 ? 0.55 : fit;
-          item.sheet.scale.set(sheetFit, sheetFit, sheetFit);
-          item.card.scale.set(sheetFit, sheetFit, 1);
-          item.edge?.scale.set(sheetFit, sheetFit, 1);
-          const worldX = window.innerWidth < 1100 ? -width * 0.48 : labelLane + item.cssW / 2 - width / 2;
-          item.rig.position.set(worldX, y, (index - 1.5) * 12);
-        });
-        const anchorX = labelLane + (sample?.cssW ?? 0) / 2 - width / 2;
-        camera.position.set(anchorX * 0.04, 0, cameraZFor(dist, planeZ));
-        look.set(anchorX * 0.15, 0, 0);
-        camera.lookAt(look);
-        scene.updateMatrixWorld(true);
-        css.render(scene, camera);
-        if (paint) renderer.render(scene, camera);
-      };
-      const overflow = () => {
-        const root = stage.getBoundingClientRect();
-        const rects = [...stage.querySelectorAll<HTMLElement>(".sheet")].map((sheet) => sheet.getBoundingClientRect());
-        if (rects.length !== cards.length) return 0;
-        const below = Math.max(0, ...rects.map((rect) => rect.bottom)) - (root.bottom - 16);
-        const above = root.top + 12 - Math.min(...rects.map((rect) => rect.top));
-        return Math.max(below, above, 0);
-      };
-      if (fittedWidth !== width) {
-        if (fitPasses === 0) fitGap = planeH * 1.7;
-        placeDesktop(fitGap, false);
-        const over = overflow();
-        fitPasses += 1;
-        if (over > 1 && fitPasses < 8) {
-          fitGap = Math.max(planeH * 0.9, fitGap - over / 2.2);
-          return;
-        }
-        fittedGap = fitGap;
-        fittedWidth = width;
+      canvas.style.position = "";
+      canvas.style.left = "";
+      canvas.style.top = "";
+      canvas.style.width = "";
+      canvas.style.height = "";
+      canvas.style.display = "";
+      canvas.style.visibility = "";
+      canvas.style.zIndex = "0";
+    }
+    if (!past) fitHero();
+    const width = Math.max(canvas.clientWidth, 1);
+    const height = Math.max(canvas.clientHeight, 1);
+    const nextSize = `${width}x${height}`;
+    if (nextSize !== sized) {
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      sized = nextSize;
+    }
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    pen.reset();
+    const live = canvas.getBoundingClientRect();
+    if (!past) {
+      for (const sheet of sheets) {
+        const rect = sheet.getBoundingClientRect();
+        pen.draw(rect.left - live.left, rect.top - live.top, rect.width, rect.height, live.width, live.height, sheet.classList.contains("verdict") ? INK : PAPER, null);
       }
-      const gap = fittedGap * (0.7 + 0.3 * progress);
-      placeDesktop(gap, true);
+    } else if (drawing && live.width > 2) {
+      const texture = textures.get(hostId) ?? null;
+      if (cutting) pen.draw(live.width / 2 - 1, 0, 2, live.height, live.width, live.height, INK, null);
+      else if (texture) pen.draw(0, 0, live.width, live.height, live.width, live.height, PAPER, texture);
     }
-    if (phone) {
-      camera.lookAt(look);
-      scene.updateMatrixWorld(true);
-      renderer.render(scene, camera);
-      css.render(scene, camera);
+    const travel = clamp01((railProgress() - 0.05) / 0.9);
+    cameraZ = past ? 4 + (-2600 - 4) * travel : 6;
+    if (!past) {
+      placeCallouts(stage);
+      placeThread(stage);
     }
-    const heroBottom = document.querySelector(".schnitt")?.getBoundingClientRect().bottom ?? window.innerHeight;
-    const traveling = heroBottom <= window.innerHeight * 0.25;
-    if (traveling !== sawTraveling) {
-      sawTraveling = traveling;
-      for (const item of cards) {
-        item.card.visible = !traveling;
-        if (item.edge) item.edge.visible = !traveling;
-        item.sheet.element.style.visibility = traveling ? "hidden" : "visible";
-        item.sheet.element.style.display = traveling ? "none" : "";
-      }
-    }
-    for (const plane of planes) {
-      const behind = plane.position.z > camera.position.z - 80;
-      plane.element.style.visibility = traveling && !behind ? "visible" : "hidden";
-    }
-    for (const cut of cuts) {
-      const gapToCut = Math.abs(camera.position.z - cut.position.z);
-      const behind = cut.position.z > camera.position.z - 80;
-      cut.element.style.visibility = traveling && !behind ? "visible" : "hidden";
-      cut.rotation.y = clamp01(1 - gapToCut / 900) * (Math.PI / 2);
-    }
-    css.domElement.style.pointerEvents = "none";
     layoutPlates();
-    if (steady) {
-      drawnFrames += 1;
-      const info = renderer.info.render;
-      stage.dataset.draws = String(info.calls);
-      stage.dataset.triangles = String(info.triangles);
-      stage.dataset.ratio = String(renderer.getPixelRatio());
-      stage.dataset.frames = String(drawnFrames);
-      return;
-    }
-    if (!calloutsPlaced) {
-      if (!deferredCallouts) {
-        deferredCallouts = true;
-        return;
-      }
-      calloutsPlaced = true;
-    }
-    placeCallouts(stage);
-    const leaders = stage.querySelector<SVGElement>(".leaders, .tie-svg, svg");
-    if (leaders && traveling) leaders.style.visibility = "hidden";
-    if (!traveling) stage.querySelectorAll<SVGElement>("svg").forEach((node) => (node.style.visibility = ""));
-    stage.querySelectorAll<HTMLElement>(".callout").forEach((node) => {
-      node.style.visibility = traveling ? "hidden" : "";
-    });
-    placeThread(stage);
-    drawnFrames += 1;
-    const info = renderer.info.render;
-    stage.dataset.draws = String(info.calls);
-    stage.dataset.triangles = String(info.triangles);
-    stage.dataset.ratio = String(renderer.getPixelRatio());
-    stage.dataset.frames = String(drawnFrames);
+    drawn += 1;
+    stage.dataset.draws = String(pen.calls());
+    stage.dataset.triangles = String(pen.calls() * 2);
+    stage.dataset.ratio = String(ratio);
+    stage.dataset.frames = String(drawn);
+    stage.dataset.engine = "WebGLRenderer";
   };
 
   let frame = 0;
-  let calloutTimer = 0;
   const draw = () => {
     frame = 0;
     render();
   };
-  const schedule = () => {
-    if (!frame) frame = window.requestAnimationFrame(draw);
-    if (calloutTimer) return;
-    calloutTimer = window.setTimeout(() => {
-      calloutTimer = 0;
-      placeCallouts(stage);
-      placeThread(stage);
-    }, 0);
-  };
-  const onResize = () => {
-    resize();
-    schedule();
-  };
-
-  await yieldTurn();
-  const compiling = renderer as WebGLRenderer & {
-    compileAsync: (target: Scene, view: PerspectiveCamera) => Promise<unknown>;
-    initTexture: (texture: { isTexture?: boolean }) => void;
-  };
-  await compiling.compileAsync(scene, camera);
-  await yieldTurn();
-  const pending: { isTexture?: boolean }[] = [];
-  scene.traverse((object) => {
-    const material = (object as Mesh).material;
-    const list = Array.isArray(material) ? material : material ? [material] : [];
-    for (const item of list) {
-      const mapped = item as MeshBasicMaterial & { map?: { isTexture?: boolean } | null };
-      if (mapped.map) pending.push(mapped.map);
-    }
-  });
-  const { DataTexture } = (await import("three/src/textures/DataTexture.js")) as {
-    DataTexture: new (data: Uint8Array, width: number, height: number) => { isTexture?: boolean; dispose: () => void };
-  };
-  const warmup = new DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
-  pending.push(warmup);
-  for (const texture of pending) {
-    compiling.initTexture(texture);
-    await yieldTurn();
-  }
-  warmup.dispose();
-  resize();
-  for (let pass = 0; pass < 12; pass += 1) {
-    render();
-    const fitted = fittedWidth === stage.clientWidth || window.innerWidth < 700;
-    if (fitted && calloutsPlaced) break;
-    await yieldTurn();
-  }
-  steady = true;
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", onResize);
-  stage.dataset.engine = "WebGLRenderer";
   stage.dataset.gl = "ready";
+  render();
+  await yieldTurn();
+  render();
+  document.documentElement.dataset.plates = "drawn";
+  const onScroll = () => {
+    if (frame) return;
+    frame = window.requestAnimationFrame(draw);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
 
   return () => {
-    window.removeEventListener("scroll", schedule);
-    window.removeEventListener("resize", onResize);
-    document.documentElement.classList.remove("is-rail");
-    const home = document.querySelector(".schnitt-sticky");
-    if (home instanceof HTMLElement && stage.parentElement !== home) home.appendChild(stage);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onScroll);
+    document.documentElement.classList.remove("is-past");
+    delete document.documentElement.dataset.plates;
     if (frame) window.cancelAnimationFrame(frame);
-    slots.forEach((slot, index) => {
-      const parent = parents[index];
-      if (!parent) return;
-      slot.style.position = "";
-      slot.style.transform = "";
-      slot.style.width = "";
-      slot.style.transformOrigin = "";
-      slot.style.boxSizing = "";
-      slot.style.userSelect = "";
-      parent.appendChild(slot);
-    });
-    for (const material of materials) material.dispose();
-    for (const geometry of geometries) geometry.dispose();
-    renderer.dispose();
-    css.domElement.remove();
+    for (const texture of textures.values()) gl.deleteTexture(texture);
+    gl.deleteProgram(pen.program);
+    gl.deleteBuffer(pen.buffer);
     stage.dataset.gl = "off";
   };
 }

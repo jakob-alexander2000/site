@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-for (const width of [801, 900, 1024]) {
+for (const width of [801, 1024, 1280, 1440]) {
   test(`hero labels stay apart and sheets stay inside the stage at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
@@ -19,9 +19,15 @@ for (const width of [801, 900, 1024]) {
         for (const sheet of sheets) if (hit(box, sheet.getBoundingClientRect())) overlaps.push(labels[i].textContent?.trim().slice(0, 16) ?? "label");
         for (let j = i + 1; j < labels.length; j += 1) if (hit(box, labels[j].getBoundingClientRect())) overlaps.push("labels");
       }
-      for (const sheet of sheets) {
-        const box = sheet.getBoundingClientRect();
-        if (box.right > root.right + 1) clips.push("sheet");
+      for (let i = 0; i < sheets.length; i += 1) {
+        const box = sheets[i].getBoundingClientRect();
+        if (box.right > root.right + 1 || box.bottom > root.bottom + 1 || box.left < root.left - 1) clips.push("sheet");
+        const type = sheets[i].querySelector(".file, .body");
+        if (type) {
+          const words = type.getBoundingClientRect();
+          if (words.bottom > root.bottom + 1 || words.right > root.right + 1 || words.top < root.top - 1) clips.push("type");
+        }
+        for (let j = i + 1; j < sheets.length; j += 1) if (hit(box, sheets[j].getBoundingClientRect())) overlaps.push("sheets");
       }
       const svg = stage.querySelector(".leaders");
       if (svg instanceof SVGSVGElement) {

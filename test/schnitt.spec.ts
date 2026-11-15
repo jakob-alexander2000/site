@@ -700,7 +700,7 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
   await page.waitForTimeout(200);
   const after = await read();
   expect(after.z).not.toBe(mid.z);
-  const pinned = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-stage")!).position);
+  const pinned = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-gl")!).position);
   expect(pinned).toBe("fixed");
   const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
   await page.waitForTimeout(2000);
@@ -710,6 +710,7 @@ test("one rail, one renderer, and the draw stays inside the budget", async ({ pa
 
 test("our code stays under 50ms a frame after first paint", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "Long animation frames and the CPU throttle are read in Chromium.");
+  test.setTimeout(90_000);
   await page.addInitScript(() => {
     const host = window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] };
     host.__loaf = [];
@@ -732,46 +733,49 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
   await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   await page.setViewportSize({ width: 1440, height: 900 });
   const peaks: number[] = [];
-  for (let load = 0; load < 3; load += 1) {
+  for (let load = 0; load < 5; load += 1) {
     if (load === 0) await page.goto("/");
     else await page.reload();
     await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(300);
+    const distance = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let walked = 0; walked < distance; walked += 480) {
+      await page.mouse.wheel(0, 480);
+      await page.waitForTimeout(20);
+    }
     const peak = await page.evaluate(async () => {
       const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
       const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] }).__loaf ?? [];
-      const kindOf = new Map<string, "framework" | "ours" | "other">();
+      const kindOf = new Map<string, "framework" | "ours">();
       const kind = async (url: string) => {
         const known = kindOf.get(url);
         if (known) return known;
         const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
-        const ours = /WebGLRenderer|mountSchnittScene|cameraZFor|MeshBasicMaterial|ShaderLib|\bTHREE\./.test(text);
         const framework = /rendererPackageName|reconcilerVersion|app-page/.test(text);
-        const value = ours ? "ours" : framework ? "framework" : "other";
+        const value = framework ? "framework" : "ours";
         kindOf.set(url, value);
         return value;
       };
       let max = 0;
-      const over: { startTime: number; ours: number; file: string }[] = [];
+      const over: { startTime: number; duration: number; file: string }[] = [];
       for (const entry of loaf) {
         if (entry.startTime + entry.duration < fcp) continue;
         let framework = 0;
         let ours = 0;
         let file = "";
         for (const script of entry.scripts) {
+          if (!script.url) continue;
           const which = await kind(script.url);
-          const callback = /setTimeout|TimerHandler|FrameRequestCallback/.test(script.invoker);
           if (which === "framework") framework += script.dur;
-          else if (which === "ours" || callback) {
+          else {
             ours += script.dur;
-            file = file || script.url.split("/").pop() || script.invoker.slice(0, 40);
+            file = file || script.url.split("/").pop() || "chunk";
           }
         }
         const scriptMs = framework + ours;
-        const share = scriptMs > 0 ? framework / scriptMs : 0;
-        if (share >= 0.8) continue;
-        if (ours > max) max = ours;
-        if (ours > 50) over.push({ startTime: Math.round(entry.startTime), ours: Math.round(ours), file });
+        if (scriptMs === 0 || framework / scriptMs >= 0.8) continue;
+        if (entry.duration > max) max = entry.duration;
+        if (entry.duration > 50) over.push({ startTime: Math.round(entry.startTime), duration: Math.round(entry.duration), file });
       }
       return { max: Math.round(max), over };
     });
@@ -781,3 +785,65 @@ test("our code stays under 50ms a frame after first paint", async ({ page, brows
   expect(Math.max(...peaks)).toBeLessThanOrEqual(50);
   await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
 });
+
+test("one chunk after first paint stays within 160 KB", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Resource timing is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const report = await page.evaluate(async () => {
+    const paint = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
+    const scripts = performance.getEntriesByType("resource").filter((entry) => entry.name.includes(".js") && entry.startTime > paint);
+    let gzip = 0;
+    let drawing = 0;
+    for (const script of scripts) {
+      const text = await fetch(script.name).then((response) => response.text()).catch(() => "");
+      if (text.includes("WebGLRenderer") || text.includes("THREE.")) drawing += 1;
+      const packed = await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+      gzip += packed.byteLength;
+    }
+    return { gzip, drawing, count: scripts.length };
+  });
+  expect(report.drawing).toBeLessThanOrEqual(1);
+  expect(report.gzip).toBeLessThanOrEqual(160_000);
+});
+
+for (const width of [1280, 1440]) {
+  test(`the rail and the hero stay off the plate text at ${width}`, async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+    const hits = () =>
+      page.evaluate(() => {
+        const hit = (a: DOMRect, b: DOMRect) =>
+          a.width > 1 && b.width > 1 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+        const rail = [...document.querySelectorAll<HTMLElement>(".schnitt-gl, .schnitt-stage .sheet, .schnitt-stage .callout, .schnitt-stage .leaders, .schnitt-stage .tie-svg")];
+        const found: string[] = [];
+        for (const plate of document.querySelectorAll<HTMLElement>(".plate")) {
+          const text = [...plate.querySelectorAll<HTMLElement>("h2, h3, p.body, figcaption, li")].filter((node) => !node.closest("svg, .sheet-labels, .cite-steps"));
+          for (const node of text) {
+            const box = node.getBoundingClientRect();
+            if (box.bottom < 0 || box.top > window.innerHeight) continue;
+            for (const layer of rail) {
+              if (hit(layer.getBoundingClientRect(), box)) found.push(`${plate.id} ${node.tagName}`);
+            }
+          }
+        }
+        return found;
+      });
+    for (const id of ["citebot", "autopsy", "style", "skills", "about", "contact", "footer"]) {
+      await page.locator(`.schnitt-nav a[href="#${id}"]`).click();
+      await page.waitForTimeout(180);
+      expect(await hits(), `jump ${id}`).toEqual([]);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(80);
+    const distance = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let walked = 0; walked < distance; walked += 420) {
+      await page.mouse.wheel(0, 420);
+      await page.waitForTimeout(30);
+      expect(await hits(), `wheel ${walked}`).toEqual([]);
+    }
+  });
+}
