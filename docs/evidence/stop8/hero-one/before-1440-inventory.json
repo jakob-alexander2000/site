@@ -1,0 +1,660 @@
+{
+  "heroHead": "Jakob Alex\n00\n01\n02\n03\n04\n05\n06\n07\nEmail\nGitHub\nI build AI answers you can check, sentence by sentence.\n\nEach answer is built in layers, from the company's own documents up to a verdict on every sentence. Scroll pulls the layers apart.\n\nSee CiteBot run\nHow it is built\n\n18\n\nPTO-AND-LEAVE.MD\n\nPaid time off\n\nFull-time employees receive 30 days of paid vacation per calendar year.\n\nPart-time employees receive paid time off pro-rated by FTE.\n\nPASSAGE · PTO-AND-LEAVE-1\n\nFull-time employees receive 30 d",
+  "sectionHead": "01 · CITEBOT\n\nAnswers that point to the line they came from.\nQuestion. How many paid vacation days do full-time employees get?\nSource. pto-and-leave.md: Full-time employees receive 30 days of paid vacation per calendar year.\nAnswer. Full-time employees receive 30 days. PASS, cited from pto-and-leave.md. PTO is unlimited. FAIL. The handbook says 30 days.\nHow many paid vacation\ndays do full-time\nemp",
+  "hasPattern": true,
+  "hasSectionKicker": true,
+  "hasHeadline": true,
+  "hasBody": true,
+  "pluses": [
+    {
+      "tag": "SPAN",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 558,
+        "y": 75,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "parent": "crops",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1361,
+        "y": 75,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "parent": "crops",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 558,
+        "y": 820,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "parent": "crops",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1361,
+        "y": 820,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "parent": "crops",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "peg",
+      "text": "",
+      "box": {
+        "x": 728,
+        "y": 180,
+        "w": 1,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "peg",
+      "text": "",
+      "box": {
+        "x": 721,
+        "y": 295,
+        "w": 1,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "peg",
+      "text": "",
+      "box": {
+        "x": 715,
+        "y": 413,
+        "w": 1,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "SPAN",
+      "class": "peg",
+      "text": "",
+      "box": {
+        "x": 709,
+        "y": 571,
+        "w": 1,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet verdict",
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 6641,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 6641,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 6646,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 6646,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "tag": "SPAN",
+      "class": "cut-mark",
+      "text": "",
+      "box": {
+        "x": 72,
+        "y": 6649,
+        "w": 1326,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 6912,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 6912,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 6917,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 6917,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "SPAN",
+      "class": "cut-mark",
+      "text": "",
+      "box": {
+        "x": 72,
+        "y": 6920,
+        "w": 1326,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "BUTTON",
+      "class": "copy-address",
+      "text": "Copy",
+      "box": {
+        "x": 288,
+        "y": 7070,
+        "w": 63,
+        "h": 44
+      },
+      "cursor": "default",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "address-row",
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 7254,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 7254,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 20,
+        "y": 7259,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "tag": "I",
+      "class": "",
+      "text": "",
+      "box": {
+        "x": 1407,
+        "y": 7259,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "tag": "SPAN",
+      "class": "cut-mark",
+      "text": "",
+      "box": {
+        "x": 72,
+        "y": 7262,
+        "w": 1326,
+        "h": 1
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "parent": "sheet-rule",
+      "inHero": false,
+      "inPlate": "footer"
+    }
+  ],
+  "crosses": [
+    {
+      "class": "",
+      "parent": "crops",
+      "box": {
+        "x": 558,
+        "y": 75,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "class": "",
+      "parent": "crops",
+      "box": {
+        "x": 1361,
+        "y": 75,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "class": "",
+      "parent": "crops",
+      "box": {
+        "x": 558,
+        "y": 820,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "class": "",
+      "parent": "crops",
+      "box": {
+        "x": 1361,
+        "y": 820,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "none",
+      "visible": true,
+      "inHero": true,
+      "inPlate": ""
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 6641,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 6641,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 6646,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 6646,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "about"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 6912,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 6912,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 6917,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 6917,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "contact"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 7254,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 7254,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 20,
+        "y": 7259,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "footer"
+    },
+    {
+      "class": "",
+      "parent": "sheet-rule",
+      "box": {
+        "x": 1407,
+        "y": 7259,
+        "w": 13,
+        "h": 13
+      },
+      "cursor": "auto",
+      "pointerEvents": "auto",
+      "visible": true,
+      "inHero": false,
+      "inPlate": "footer"
+    }
+  ]
+}

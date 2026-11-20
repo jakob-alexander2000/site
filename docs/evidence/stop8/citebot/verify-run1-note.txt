@@ -1,0 +1,4 @@
+dc752f5b11eff38f0888ada03b9f5eeeb9b55471
+Earlier full verify on the same tree (--retries=0): 251 passed, 1 failed, 40 skipped.
+Failed: test/schnitt.spec.ts:713 'our code stays under 50ms a frame after first paint', load 2, one 95ms chunk frame at startTime 1174ms.
+Targeted rerun --repeat-each=3: 3 passed. Second full verify (verify.log): 252 passed, 0 failed, 40 skipped.

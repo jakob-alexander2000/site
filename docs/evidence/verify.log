@@ -1,0 +1,293 @@
+ec342aacb604a814288053001dea29365ffd2918
+
+> site@0.1.0 verify
+> npm run typecheck && npm run lint && npm run build && npm test
+
+
+> site@0.1.0 typecheck
+> tsc --noEmit
+
+
+> site@0.1.0 lint
+> eslint
+
+
+> site@0.1.0 build
+> next build
+
+▲ Next.js 16.4.5 (Turbopack)
+✓ Running next.config.ts took 19ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 444ms
+  Running TypeScript ...
+  Finished TypeScript in 1525ms ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/4) ...
+  Generating static pages using 3 workers (1/4) 
+  Generating static pages using 3 workers (2/4) 
+  Generating static pages using 3 workers (3/4) 
+✓ Generating static pages using 3 workers (4/4) in 176ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ○ /icon.svg
+
+
+○  (Static)  prerendered as static content
+
+
+> site@0.1.0 test
+> npm run test:unit && npm run test:scan && npm run test:e2e
+
+
+> site@0.1.0 test:unit
+> node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/scan.test.ts test/schnitt-run.test.ts
+
+TAP version 13
+# Subtest: production contact shows the one address and GitHub
+ok 1 - production contact shows the one address and GitHub
+  ---
+  duration_ms: 5.273914
+  type: 'test'
+  ...
+# Subtest: null contact renders no phone and no email row
+ok 2 - null contact renders no phone and no email row
+  ---
+  duration_ms: 1.104072
+  type: 'test'
+  ...
+# Subtest: a set phone and email become links
+ok 3 - a set phone and email become links
+  ---
+  duration_ms: 0.841921
+  type: 'test'
+  ...
+# Subtest: opening line and reveal length are fixed
+ok 4 - opening line and reveal length are fixed
+  ---
+  duration_ms: 0.878833
+  type: 'test'
+  ...
+# Subtest: each shown sentence is backed by a proof excerpt
+ok 5 - each shown sentence is backed by a proof excerpt
+  ---
+  duration_ms: 0.234248
+  type: 'test'
+  ...
+# Subtest: the lookbook files are gone
+ok 6 - the lookbook files are gone
+  ---
+  duration_ms: 0.118931
+  type: 'test'
+  ...
+# Subtest: proof lines still match the repositories
+ok 7 - proof lines still match the repositories
+  ---
+  duration_ms: 285.125551
+  type: 'test'
+  ...
+# Subtest: plate copy is real and the scan is clean
+ok 8 - plate copy is real and the scan is clean
+  ---
+  duration_ms: 1.90993
+  type: 'test'
+  ...
+# Subtest: every rendered proof link returns 200
+ok 9 - every rendered proof link returns 200
+  ---
+  duration_ms: 1985.301337
+  type: 'test'
+  ...
+# Subtest: style figures are in the public readme
+ok 10 - style figures are in the public readme
+  ---
+  duration_ms: 6.885761
+  type: 'test'
+  ...
+# Subtest: the autopsy verdict sheet is the scorer's own output for the public sample
+ok 11 - the autopsy verdict sheet is the scorer's own output for the public sample
+  ---
+  duration_ms: 20.690182
+  type: 'test'
+  ...
+# Subtest: a caption only names what its drawing shows
+ok 12 - a caption only names what its drawing shows
+  ---
+  duration_ms: 0.284766
+  type: 'test'
+  ...
+# Subtest: the site carries only the contact address
+ok 13 - the site carries only the contact address
+  ---
+  duration_ms: 1.866385
+  type: 'test'
+  ...
+# Subtest: every banned rule fires on the fixture
+ok 14 - every banned rule fires on the fixture
+  ---
+  duration_ms: 0.643506
+  type: 'test'
+  ...
+# Subtest: case, lookalike, invisible and spacing tricks are folded
+ok 15 - case, lookalike, invisible and spacing tricks are folded
+  ---
+  duration_ms: 0.310236
+  type: 'test'
+  ...
+# Subtest: the public scan names no private figure
+ok 16 - the public scan names no private figure
+  ---
+  duration_ms: 0.211943
+  type: 'test'
+  ...
+# Subtest: approved copy stays clean
+ok 17 - approved copy stays clean
+  ---
+  duration_ms: 0.528661
+  type: 'test'
+  ...
+# Subtest: pinned fixture files match the manifest
+ok 18 - pinned fixture files match the manifest
+  ---
+  duration_ms: 2.680324
+  type: 'test'
+  ...
+# Subtest: the vendored fixtures regenerate from the pinned commits
+ok 19 - the vendored fixtures regenerate from the pinned commits
+  ---
+  duration_ms: 57.32805
+  type: 'test'
+  ...
+# Subtest: the run is the paid-leave fixture
+ok 20 - the run is the paid-leave fixture
+  ---
+  duration_ms: 0.63339
+  type: 'test'
+  ...
+# Subtest: the run text passes the copy scan
+ok 21 - the run text passes the copy scan
+  ---
+  duration_ms: 0.391938
+  type: 'test'
+  ...
+# Subtest: the phone frame-time record is the static stack
+ok 22 - the phone frame-time record is the static stack
+  ---
+  duration_ms: 0.399996
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2216.442262
+
+> site@0.1.0 test:scan
+> node --import tsx scripts/scan-copy.ts
+
+copy scan ok (107 files, only the contact address allowed)
+
+> site@0.1.0 test:e2e
+> playwright test
+
+
+Running 72 tests using 2 workers
+
+(node:21581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(node:21582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/72] [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+[2/72] [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+[3/72] [chromium] › test/schnitt-page.spec.ts:5:1 › every plate is in the served html
+[4/72] [chromium] › test/schnitt-page.spec.ts:36:1 › the sheet index reaches every plate
+[5/72] [chromium] › test/schnitt-page.spec.ts:58:1 › javascript off still serves the plate text and drawings
+[6/72] [chromium] › test/schnitt-page.spec.ts:69:1 › reduced motion has no running animation and no three download
+[7/72] [chromium] › test/schnitt-page.spec.ts:91:1 › axe and console stay clear on the plates
+[8/72] [chromium] › test/schnitt-page.spec.ts:105:1 › no page shows an email address other than the contact address
+[9/72] [chromium] › test/schnitt-page.spec.ts:113:1 › about returns home
+[10/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x844
+[11/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x780
+[12/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 375x667
+[13/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x664
+[14/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 744x1133
+[15/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x390
+[16/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x340
+[17/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1280x800
+[18/72] [chromium] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1440x900
+[19/72] [chromium] › test/schnitt.spec.ts:60:1 › the sentence and the two claims are on the page
+[20/72] [chromium] › test/schnitt.spec.ts:81:1 › the passing sentence has a thread and the failing sentence has a loop
+[21/72] [chromium] › test/schnitt.spec.ts:93:1 › phone type is at least 11px and the stage is not a shrunk desktop
+[22/72] [chromium] › test/schnitt.spec.ts:134:1 › reduced motion keeps the exploded stack and skips the scroll scene
+[23/72] [chromium] › test/schnitt.spec.ts:152:1 › a WebGL context that throws after detection shows the static stack
+[24/72] [chromium] › test/schnitt.spec.ts:182:1 › a blocked WebGL context still shows the sheets
+[25/72] [chromium] › test/schnitt.spec.ts:210:1 › desktop without WebGL matches the reduced-motion still
+[26/72] [chromium] › test/schnitt.spec.ts:274:1 › the WebGL canvas draws ink
+[27/72] [chromium] › test/schnitt.spec.ts:303:1 › axe, console, and hero layout shift
+[28/72] [chromium] › test/schnitt.spec.ts:319:1 › frame time while the layers separate
+[29/72] [chromium] › test/schnitt.spec.ts:391:1 › scroll pulls the tilted planes apart
+[30/72] [chromium] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
+[31/72] [chromium] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
+[32/72] [chromium] › test/schnitt.spec.ts:480:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
+[chromium] › test/schnitt.spec.ts:319:1 › frame time while the layers separate
+{"viewport":"390x844","frames":68,"medianMs":16.7,"p95Ms":16.8,"maxMs":116.7,"shareOver20ms":0.015}
+
+[33/72] [chromium] › test/schnitt.spec.ts:520:1 › theme color is paper
+[34/72] [chromium] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x844
+[35/72] [chromium] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x780
+[36/72] [chromium] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 375x667
+(node:22230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[37/72] [webkit] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+(node:22238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[38/72] [webkit] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+[39/72] [webkit] › test/schnitt-page.spec.ts:5:1 › every plate is in the served html
+[40/72] [webkit] › test/schnitt-page.spec.ts:36:1 › the sheet index reaches every plate
+[41/72] [webkit] › test/schnitt-page.spec.ts:58:1 › javascript off still serves the plate text and drawings
+[42/72] [webkit] › test/schnitt-page.spec.ts:69:1 › reduced motion has no running animation and no three download
+[43/72] [webkit] › test/schnitt-page.spec.ts:91:1 › axe and console stay clear on the plates
+[44/72] [webkit] › test/schnitt-page.spec.ts:105:1 › no page shows an email address other than the contact address
+[45/72] [webkit] › test/schnitt-page.spec.ts:113:1 › about returns home
+[46/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x844
+[47/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x780
+[48/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 375x667
+[49/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x664
+[50/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 744x1133
+[51/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x390
+[52/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x340
+[53/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1280x800
+[54/72] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1440x900
+[55/72] [webkit] › test/schnitt.spec.ts:60:1 › the sentence and the two claims are on the page
+[56/72] [webkit] › test/schnitt.spec.ts:81:1 › the passing sentence has a thread and the failing sentence has a loop
+[57/72] [webkit] › test/schnitt.spec.ts:93:1 › phone type is at least 11px and the stage is not a shrunk desktop
+[58/72] [webkit] › test/schnitt.spec.ts:134:1 › reduced motion keeps the exploded stack and skips the scroll scene
+[59/72] [webkit] › test/schnitt.spec.ts:152:1 › a WebGL context that throws after detection shows the static stack
+[60/72] [webkit] › test/schnitt.spec.ts:182:1 › a blocked WebGL context still shows the sheets
+[61/72] [webkit] › test/schnitt.spec.ts:210:1 › desktop without WebGL matches the reduced-motion still
+[62/72] [webkit] › test/schnitt.spec.ts:274:1 › the WebGL canvas draws ink
+[63/72] [webkit] › test/schnitt.spec.ts:303:1 › axe, console, and hero layout shift
+[64/72] [webkit] › test/schnitt.spec.ts:319:1 › frame time while the layers separate
+[65/72] [webkit] › test/schnitt.spec.ts:391:1 › scroll pulls the tilted planes apart
+[66/72] [webkit] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
+[67/72] [webkit] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
+[68/72] [webkit] › test/schnitt.spec.ts:480:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
+[69/72] [webkit] › test/schnitt.spec.ts:520:1 › theme color is paper
+[70/72] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x844
+[71/72] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x780
+[72/72] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 375x667
+  4 skipped
+  68 passed (14.8s)

@@ -1,0 +1,111 @@
+dc752f5b11eff38f0888ada03b9f5eeeb9b55471
+Mutation proofs: each mutation applied to the code commit, the named C-row spec run with --retries=0 (Chromium), then reverted. Every row FAILS under its mutation, as intended.
+
+## C1 swap Source and Answer in the phone stack
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 1440px
+    Error: expect(received).toEqual(expected) // deep equality
+  2) [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 390px
+    Error: expect(received).toEqual(expected) // deep equality
+  2 failed
+## C2 add a fourth label
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:113:5 › C2 labels › exactly three sentence-case labels at 390px
+    Error: expect(received).toEqual(expected) // deep equality
+  1 failed
+  1 passed (1.3s)
+## C3a question larger than S2 (phone 32px, drawing 44)
+file: app/schnitt.css
+  1) [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+    Error: How many paid vacation days do full-time employees get?
+    Expected: < 28
+    Received:   32
+  1 failed
+    [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+## C3a' question larger than S2 in the drawing
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1440px
+    Error: How many paid vacation
+    Expected: < 43.75
+    Received:   48.125
+  1 failed
+    [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1440px
+## C3b a second red element (FAIL label red)
+file: app/schnitt.css
+  1) [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+    Error: [{"tag":"ellipse","area":9285.168860702785},{"tag":"SPAN","area":558.182373046875}]
+    Expected: 1
+    Received: 2
+  1 failed
+    [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+## C4 move the phone end point 30px off the span
+file: lib/align-leaders.ts
+  1) [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 390px
+    Error: end on the underlined span
+    Expected: <= 4
+    Received:    30
+      222 |       expect(report.s2, "no line touches the failed sentence").toBeGreaterThan(24);
+  1 failed
+## C4' move the drawing end point 20 units
+file: lib/align-leaders.ts
+  1) [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1440px
+    Error: end on the underlined span
+    Expected: <= 4
+    Received:    24.0594482421875
+      222 |       expect(report.s2, "no line touches the failed sentence").toBeGreaterThan(24);
+  1 failed
+## C5 answer sentences at 20px on the phone
+file: app/schnitt.css
+  1) [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 430px ───
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+    Expected: >= 22
+    Received:    20
+  2) [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 390px ───
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+    Expected: >= 22
+    Received:    20
+  3) [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 375px ───
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+    Expected: >= 22
+    Received:    20
+## C5' drawn type below 11px (refusal at 12 units)
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:267:3 › C5 sizes and fit › drawn labels and type stay 11px or more from 1100 to 1920
+    Error: Nothing retrieved ends in a refusal. at 1100
+    Expected: >= 11
+    Received:    9.9375
+  1 failed
+## C5'' sideways overflow (fixed 460px stack)
+file: app/schnitt.css
+  1) [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 390x844
+    Error: expect(received).toEqual(expected) // deep equality
+  1 failed
+## C6 change one word in the drawn S1
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 1440px
+    Error: expect(received).toEqual(expected) // deep equality
+  2) [chromium] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 390px
+    Error: expect(received).toEqual(expected) // deep equality
+  2 failed
+## C7 a 900ms draw-in on the ring
+file: app/schnitt.css
+  1) [chromium] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion reduce
+    Error: expect(received).toEqual(expected) // deep equality
+  2) [chromium] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion no-preference
+    Error: expect(received).toBeLessThanOrEqual(expected)
+    Expected: <= 600
+    Received:    900
+  2 failed
+## C8 put the runway back
+file: components/Plates.tsx
+  1) [chromium] › test/citebot-read.spec.ts:353:3 › C8 fit › no runway, and the figure fits a phone and a laptop screen
+    Error: expect(locator).toHaveCount(expected) failed
+    Expected: 0
+    Received: 1
+  1 failed
+## C9 old CiteBot bakes restored
+  1) [chromium] › test/citebot-read.spec.ts:363:3 › C9 stills › every CiteBot bake is the new drawing
+    Error: citebot@1100@1.webp
+    Expected: < 0.01
+    Received:   0.10878537735849059
+  1 failed

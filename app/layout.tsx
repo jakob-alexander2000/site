@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { OPENING } from "@/lib/looks";
+import { ScrollToHash } from "@/components/ScrollToHash";
+import { HERO_LINE } from "@/lib/schnitt-copy";
 import "./globals.css";
 
 const sans = Geist({
@@ -34,10 +35,10 @@ const title = "Jakob Alex";
 export const metadata: Metadata = {
   metadataBase: new URL("https://jakobalex.vercel.app"),
   title,
-  description: OPENING,
+  description: HERO_LINE,
   openGraph: {
     title,
-    description: OPENING,
+    description: HERO_LINE,
     url: "https://jakobalex.vercel.app",
     siteName: title,
     type: "website",
@@ -45,8 +46,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
-  colorScheme: "dark",
+  themeColor: "#F7F7F5",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
@@ -58,12 +59,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              '(function(){try{var c=document.createElement("canvas");var o={failIfMajorPerformanceCaveat:false};var gl=c.getContext("webgl2",o)||c.getContext("webgl",o);var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var narrow=window.matchMedia("(max-width: 800px)").matches;document.documentElement.dataset.schnitt=(!gl||reduce||narrow)?"flat":"gl";}catch(e){document.documentElement.dataset.schnitt="flat";}})();',
+              '(function(){try{var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var narrow=window.matchMedia("(max-width: 800px)").matches;if(reduce||narrow){document.documentElement.dataset.schnitt="flat";return;}var gl=!!(window.WebGL2RenderingContext||window.WebGLRenderingContext);document.documentElement.dataset.schnitt=gl?"gl":"flat";}catch(e){document.documentElement.dataset.schnitt="flat";}})();',
           }}
         />
         <a className="skip" href="#top">
           Skip to content
         </a>
+        <ScrollToHash />
         {children}
       </body>
     </html>

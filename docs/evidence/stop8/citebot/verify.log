@@ -1,0 +1,538 @@
+23507c34e21813ee9b441a68961974d6d3b2f985
+
+
+> site@0.1.0 verify
+> npm run typecheck && npm run lint && npm run build && npm test
+
+
+> site@0.1.0 typecheck
+> tsc --noEmit
+
+
+> site@0.1.0 lint
+> eslint
+
+
+> site@0.1.0 build
+> next build
+
+▲ Next.js 16.4.5 (Turbopack)
+✓ Running next.config.ts took 24ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 282ms
+  Running TypeScript ...
+  Finished TypeScript in 1359ms ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/4) ...
+  Generating static pages using 3 workers (1/4) 
+  Generating static pages using 3 workers (2/4) 
+  Generating static pages using 3 workers (3/4) 
+✓ Generating static pages using 3 workers (4/4) in 200ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ○ /icon.svg
+
+
+○  (Static)  prerendered as static content
+
+
+> site@0.1.0 test
+> npm run test:unit && npm run test:scan && npm run test:e2e
+
+
+> site@0.1.0 test:unit
+> node --import tsx --test test/contact.test.tsx test/looks.test.ts test/plates.test.tsx test/plate-stills.test.ts test/scan.test.ts test/schnitt-run.test.ts
+
+TAP version 13
+# Subtest: production contact shows the one address and GitHub
+ok 1 - production contact shows the one address and GitHub
+  ---
+  duration_ms: 5.136324
+  type: 'test'
+  ...
+# Subtest: null contact renders no phone and no email row
+ok 2 - null contact renders no phone and no email row
+  ---
+  duration_ms: 1.086666
+  type: 'test'
+  ...
+# Subtest: a set phone and email become links
+ok 3 - a set phone and email become links
+  ---
+  duration_ms: 0.876655
+  type: 'test'
+  ...
+# Subtest: opening line and reveal length are fixed
+ok 4 - opening line and reveal length are fixed
+  ---
+  duration_ms: 0.909896
+  type: 'test'
+  ...
+# Subtest: each shown sentence is backed by a proof excerpt
+ok 5 - each shown sentence is backed by a proof excerpt
+  ---
+  duration_ms: 0.261795
+  type: 'test'
+  ...
+# Subtest: the lookbook files are gone
+ok 6 - the lookbook files are gone
+  ---
+  duration_ms: 0.115307
+  type: 'test'
+  ...
+# Subtest: proof lines still match the repositories
+ok 7 - proof lines still match the repositories
+  ---
+  duration_ms: 401.684725
+  type: 'test'
+  ...
+# Subtest: desktop plate stills at scroll 0, mid and end differ
+ok 8 - desktop plate stills at scroll 0, mid and end differ
+  ---
+  duration_ms: 5.495536
+  type: 'test'
+  ...
+# Subtest: stop 4 evidence stills are not byte-identical
+ok 9 - stop 4 evidence stills are not byte-identical
+  ---
+  duration_ms: 11.160682
+  type: 'test'
+  ...
+# Subtest: stop 5 evidence stills are not byte-identical
+ok 10 - stop 5 evidence stills are not byte-identical
+  ---
+  duration_ms: 15.542001
+  type: 'test'
+  ...
+# Subtest: plate copy is real and the scan is clean
+ok 11 - plate copy is real and the scan is clean
+  ---
+  duration_ms: 3.87862
+  type: 'test'
+  ...
+# Subtest: every rendered proof link returns 200
+ok 12 - every rendered proof link returns 200
+  ---
+  duration_ms: 2016.154738
+  type: 'test'
+  ...
+# Subtest: style figures are in the public readme
+ok 13 - style figures are in the public readme
+  ---
+  duration_ms: 9.196716
+  type: 'test'
+  ...
+# Subtest: style figures and fins are recomputed from the pinned public sample
+ok 14 - style figures and fins are recomputed from the pinned public sample
+  ---
+  duration_ms: 118.306654
+  type: 'test'
+  ...
+# Subtest: the autopsy verdict sheet is the scorer's own output for the public sample
+ok 15 - the autopsy verdict sheet is the scorer's own output for the public sample
+  ---
+  duration_ms: 88.039382
+  type: 'test'
+  ...
+# Subtest: a caption only names what its drawing shows
+ok 16 - a caption only names what its drawing shows
+  ---
+  duration_ms: 0.309258
+  type: 'test'
+  ...
+# Subtest: the site carries only the contact address
+ok 17 - the site carries only the contact address
+  ---
+  duration_ms: 2.708394
+  type: 'test'
+  ...
+# Subtest: every banned rule fires on the fixture
+ok 18 - every banned rule fires on the fixture
+  ---
+  duration_ms: 0.702467
+  type: 'test'
+  ...
+# Subtest: case, lookalike, invisible and spacing tricks are folded
+ok 19 - case, lookalike, invisible and spacing tricks are folded
+  ---
+  duration_ms: 0.323826
+  type: 'test'
+  ...
+# Subtest: the public scan names no private figure
+ok 20 - the public scan names no private figure
+  ---
+  duration_ms: 0.217989
+  type: 'test'
+  ...
+# Subtest: approved copy stays clean
+ok 21 - approved copy stays clean
+  ---
+  duration_ms: 0.550171
+  type: 'test'
+  ...
+# Subtest: pinned fixture files match the manifest
+ok 22 - pinned fixture files match the manifest
+  ---
+  duration_ms: 4.268207
+  type: 'test'
+  ...
+# Subtest: the vendored fixtures regenerate from the pinned commits
+ok 23 - the vendored fixtures regenerate from the pinned commits
+  ---
+  duration_ms: 137.023256
+  type: 'test'
+  ...
+# Subtest: the run is the paid-leave fixture
+ok 24 - the run is the paid-leave fixture
+  ---
+  duration_ms: 0.755081
+  type: 'test'
+  ...
+# Subtest: the run text passes the copy scan
+ok 25 - the run text passes the copy scan
+  ---
+  duration_ms: 0.467971
+  type: 'test'
+  ...
+# Subtest: the phone frame-time record is the static stack
+ok 26 - the phone frame-time record is the static stack
+  ---
+  duration_ms: 2.256543
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2591.534068
+
+> site@0.1.0 test:scan
+> node --import tsx scripts/scan-copy.ts
+
+copy scan ok (221 files, only the contact address allowed)
+
+> site@0.1.0 test:e2e
+> playwright test --retries=0
+
+
+Running 292 tests using 2 workers
+
+(node:568213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(node:568214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 375px phone
+[2/292] [chromium] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 390px phone
+[3/292] [chromium] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+[4/292] [chromium] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+[5/292] [chromium] › test/b1-drawn-cards.spec.ts:73:1 › at the end of the scroll the paper sits on its drawn card
+[6/292] [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 390px
+[7/292] [chromium] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 1440px
+[8/292] [chromium] › test/citebot-read.spec.ts:113:5 › C2 labels › exactly three sentence-case labels at 390px
+[9/292] [chromium] › test/citebot-read.spec.ts:113:5 › C2 labels › exactly three sentence-case labels at 1440px
+[10/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 375px
+[11/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+[12/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 430px
+[13/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1100px
+[14/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1280px
+[15/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1440px
+[16/292] [chromium] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1920px
+[17/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 390px
+[18/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1100px
+[19/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1280px
+[20/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1440px
+[21/292] [chromium] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1920px
+[22/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 375px
+[23/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 390px
+[24/292] [chromium] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 430px
+[25/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 375x812
+[26/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 812x375
+[27/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 390x844
+[28/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 844x390
+[29/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 430x932
+[30/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 932x430
+[31/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 768x1024
+[32/292] [chromium] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 1024x768
+[33/292] [chromium] › test/citebot-read.spec.ts:267:3 › C5 sizes and fit › drawn labels and type stay 11px or more from 1100 to 1920
+[34/292] [chromium] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 390px
+[35/292] [chromium] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 1440px
+[36/292] [chromium] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion reduce
+[37/292] [chromium] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion no-preference
+[38/292] [chromium] › test/citebot-read.spec.ts:353:3 › C8 fit › no runway, and the figure fits a phone and a laptop screen
+[39/292] [chromium] › test/citebot-read.spec.ts:363:3 › C9 stills › every CiteBot bake is the new drawing
+[40/292] [chromium] › test/copy-address.spec.ts:3:1 › the contact row copies the address and says so
+[41/292] [chromium] › test/copy-address.spec.ts:17:1 › the contact row says when the clipboard is missing
+[42/292] [chromium] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 801px
+[43/292] [chromium] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1024px
+[44/292] [chromium] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1280px
+[45/292] [chromium] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1440px
+[46/292] [chromium] › test/phone-stability.spec.ts:65:1 › phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 0.1
+[47/292] [chromium] › test/phone-stability.spec.ts:90:1 › phone landscape 3D hero: toolbar resizes do not resize the canvas
+[48/292] [chromium] › test/phone-stability.spec.ts:127:1 › phone landscape: a lost WebGL context leaves the static hero and stops the scene
+[49/292] [chromium] › test/phone-stability.spec.ts:152:3 › phone 390x844 with WebGL off shows the static hero
+[50/292] [chromium] › test/phone-stability.spec.ts:152:3 › phone 844x390 with WebGL off shows the static hero
+[51/292] [chromium] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1280px
+[52/292] [chromium] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1366px
+[53/292] [chromium] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1440px
+[54/292] [chromium] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1024px
+[55/292] [chromium] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1280px
+[56/292] [chromium] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1440px
+[57/292] [chromium] › test/plate-fit.spec.ts:93:1 › desktop creates one WebGL context; phone, reduced motion and WebGL off create none
+[58/292] [chromium] › test/plate-grammar.spec.ts:10:1 › each plate drawing spans the plate and keeps one verdict sheet
+[59/292] [chromium] › test/plate-grammar.spec.ts:24:1 › leaders sit off the sheets
+[60/292] [chromium] › test/plate-grammar.spec.ts:46:1 › the FAIL sentence is the same in the drawing and the phone stack
+[61/292] [chromium] › test/plate-grammar.spec.ts:55:1 › the pen loop encloses the word FAIL
+[62/292] [chromium] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1024px
+[63/292] [chromium] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1280px
+[64/292] [chromium] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1440px
+[65/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 801px
+[66/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1024px
+[67/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1099px
+[68/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1100px
+[69/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1280px
+[70/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1339px
+[71/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1340px
+[72/292] [chromium] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1440px
+[73/292] [chromium] › test/plate-legibility.spec.ts:60:1 › every failed check says FAIL to a screen reader
+[74/292] [chromium] › test/plate-legibility.spec.ts:71:1 › the FAIL mark keeps its drawn size on a phone
+[75/292] [chromium] › test/plate-paper.spec.ts:3:1 › the CiteBot drawing is the same paper as the page
+[76/292] [chromium] › test/plates-draw.spec.ts:4:1 › the citebot plate reads question, source, answer with source and harness only
+[77/292] [chromium] › test/plates-draw.spec.ts:26:1 › the autopsy plate strikes only the dropped spans and names four checks
+[78/292] [chromium] › test/plates-draw.spec.ts:74:1 › phone verdict names sit clear of the row above
+[79/292] [chromium] › test/plates-draw.spec.ts:81:1 › the style plate prints the synthetic demo once, with fins
+[80/292] [chromium] › test/plates-draw.spec.ts:93:1 › the style fins are drawn in true proportion, largest first
+[81/292] [chromium] › test/plates-draw.spec.ts:107:1 › the style reading only ever shows a measured figure through the scroll
+[82/292] [chromium] › test/schnitt-page.spec.ts:5:1 › every plate is in the served html
+[83/292] [chromium] › test/schnitt-page.spec.ts:38:1 › the sheet index reaches every plate
+[84/292] [chromium] › test/schnitt-page.spec.ts:60:1 › javascript off still serves the plate text and drawings
+[85/292] [chromium] › test/schnitt-page.spec.ts:71:1 › reduced motion has no running animation and no three download
+[86/292] [chromium] › test/schnitt-page.spec.ts:93:1 › axe and console stay clear on the plates
+[87/292] [chromium] › test/schnitt-page.spec.ts:107:1 › no page shows an email address other than the contact address
+[88/292] [chromium] › test/schnitt-page.spec.ts:115:1 › about returns home
+[89/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x844
+[90/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x780
+[91/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 375x667
+[92/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x664
+[93/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 744x1133
+[94/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x390
+[95/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x340
+[96/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 1280x800
+[97/292] [chromium] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 1440x900
+[98/292] [chromium] › test/schnitt.spec.ts:61:1 › the sentence and the two claims are on the page
+[99/292] [chromium] › test/schnitt.spec.ts:83:1 › the passing sentence has a thread and the failing sentence has a loop
+[100/292] [chromium] › test/schnitt.spec.ts:120:1 › phone type is at least 11px and the stage is not a shrunk desktop
+[101/292] [chromium] › test/schnitt.spec.ts:161:1 › reduced motion keeps the exploded stack and skips the scroll scene
+[102/292] [chromium] › test/schnitt.spec.ts:179:1 › desktop keeps one live WebGL context
+[103/292] [chromium] › test/schnitt.spec.ts:210:1 › a WebGL context that throws after detection shows the static stack
+[104/292] [chromium] › test/schnitt.spec.ts:240:1 › a blocked WebGL context still shows the sheets
+[105/292] [chromium] › test/schnitt.spec.ts:268:1 › desktop without WebGL matches the reduced-motion still
+[106/292] [chromium] › test/schnitt.spec.ts:332:1 › the WebGL canvas draws ink
+[107/292] [chromium] › test/schnitt.spec.ts:361:1 › axe, console, and hero layout shift
+[108/292] [chromium] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
+[109/292] [chromium] › test/schnitt.spec.ts:449:1 › scroll pulls the tilted planes apart
+[chromium] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
+{"viewport":"390x844","frames":69,"medianMs":16.7,"p95Ms":16.7,"maxMs":83.4,"shareOver20ms":0.014}
+
+[110/292] [chromium] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
+[111/292] [chromium] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
+[112/292] [chromium] › test/schnitt.spec.ts:538:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
+[113/292] [chromium] › test/schnitt.spec.ts:578:1 › theme color is paper
+[114/292] [chromium] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x844
+[115/292] [chromium] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x780
+[116/292] [chromium] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 375x667
+[117/292] [chromium] › test/schnitt.spec.ts:652:1 › three.js starts after first paint
+[118/292] [chromium] › test/schnitt.spec.ts:672:1 › one rail, one renderer, and the draw stays inside the budget
+[119/292] [chromium] › test/schnitt.spec.ts:713:1 › our code stays under 50ms a frame after first paint
+[120/292] [chromium] › test/schnitt.spec.ts:794:1 › one chunk after first paint stays within 160 KB
+[121/292] [chromium] › test/schnitt.spec.ts:820:3 › the rail and the hero stay off the plate text at 1280
+[122/292] [chromium] › test/schnitt.spec.ts:820:3 › the rail and the hero stay off the plate text at 1440
+[123/292] [chromium] › test/schnitt.spec.ts:859:6 › the camera moves through a plate instead of holding its size
+[124/292] [chromium] › test/schnitt.spec.ts:898:1 › a plate texture embeds the page font
+[125/292] [chromium] › test/schnitt.spec.ts:906:1 › no plate canvas lies over an HTML figure
+[126/292] [chromium] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1280px
+[127/292] [chromium] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1366px
+[128/292] [chromium] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1440px
+[129/292] [chromium] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1920px
+[130/292] [chromium] › test/schnitt.spec.ts:972:6 › style assembles in its own slot under its caption
+[131/292] [chromium] › test/schnitt.spec.ts:1012:1 › a 404 plate keeps its drawing and the hero stays 3D
+[132/292] [chromium] › test/schnitt.spec.ts:1034:1 › a corrupt plate body keeps its drawing
+[133/292] [chromium] › test/schnitt.spec.ts:1054:1 › a plate whose bitmap rejects keeps its drawing and the hero stays 3D
+[134/292] [chromium] › test/schnitt.spec.ts:1087:6 › two plates have area inside the viewport mid-travel
+[135/292] [chromium] › test/schnitt.spec.ts:1115:6 › plate depth changes continuously while the page scrolls
+[136/292] [chromium] › test/schnitt.spec.ts:1147:6 › label pixels move with the turning plate
+[137/292] [chromium] › test/schnitt.spec.ts:1190:6 › the next plate assembles in one direction
+[138/292] [chromium] › test/schnitt.spec.ts:1207:1 › baked labels stay at least 11px across the width bands
+[139/292] [chromium] › test/schnitt.spec.ts:1225:1 › autopsy answer words do not overlap
+[140/292] [chromium] › test/schnitt.spec.ts:1261:1 › autopsy words are on the page once the section is in view
+[141/292] [chromium] › test/section-stills.spec.ts:4:1 › re-enabling the section rail fails this test
+[142/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1280px
+[143/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1366px
+[144/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1440px
+[145/292] [chromium] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1920px
+[146/292] [chromium] › test/skills-strip.spec.ts:3:1 › a skill strip opens on hover, focus, and tap, with a hairline stroke
+(node:570217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[147/292] [webkit] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 375px phone
+[148/292] [webkit] › test/autopsy-phone.spec.ts:6:3 › Autopsy stays inside a 390px phone
+[149/292] [webkit] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+[150/292] [webkit] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+(node:570440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[151/292] [webkit] › test/b1-drawn-cards.spec.ts:73:1 › at the end of the scroll the paper sits on its drawn card
+[152/292] [webkit] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 390px
+[153/292] [webkit] › test/citebot-read.spec.ts:81:5 › C1 reading order › question, then source, then answer at 1440px
+[154/292] [webkit] › test/citebot-read.spec.ts:113:5 › C2 labels › exactly three sentence-case labels at 390px
+[155/292] [webkit] › test/citebot-read.spec.ts:113:5 › C2 labels › exactly three sentence-case labels at 1440px
+[156/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 375px
+[157/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 390px
+[158/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 430px
+[159/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1100px
+[160/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1280px
+[161/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1440px
+[162/292] [webkit] › test/citebot-read.spec.ts:130:5 › C3 focal point › the failed sentence is the largest text and the only red at 1920px
+[163/292] [webkit] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 390px
+[164/292] [webkit] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1100px
+[165/292] [webkit] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1280px
+[166/292] [webkit] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1440px
+[167/292] [webkit] › test/citebot-read.spec.ts:146:5 › C4 citation line › the hairline runs from [1] to the underlined span at 1920px
+[168/292] [webkit] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 375px
+[169/292] [webkit] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 390px
+[170/292] [webkit] › test/citebot-read.spec.ts:230:5 › C5 sizes and fit › phone type sizes at 430px
+[171/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 375x812
+[172/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 812x375
+[173/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 390x844
+[174/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 844x390
+[175/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 430x932
+[176/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 932x430
+[177/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 768x1024
+[178/292] [webkit] › test/citebot-read.spec.ts:250:5 › C5 sizes and fit › no clipping and no sideways scroll at 1024x768
+[179/292] [webkit] › test/citebot-read.spec.ts:267:3 › C5 sizes and fit › drawn labels and type stay 11px or more from 1100 to 1920
+[180/292] [webkit] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 390px
+[181/292] [webkit] › test/citebot-read.spec.ts:282:5 › C6 copy truth › every string comes from the recorded run or the plate copy at 1440px
+[182/292] [webkit] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion reduce
+[183/292] [webkit] › test/citebot-read.spec.ts:322:5 › C7 reduced motion › the figure is still and final with motion no-preference
+[184/292] [webkit] › test/citebot-read.spec.ts:353:3 › C8 fit › no runway, and the figure fits a phone and a laptop screen
+[185/292] [webkit] › test/citebot-read.spec.ts:363:3 › C9 stills › every CiteBot bake is the new drawing
+[186/292] [webkit] › test/copy-address.spec.ts:3:1 › the contact row copies the address and says so
+[187/292] [webkit] › test/copy-address.spec.ts:17:1 › the contact row says when the clipboard is missing
+[188/292] [webkit] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 801px
+[189/292] [webkit] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1024px
+[190/292] [webkit] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1280px
+[191/292] [webkit] › test/hero-narrow.spec.ts:4:3 › hero labels stay apart and sheets stay inside the stage at 1440px
+[192/292] [webkit] › test/phone-stability.spec.ts:65:1 › phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 0.1
+[193/292] [webkit] › test/phone-stability.spec.ts:90:1 › phone landscape 3D hero: toolbar resizes do not resize the canvas
+[194/292] [webkit] › test/phone-stability.spec.ts:127:1 › phone landscape: a lost WebGL context leaves the static hero and stops the scene
+[195/292] [webkit] › test/phone-stability.spec.ts:152:3 › phone 390x844 with WebGL off shows the static hero
+[196/292] [webkit] › test/phone-stability.spec.ts:152:3 › phone 844x390 with WebGL off shows the static hero
+[197/292] [webkit] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1280px
+[198/292] [webkit] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1366px
+[199/292] [webkit] › test/plate-fit.spec.ts:9:3 › CiteBot sheet text fits, stays whole, and keeps clear of the loops at 1440px
+[200/292] [webkit] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1024px
+[201/292] [webkit] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1280px
+[202/292] [webkit] › test/plate-fit.spec.ts:69:3 › step labels sit off the sheet text at 1440px
+[203/292] [webkit] › test/plate-fit.spec.ts:93:1 › desktop creates one WebGL context; phone, reduced motion and WebGL off create none
+[204/292] [webkit] › test/plate-grammar.spec.ts:10:1 › each plate drawing spans the plate and keeps one verdict sheet
+[205/292] [webkit] › test/plate-grammar.spec.ts:24:1 › leaders sit off the sheets
+[206/292] [webkit] › test/plate-grammar.spec.ts:46:1 › the FAIL sentence is the same in the drawing and the phone stack
+[207/292] [webkit] › test/plate-grammar.spec.ts:55:1 › the pen loop encloses the word FAIL
+[208/292] [webkit] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1024px
+[209/292] [webkit] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1280px
+[210/292] [webkit] › test/plate-leaders.spec.ts:4:3 › the CiteBot citation line meets its mark and its span at 1440px
+[211/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 801px
+[212/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1024px
+[213/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1099px
+[214/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1100px
+[215/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1280px
+[216/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1339px
+[217/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1340px
+[218/292] [webkit] › test/plate-legibility.spec.ts:7:3 › plate type renders at 11px or more at 1440px
+[219/292] [webkit] › test/plate-legibility.spec.ts:60:1 › every failed check says FAIL to a screen reader
+[220/292] [webkit] › test/plate-legibility.spec.ts:71:1 › the FAIL mark keeps its drawn size on a phone
+[221/292] [webkit] › test/plate-paper.spec.ts:3:1 › the CiteBot drawing is the same paper as the page
+[222/292] [webkit] › test/plates-draw.spec.ts:4:1 › the citebot plate reads question, source, answer with source and harness only
+[223/292] [webkit] › test/plates-draw.spec.ts:26:1 › the autopsy plate strikes only the dropped spans and names four checks
+[224/292] [webkit] › test/plates-draw.spec.ts:74:1 › phone verdict names sit clear of the row above
+[225/292] [webkit] › test/plates-draw.spec.ts:81:1 › the style plate prints the synthetic demo once, with fins
+[226/292] [webkit] › test/plates-draw.spec.ts:93:1 › the style fins are drawn in true proportion, largest first
+[227/292] [webkit] › test/plates-draw.spec.ts:107:1 › the style reading only ever shows a measured figure through the scroll
+[228/292] [webkit] › test/schnitt-page.spec.ts:5:1 › every plate is in the served html
+[229/292] [webkit] › test/schnitt-page.spec.ts:38:1 › the sheet index reaches every plate
+[230/292] [webkit] › test/schnitt-page.spec.ts:60:1 › javascript off still serves the plate text and drawings
+[231/292] [webkit] › test/schnitt-page.spec.ts:71:1 › reduced motion has no running animation and no three download
+[232/292] [webkit] › test/schnitt-page.spec.ts:93:1 › axe and console stay clear on the plates
+[233/292] [webkit] › test/schnitt-page.spec.ts:107:1 › no page shows an email address other than the contact address
+[234/292] [webkit] › test/schnitt-page.spec.ts:115:1 › about returns home
+[235/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x844
+[236/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x780
+[237/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 390x664
+[238/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 375x667
+[239/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 744x1133
+[240/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x390
+[241/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 844x340
+[242/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 1280x800
+[243/292] [webkit] › test/schnitt-page.spec.ts:132:3 › the limits kept from the old page hold at 1440x900
+[244/292] [webkit] › test/schnitt.spec.ts:61:1 › the sentence and the two claims are on the page
+[245/292] [webkit] › test/schnitt.spec.ts:83:1 › the passing sentence has a thread and the failing sentence has a loop
+[246/292] [webkit] › test/schnitt.spec.ts:120:1 › phone type is at least 11px and the stage is not a shrunk desktop
+[247/292] [webkit] › test/schnitt.spec.ts:161:1 › reduced motion keeps the exploded stack and skips the scroll scene
+[248/292] [webkit] › test/schnitt.spec.ts:179:1 › desktop keeps one live WebGL context
+[249/292] [webkit] › test/schnitt.spec.ts:210:1 › a WebGL context that throws after detection shows the static stack
+[250/292] [webkit] › test/schnitt.spec.ts:240:1 › a blocked WebGL context still shows the sheets
+[251/292] [webkit] › test/schnitt.spec.ts:268:1 › desktop without WebGL matches the reduced-motion still
+[252/292] [webkit] › test/schnitt.spec.ts:332:1 › the WebGL canvas draws ink
+[253/292] [webkit] › test/schnitt.spec.ts:361:1 › axe, console, and hero layout shift
+[254/292] [webkit] › test/schnitt.spec.ts:377:1 › frame time while the layers separate
+[255/292] [webkit] › test/schnitt.spec.ts:449:1 › scroll pulls the tilted planes apart
+[256/292] [webkit] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
+[257/292] [webkit] › test/schnitt.spec.ts:470:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
+[258/292] [webkit] › test/schnitt.spec.ts:538:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
+[259/292] [webkit] › test/schnitt.spec.ts:578:1 › theme color is paper
+[260/292] [webkit] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x844
+[261/292] [webkit] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 390x780
+[262/292] [webkit] › test/schnitt.spec.ts:589:3 › phone hero holds its measure at 375x667
+[263/292] [webkit] › test/schnitt.spec.ts:652:1 › three.js starts after first paint
+[264/292] [webkit] › test/schnitt.spec.ts:672:1 › one rail, one renderer, and the draw stays inside the budget
+[265/292] [webkit] › test/schnitt.spec.ts:713:1 › our code stays under 50ms a frame after first paint
+[266/292] [webkit] › test/schnitt.spec.ts:794:1 › one chunk after first paint stays within 160 KB
+[267/292] [webkit] › test/schnitt.spec.ts:820:3 › the rail and the hero stay off the plate text at 1280
+[268/292] [webkit] › test/schnitt.spec.ts:820:3 › the rail and the hero stay off the plate text at 1440
+[269/292] [webkit] › test/schnitt.spec.ts:859:6 › the camera moves through a plate instead of holding its size
+[270/292] [webkit] › test/schnitt.spec.ts:898:1 › a plate texture embeds the page font
+[271/292] [webkit] › test/schnitt.spec.ts:906:1 › no plate canvas lies over an HTML figure
+[272/292] [webkit] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1280px
+[273/292] [webkit] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1366px
+[274/292] [webkit] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1440px
+[275/292] [webkit] › test/schnitt.spec.ts:932:8 › the cut assembles the next section at 1920px
+[276/292] [webkit] › test/schnitt.spec.ts:972:6 › style assembles in its own slot under its caption
+[277/292] [webkit] › test/schnitt.spec.ts:1012:1 › a 404 plate keeps its drawing and the hero stays 3D
+[278/292] [webkit] › test/schnitt.spec.ts:1034:1 › a corrupt plate body keeps its drawing
+[279/292] [webkit] › test/schnitt.spec.ts:1054:1 › a plate whose bitmap rejects keeps its drawing and the hero stays 3D
+[280/292] [webkit] › test/schnitt.spec.ts:1087:6 › two plates have area inside the viewport mid-travel
+[281/292] [webkit] › test/schnitt.spec.ts:1115:6 › plate depth changes continuously while the page scrolls
+[282/292] [webkit] › test/schnitt.spec.ts:1147:6 › label pixels move with the turning plate
+[283/292] [webkit] › test/schnitt.spec.ts:1190:6 › the next plate assembles in one direction
+[284/292] [webkit] › test/schnitt.spec.ts:1207:1 › baked labels stay at least 11px across the width bands
+[285/292] [webkit] › test/schnitt.spec.ts:1225:1 › autopsy answer words do not overlap
+[286/292] [webkit] › test/schnitt.spec.ts:1261:1 › autopsy words are on the page once the section is in view
+[287/292] [webkit] › test/section-stills.spec.ts:4:1 › re-enabling the section rail fails this test
+[288/292] [webkit] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1280px
+[289/292] [webkit] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1366px
+[290/292] [webkit] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1440px
+[291/292] [webkit] › test/section-stills.spec.ts:9:3 › baked stills are decoded and distinct at 1920px
+[292/292] [webkit] › test/skills-strip.spec.ts:3:1 › a skill strip opens on hover, focus, and tap, with a hairline stroke
+  40 skipped
+  252 passed (2.3m)

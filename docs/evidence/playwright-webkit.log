@@ -1,0 +1,48 @@
+ec342aacb604a814288053001dea29365ffd2918
+
+Running 36 tests using 2 workers
+
+(node:25076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(node:25075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/36] [webkit] › test/b1-drawn-cards.spec.ts:49:1 › desktop sheet separation only increases through the hero scroll
+[2/36] [webkit] › test/b1-drawn-cards.spec.ts:6:1 › desktop label boxes stay off the drawn cards through the scroll
+[3/36] [webkit] › test/schnitt-page.spec.ts:5:1 › every plate is in the served html
+[4/36] [webkit] › test/schnitt-page.spec.ts:36:1 › the sheet index reaches every plate
+[5/36] [webkit] › test/schnitt-page.spec.ts:58:1 › javascript off still serves the plate text and drawings
+[6/36] [webkit] › test/schnitt-page.spec.ts:69:1 › reduced motion has no running animation and no three download
+[7/36] [webkit] › test/schnitt-page.spec.ts:91:1 › axe and console stay clear on the plates
+[8/36] [webkit] › test/schnitt-page.spec.ts:105:1 › no page shows an email address other than the contact address
+[9/36] [webkit] › test/schnitt-page.spec.ts:113:1 › about returns home
+[10/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x844
+[11/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x780
+[12/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 375x667
+[13/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 390x664
+[14/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 744x1133
+[15/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x390
+[16/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 844x340
+[17/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1280x800
+[18/36] [webkit] › test/schnitt-page.spec.ts:130:3 › the limits kept from the old page hold at 1440x900
+[19/36] [webkit] › test/schnitt.spec.ts:60:1 › the sentence and the two claims are on the page
+[20/36] [webkit] › test/schnitt.spec.ts:81:1 › the passing sentence has a thread and the failing sentence has a loop
+[21/36] [webkit] › test/schnitt.spec.ts:93:1 › phone type is at least 11px and the stage is not a shrunk desktop
+[22/36] [webkit] › test/schnitt.spec.ts:134:1 › reduced motion keeps the exploded stack and skips the scroll scene
+[23/36] [webkit] › test/schnitt.spec.ts:152:1 › a WebGL context that throws after detection shows the static stack
+[24/36] [webkit] › test/schnitt.spec.ts:182:1 › a blocked WebGL context still shows the sheets
+[25/36] [webkit] › test/schnitt.spec.ts:274:1 › the WebGL canvas draws ink
+[26/36] [webkit] › test/schnitt.spec.ts:210:1 › desktop without WebGL matches the reduced-motion still
+[27/36] [webkit] › test/schnitt.spec.ts:303:1 › axe, console, and hero layout shift
+[28/36] [webkit] › test/schnitt.spec.ts:319:1 › frame time while the layers separate
+[29/36] [webkit] › test/schnitt.spec.ts:391:1 › scroll pulls the tilted planes apart
+[30/36] [webkit] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x844
+[31/36] [webkit] › test/schnitt.spec.ts:412:3 › phone sheets render type at 11px or more, the loop rings the claim, and the thread starts at the sentence at 390x780
+[32/36] [webkit] › test/schnitt.spec.ts:480:1 › desktop sheet titles stay uncovered and the verdict stays in frame through the scroll
+[33/36] [webkit] › test/schnitt.spec.ts:520:1 › theme color is paper
+[34/36] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x844
+[35/36] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 390x780
+[36/36] [webkit] › test/schnitt.spec.ts:531:3 › phone hero holds its measure at 375x667
+  4 skipped
+  32 passed (7.2s)

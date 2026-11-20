@@ -1,26 +1,28 @@
 {
   "phone390": {
     "viewport": "390x844",
-    "webgl": "ready",
+    "webgl": "off",
+    "method": "static-stack",
     "cpuThrottle": 4,
-    "frames": 73,
+    "frames": 58,
     "medianMs": 16.7,
     "p95Ms": 16.7,
-    "maxMs": 16.8,
-    "shareOver20ms": 0
+    "maxMs": 266.7,
+    "shareOver20ms": 0.017
   },
   "desktop1440": {
     "viewport": "1440x900",
     "webgl": "ready",
+    "method": "fit-loop",
     "cpuThrottle": 4,
-    "frames": 73,
+    "frames": 62,
     "medianMs": 16.7,
-    "p95Ms": 16.8,
-    "maxMs": 33.4,
-    "shareOver20ms": 0.014
+    "p95Ms": 16.7,
+    "maxMs": 200,
+    "shareOver20ms": 0.016
   },
   "cls": 0,
   "consoleErrors": 0,
   "axeViolations": 0,
-  "note": "p95 is the sample at ceil(0.95*n)-1. shareOver20ms is the fraction of frame gaps strictly above 20ms. A 60Hz timer lands near 16.67ms, so a cutoff of 16.7 splits that cluster and is not comparable to a rounded p95."
+  "note": "Phone is the static HTML stack, WebGL off, zero three requests. p95 is the sample at ceil(0.95*n)-1. shareOver20ms is the fraction of frame gaps strictly above 20ms. The phone max is one long frame, recorded here and explained before M7. Desktop is the fit loop with WebGL on."
 }

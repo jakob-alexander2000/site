@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { readdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { BACKGROUND, LOOKS, OPENING, PRODUCT_PAGE_COMING, lookCopy, rawProofUrl, showCiteBotLive, visibleLive } from "../lib/looks";
-import { SETTLE_MS } from "../lib/reveal";
 import { SHELF } from "../lib/shelf";
 
 test("opening line and reveal length are fixed", () => {
@@ -16,7 +16,6 @@ test("opening line and reveal length are fixed", () => {
   assert.equal(visibleLive(LOOKS[0]), null);
   assert.equal(visibleLive(LOOKS[1]), LOOKS[1].live);
   assert.equal(visibleLive(LOOKS[2]), LOOKS[2].live);
-  assert.equal(SETTLE_MS, 1200);
   assert.equal(PRODUCT_PAGE_COMING, "The product page is coming.");
   assert.equal(LOOKS[0].caption, "Checks each claim against the handbook passage. Development build, no AI model.");
   assert.deepEqual(
@@ -42,21 +41,15 @@ test("each shown sentence is backed by a proof excerpt", () => {
   }
 });
 
-test("noir css keeps black, white, and one grey", () => {
-  const css = readFileSync("app/globals.css", "utf8");
-  const allowed = new Set(["000", "000000", "fff", "ffffff", "8c8c8c"]);
-  for (const match of css.matchAll(/#([0-9a-fA-F]{3,8})\b/g)) {
-    assert.equal(allowed.has(match[1].toLowerCase()), true, match[0]);
-  }
-  assert.match(css, /--grey:\s*#8c8c8c/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.match(css, /grayscale\(1\)/);
-  assert.match(css, /filter 1\.2s ease/);
-  assert.match(css, /feTurbulence/);
-  assert.match(css, /hover:\s*hover\) and \(pointer:\s*fine\)/);
-  assert.equal(css.includes("<video"), false);
-  assert.equal(readFileSync("components/ProductStill.tsx", "utf8").includes("<video"), false);
-  assert.equal(readFileSync("components/LookView.tsx", "utf8").includes("<video"), false);
+test("the lookbook files are gone", () => {
+  assert.equal(existsSync("components/LookView.tsx"), false);
+  assert.equal(existsSync("components/ProductStill.tsx"), false);
+  assert.equal(existsSync("test/noir.spec.ts"), false);
+  const page = readFileSync("app/page.tsx", "utf8");
+  assert.equal(page.includes("LookView"), false);
+  assert.equal(page.includes("quiet"), false);
+  assert.equal(page.includes("ProductStill"), false);
+  assert.equal(readFileSync("DESIGN.md", "utf8").includes("Noir"), false);
 });
 
 test("proof lines still match the repositories", { timeout: 30000 }, async () => {

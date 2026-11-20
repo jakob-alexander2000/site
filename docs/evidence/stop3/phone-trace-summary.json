@@ -1,0 +1,23 @@
+{
+  "marks": [
+    {
+      "gap": 250,
+      "t": 1258,
+      "y": 2682
+    }
+  ],
+  "top": [
+    {
+      "name": "LayerTreeHost::~LayerTreeHost",
+      "dur": 242
+    },
+    {
+      "name": "ProxyMain::Stop",
+      "dur": 242
+    },
+    {
+      "name": "ProxyImpl::FinishGLOnImplThread",
+      "dur": 240
+    }
+  ]
+}

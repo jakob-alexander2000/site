@@ -2,6 +2,39 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { HERO_LINE, HERO_SUPPORT } from "../lib/schnitt-copy";
 
+function isFlat(transform: string) {
+  if (transform === "none") return true;
+  const match = transform.match(/matrix\(([^)]+)\)/);
+  if (!match?.[1]) return false;
+  const [a, b, c, d] = match[1].split(",").map((part) => Number(part.trim()));
+  return Math.abs(b ?? 1) < 0.02 && Math.abs(c ?? 1) < 0.02 && Math.abs((a ?? 0) - 1) < 0.05 && Math.abs((d ?? 0) - 1) < 0.05;
+}
+
+function tiltScale(transform: string) {
+  const match = transform.match(/matrix\(([^)]+)\)/);
+  if (!match?.[1]) return { tilted: false, scale: transform === "none" ? 1 : 0 };
+  const [a, b, c, d] = match[1].split(",").map((part) => Number(part.trim()));
+  const scale = Math.min(Math.hypot(a ?? 0, b ?? 0), Math.hypot(c ?? 0, d ?? 0));
+  return { tilted: Math.abs(b ?? 0) > 0.02 || Math.abs(c ?? 0) > 0.02, scale };
+}
+
+async function labelHits(page: Page) {
+  return page.evaluate(() => {
+    const hits: string[] = [];
+    const overlap = (a: DOMRect, b: DOMRect) =>
+      a.width > 0 && b.width > 0 && a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom - 0.5 && a.bottom > b.top + 0.5;
+    for (const label of document.querySelectorAll<HTMLElement>(".callout")) {
+      const box = label.getBoundingClientRect();
+      for (const sheet of document.querySelectorAll<HTMLElement>(".sheet")) {
+        if (overlap(box, sheet.getBoundingClientRect())) {
+          hits.push(`${(label.textContent ?? "").trim().slice(0, 24)} ∩ ${(sheet.querySelector(".file")?.textContent ?? "").trim().slice(0, 24)}`);
+        }
+      }
+    }
+    return hits;
+  });
+}
+
 async function quiet(page: Page) {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -31,18 +64,13 @@ test("the sentence and the two claims are on the page", async ({ page }) => {
   await expect(page.locator("#opening em")).toHaveText("check");
   await expect(page.locator("em")).toHaveCount(1);
   await expect(page.getByText(HERO_SUPPORT)).toBeVisible();
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 20000 });
   await expect(page.locator(".claim", { hasText: "Full-time employees receive 30 days." })).toBeVisible();
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
-  await expect(page.getByText("How many paid vacation days do full-time employees get?")).toBeVisible();
-  await expect(page.getByText("The handbook says 30 days.")).toBeVisible();
-  await expect(page.getByText("DATA FROM A RECORDED RUN, 9 NOV 2026")).toBeVisible();
-  await expect(page.getByText("18 of 18 · offline eval · 29 OCT 2026")).toBeVisible();
-  await expect(page.getByRole("link", { name: "See CiteBot run" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "How it is built" })).toHaveAttribute(
-    "href",
-    "https://github.com/jakob-alexander2000/citebot",
-  );
-  await expect(page.locator('a[href*="citebot-chi.vercel.app"]')).toHaveCount(0);
+  await expect(page.locator(".question")).toContainText("How many paid vacation days do full-time employees get?");
+  await expect(page.locator(".schnitt").getByText("The handbook says 30 days.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Email me" })).toHaveAttribute("href", /^mailto:/);
+  await expect(page.locator('a[href*="citebot-chi.vercel.app/ask"]')).toHaveCount(0);
 });
 
 test("the passing sentence has a thread and the failing sentence has a loop", async ({ page }) => {
@@ -53,6 +81,31 @@ test("the passing sentence has a thread and the failing sentence has a loop", as
   await expect(stage.locator("[data-thread='pass'] path")).toHaveAttribute("d", /.+/);
   await expect(page.locator("[data-thread='fail']")).toHaveCount(0);
   await expect(stage.locator("[data-fail='loop']")).toBeVisible();
+  const clearsPer = await page.evaluate(() => {
+    const passage = document.querySelector("[data-anchor='passage']")?.parentElement;
+    const path = document.querySelector(".tie-svg path");
+    if (!passage || !(path instanceof SVGPathElement)) return false;
+    const word = [...passage.childNodes].find((node) => node.textContent?.includes(" per "));
+    if (!word?.textContent) return false;
+    const range = document.createRange();
+    const start = word.textContent.indexOf("per");
+    range.setStart(word, start);
+    range.setEnd(word, start + 3);
+    const box = range.getBoundingClientRect();
+    const length = path.getTotalLength();
+    for (let index = 0; index <= 24; index += 1) {
+      const point = path.getPointAtLength((length * index) / 24);
+      const svg = path.ownerSVGElement;
+      const root = svg?.getBoundingClientRect();
+      if (!root) return false;
+      const x = root.left + point.x;
+      const y = root.top + point.y;
+      const inside = x > box.left + 1 && x < box.right - 1 && y > box.top + 1 && y < box.bottom - 1;
+      if (inside) return false;
+    }
+    return true;
+  });
+  expect(clearsPer).toBe(true);
   const failInk = await stage.locator(".is-fail .mark").evaluate((node) => getComputedStyle(node).color);
   expect(failInk).toBe("rgb(198, 48, 42)");
 });
@@ -108,10 +161,43 @@ test("reduced motion keeps the exploded stack and skips the scroll scene", async
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-ties", "1");
   const transform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
-  expect(transform.includes("matrix")).toBe(true);
+  const phone = tiltScale(transform);
+  expect(phone.tilted).toBe(true);
+  expect(phone.scale).toBeGreaterThanOrEqual(1);
   const label = page.locator(".callout").first();
   await expect(label).toBeVisible();
   expect(await label.evaluate((node) => node.closest(".sheet") !== null)).toBe(false);
+});
+
+test("desktop keeps one live WebGL context", async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    const live = new Set<HTMLCanvasElement>();
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const context = original.apply(this, [type, ...args] as never);
+      if ((type === "webgl" || type === "webgl2") && context && typeof context === "object" && "getExtension" in context) {
+        live.add(this);
+        const gl = context as WebGLRenderingContext;
+        const extension = gl.getExtension("WEBGL_lose_context");
+        if (extension && !extension.loseContext.name.includes("tracked")) {
+          const lose = extension.loseContext.bind(extension);
+          const tracked = () => {
+            live.delete(this);
+            lose();
+          };
+          Object.defineProperty(tracked, "name", { value: "tracked" });
+          extension.loseContext = tracked;
+        }
+      }
+      return context;
+    } as typeof HTMLCanvasElement.prototype.getContext;
+    Object.defineProperty(window, "__webglLive", { get: () => live.size });
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const live = await page.evaluate(() => (window as Window & { __webglLive?: number }).__webglLive ?? 0);
+  expect(live).toBe(1);
 });
 
 test("a WebGL context that throws after detection shows the static stack", async ({ page }) => {
@@ -134,7 +220,8 @@ test("a WebGL context that throws after detection shows the static stack", async
   await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "off");
   await expect(page.locator(".sheet")).toHaveCount(4);
   const transform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
-  expect(transform.includes("matrix")).toBe(true);
+  expect(isFlat(transform), transform).toBe(true);
+  await expect(page.locator("canvas.schnitt-gl")).toBeHidden();
   expect(await page.locator(".callout").first().evaluate((node) => node.closest(".sheet") === null)).toBe(true);
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
@@ -144,16 +231,95 @@ test("a WebGL context that throws after detection shows the static stack", async
 });
 
 test("a blocked WebGL context still shows the sheets", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error" && !message.text().includes("favicon")) errors.push(message.text());
+  });
   await page.addInitScript(() => {
-    HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const webgl = type === "webgl" || type === "webgl2" || type === "experimental-webgl";
+      if (webgl) return null;
+      return original.apply(this, [type, ...args] as unknown as [string, CanvasRenderingContext2DSettings]);
+    } as typeof HTMLCanvasElement.prototype.getContext;
   });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("data-schnitt", "flat");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "off");
   await expect(page.getByText("Paid time off", { exact: true })).toBeVisible();
   await expect(page.locator(".is-fail")).toBeVisible();
+  await expect(page.locator("canvas.schnitt-gl")).toBeHidden();
+  const transform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
+  expect(isFlat(transform), transform).toBe(true);
   const box = await page.locator(".sheet").first().boundingBox();
   expect(box?.height ?? 0).toBeGreaterThan(40);
+  expect(errors).toEqual([]);
+});
+
+test("desktop without WebGL matches the reduced-motion still", async ({ page, browser }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator("html")).toHaveAttribute("data-schnitt", "flat");
+  const reducedTransform = await page.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
+  expect(isFlat(reducedTransform), reducedTransform).toBe(true);
+  const reduced = await page.locator(".schnitt-stage").screenshot({ scale: "css" });
+
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const blocked = await context.newPage();
+  await blocked.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const webgl = type === "webgl" || type === "webgl2" || type === "experimental-webgl";
+      if (webgl) return null;
+      return original.apply(this, [type, ...args] as unknown as [string, CanvasRenderingContext2DSettings]);
+    } as typeof HTMLCanvasElement.prototype.getContext;
+  });
+  await blocked.goto(page.url());
+  await blocked.evaluate(() => document.fonts.ready);
+  await expect(blocked.locator("html")).toHaveAttribute("data-schnitt", "flat");
+  const blockedTransform = await blocked.locator(".sheet").first().evaluate((node) => getComputedStyle(node).transform);
+  expect(isFlat(blockedTransform), blockedTransform).toBe(true);
+  const off = await blocked.locator(".schnitt-stage").screenshot({ scale: "css" });
+  const diff = await page.evaluate(
+    async ({ left, right }) => {
+      const raster = async (encoded: string) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${encoded}`;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const context2d = canvas.getContext("2d");
+        if (!context2d) return null;
+        context2d.drawImage(image, 0, 0);
+        return { data: context2d.getImageData(0, 0, canvas.width, canvas.height).data, width: canvas.width, height: canvas.height };
+      };
+      const a = await raster(left);
+      const b = await raster(right);
+      if (!a || !b || a.data.length !== b.data.length) {
+        return { ratio: 1, pixels: -1, left: a ? `${a.width}x${a.height}` : "missing", right: b ? `${b.width}x${b.height}` : "missing" };
+      }
+      let mismatched = 0;
+      const pixels = a.data.length / 4;
+      for (let index = 0; index < a.data.length; index += 4) {
+        const ar = a.data[index] ?? 0;
+        const ag = a.data[index + 1] ?? 0;
+        const ab = a.data[index + 2] ?? 0;
+        const br = b.data[index] ?? 0;
+        const bg = b.data[index + 1] ?? 0;
+        const bb = b.data[index + 2] ?? 0;
+        if (Math.abs(ar - br) > 18 || Math.abs(ag - bg) > 18 || Math.abs(ab - bb) > 18) mismatched += 1;
+      }
+      return { ratio: mismatched / pixels, pixels };
+    },
+    { left: reduced.toString("base64"), right: off.toString("base64") },
+  );
+  await context.close();
+  expect(diff.ratio, JSON.stringify(diff)).toBeLessThan(0.02);
 });
 
 test("the WebGL canvas draws ink", async ({ page, browserName }) => {
@@ -203,9 +369,36 @@ test("axe, console, and hero layout shift", async ({ page }) => {
 
 test("frame time while the layers separate", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "CPU throttle is measured in Chromium.");
+  const three: string[] = [];
+  page.on("response", async (response) => {
+    const url = response.url();
+    if (!url.includes("/_next/")) return;
+    if (/three/i.test(url)) {
+      three.push(url);
+      return;
+    }
+    const type = response.headers()["content-type"] ?? "";
+    if (!type.includes("javascript") && !url.endsWith(".js")) return;
+    const body = await response.text().catch(() => "");
+    if (body.includes("WebGLRenderer")) three.push(url);
+  });
+  await page.addInitScript(() => {
+    const windowWithCalls = window as Window & { __glCalls?: number };
+    windowWithCalls.__glCalls = 0;
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      const webgl = type === "webgl" || type === "webgl2" || type === "experimental-webgl";
+      if (webgl) windowWithCalls.__glCalls = (windowWithCalls.__glCalls ?? 0) + 1;
+      return original.apply(this, [type, ...args] as unknown as [string, CanvasRenderingContext2DSettings]);
+    } as typeof HTMLCanvasElement.prototype.getContext;
+  });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", /ready|off/);
+  await expect(page.locator("html")).toHaveAttribute("data-schnitt", "flat");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "off");
+  const glCalls = await page.evaluate(() => (window as Window & { __glCalls?: number }).__glCalls ?? 0);
+  expect(glCalls).toBe(0);
+  expect(three).toEqual([]);
   const client = await page.context().newCDPSession(page);
   await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   const samples = await page.evaluate(async () => {
@@ -371,5 +564,248 @@ test("desktop sheet titles stay uncovered and the verdict stays in frame through
     expect(report.covered, `scroll ${share}`).toEqual([]);
     expect(report.below, `scroll ${share}`).toBeLessThanOrEqual(0);
     expect(report.foot, `scroll ${share}`).toBeLessThanOrEqual(0);
+    expect(await labelHits(page), `scroll ${share}`).toEqual([]);
   }
 });
+
+test("theme color is paper", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#F7F7F5");
+  await expect(page.locator('meta[name="color-scheme"]')).toHaveAttribute("content", "light");
+});
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 390, height: 780 },
+  { width: 375, height: 667 },
+]) {
+  test(`phone hero holds its measure at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    for (const share of [0, 0.5, 1]) {
+      await page.evaluate((value) => window.scrollTo(0, document.documentElement.scrollHeight * value), share);
+      const report = await page.evaluate(() => {
+        const small: string[] = [];
+        const scaled: string[] = [];
+        const scaleOf = (transform: string) => {
+          const match = transform.match(/matrix\(([^)]+)\)/);
+          if (!match?.[1]) return 1;
+          const [a, b, c, d] = match[1].split(",").map((part) => Number(part.trim()));
+          return Math.min(Math.hypot(a ?? 0, b ?? 0), Math.hypot(c ?? 0, d ?? 0));
+        };
+        const root = document.querySelector("main") ?? document.body;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+        let node = walker.currentNode as HTMLElement | null;
+        while (node) {
+          const text = [...node.childNodes].some((child) => child.nodeType === Node.TEXT_NODE && (child.textContent ?? "").trim());
+          if (text) {
+            const size = Number.parseFloat(getComputedStyle(node).fontSize);
+            if (size < 11) small.push(`${size}px ${(node.textContent ?? "").trim().slice(0, 32)}`);
+            let scale = 1;
+            let current: HTMLElement | null = node;
+            while (current) {
+              scale *= scaleOf(getComputedStyle(current).transform);
+              current = current.parentElement;
+            }
+            if (scale < 0.99) scaled.push(`${scale.toFixed(3)} ${(node.textContent ?? "").trim().slice(0, 24)}`);
+          }
+          node = walker.nextNode() as HTMLElement | null;
+        }
+        const body = document.querySelector(".body");
+        const support = document.querySelector(".support");
+        const rules = [...document.styleSheets].some((sheet) => {
+          try {
+            return [...sheet.cssRules].some((rule) => rule.cssText.includes("100svh") && rule.cssText.includes("safe-area-inset"));
+          } catch {
+            return false;
+          }
+        });
+        return {
+          small,
+          scaled,
+          body: body ? Number.parseFloat(getComputedStyle(body).fontSize) : 0,
+          support: support ? Number.parseFloat(getComputedStyle(support).fontSize) : 0,
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+          rules,
+        };
+      });
+      const where = `${viewport.width}x${viewport.height} ${share}`;
+      expect(report.small, where).toEqual([]);
+      expect(report.scaled, where).toEqual([]);
+      expect(report.body, where).toBe(17);
+      expect(report.support, where).toBe(17);
+      expect(report.overflow, where).toBe(false);
+      expect(report.rules, where).toBe(true);
+      expect(await labelHits(page), where).toEqual([]);
+    }
+  });
+}
+
+test("three.js starts after first paint", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Paint timing is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-schnitt", "gl");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const report = await page.evaluate(async () => {
+    const paint = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? Number.POSITIVE_INFINITY;
+    const scripts = performance.getEntriesByType("resource").filter((entry) => entry.name.includes(".js"));
+    const hits: number[] = [];
+    for (const script of scripts) {
+      const text = await fetch(script.name).then((response) => response.text()).catch(() => "");
+      if (text.includes("WebGLRenderer")) hits.push(script.startTime);
+    }
+    return { paint, hits };
+  });
+  expect(report.hits.length).toBeGreaterThan(0);
+  for (const start of report.hits) expect(start).toBeGreaterThan(report.paint);
+});
+
+test("one rail, one renderer, and the draw stays inside the budget", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Renderer counters are read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const read = () =>
+    page.evaluate(() => {
+      const stage = document.querySelector(".schnitt-stage") as HTMLElement & { schnittView?: { cameraZ: number; planeZ: number[] } };
+      return {
+        z: stage.schnittView?.cameraZ ?? null,
+        planes: stage.schnittView?.planeZ ?? [],
+        draws: Number(stage.getAttribute("data-draws") ?? "0"),
+        triangles: Number(stage.getAttribute("data-triangles") ?? "0"),
+        ratio: Number(stage.getAttribute("data-ratio") ?? "0"),
+        frames: stage.getAttribute("data-frames") ?? "0",
+      };
+    });
+  const before = await read();
+  expect(before.z).not.toBeNull();
+  expect(new Set(before.planes).size).toBe(before.planes.length);
+  expect(before.planes.length).toBeGreaterThan(1);
+  expect(before.draws).toBeGreaterThan(0);
+  expect(before.draws).toBeLessThanOrEqual(120);
+  expect(before.triangles).toBeLessThanOrEqual(50000);
+  expect(before.ratio).toBeGreaterThan(0);
+  expect(before.ratio).toBeLessThanOrEqual(2);
+  await page.evaluate(() => window.scrollTo(0, document.getElementById("citebot")?.offsetTop ?? 0));
+  await page.waitForTimeout(200);
+  const mid = await read();
+  await page.evaluate(() => window.scrollTo(0, document.getElementById("style")?.offsetTop ?? 0));
+  await page.waitForTimeout(200);
+  const after = await read();
+  expect(after.z).toBe(mid.z);
+  const face = await page.evaluate(() => getComputedStyle(document.querySelector(".schnitt-gl")!).position);
+  expect(face).toBe("absolute");
+  const settled = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
+  await page.waitForTimeout(2000);
+  const idle = await page.evaluate(() => document.querySelector(".schnitt-stage")?.getAttribute("data-frames") ?? "0");
+  expect(idle).toBe(settled);
+});
+
+test("our code stays under 50ms a frame after first paint", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Long animation frames and the CPU throttle are read in Chromium.");
+  test.setTimeout(90_000);
+  await page.addInitScript(() => {
+    const host = window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] };
+    host.__loaf = [];
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const scripts = (entry as PerformanceEntry & { scripts?: { duration: number; sourceURL?: string; invoker?: string }[] }).scripts ?? [];
+        host.__loaf?.push({
+          startTime: entry.startTime,
+          duration: entry.duration,
+          scripts: scripts.map((script) => ({
+            dur: script.duration,
+            url: script.sourceURL ?? "",
+            invoker: script.invoker ?? "",
+          })),
+        });
+      }
+    }).observe({ type: "long-animation-frame", buffered: true });
+  });
+  const client = await page.context().newCDPSession(page);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const peaks: number[] = [];
+  for (let load = 0; load < 5; load += 1) {
+    if (load === 0) await page.goto("/");
+    else await page.reload();
+    await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready", { timeout: 30000 });
+    await page.waitForTimeout(300);
+    const distance = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let walked = 0; walked < distance; walked += 480) {
+      await page.mouse.wheel(0, 480);
+      await page.waitForTimeout(20);
+    }
+    const peak = await page.evaluate(async () => {
+      const fcp = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
+      const loaf = (window as Window & { __loaf?: { startTime: number; duration: number; scripts: { dur: number; url: string; invoker: string }[] }[] }).__loaf ?? [];
+      const kindOf = new Map<string, "framework" | "ours">();
+      const kind = async (url: string) => {
+        const known = kindOf.get(url);
+        if (known) return known;
+        const text = url ? await fetch(url).then((response) => response.text()).catch(() => "") : "";
+        // Every Turbopack chunk carries the TURBOPACK push, so that string cannot mark framework.
+        // react-dom, the Next.js app runtime, and Next's own error screen are framework.
+        const framework = /rendererPackageName|reconcilerVersion|app-page|errorThemeCss/.test(text);
+        const value = framework ? "framework" : "ours";
+        kindOf.set(url, value);
+        return value;
+      };
+      let max = 0;
+      const over: { startTime: number; duration: number; file: string }[] = [];
+      for (const entry of loaf) {
+        if (entry.startTime < fcp) continue;
+        let framework = 0;
+        let ours = 0;
+        let file = "";
+        for (const script of entry.scripts) {
+          // A step that resumes after an await on a timer or frame has no source URL.
+          // Only our loader awaits that way, so a script without a URL is ours.
+          const which = script.url ? await kind(script.url) : "ours";
+          if (which === "framework") framework += script.dur;
+          else {
+            ours += script.dur;
+            file = file || script.url.split("/").pop() || "chunk";
+          }
+        }
+        const scriptMs = framework + ours;
+        if (scriptMs === 0 || framework / scriptMs >= 0.8) continue;
+        if (ours > max) max = ours;
+        if (ours > 50) over.push({ startTime: Math.round(entry.startTime), duration: Math.round(ours), file });
+      }
+      return { max: Math.round(max), over };
+    });
+    peaks.push(peak.max);
+    expect(peak.over, `load ${load}`).toEqual([]);
+  }
+  expect(Math.max(...peaks)).toBeLessThanOrEqual(50);
+  await client.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+});
+
+test("one chunk after first paint stays within 160 KB", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Resource timing is read in Chromium.");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".schnitt-stage")).toHaveAttribute("data-gl", "ready");
+  const report = await page.evaluate(async () => {
+    const paint = performance.getEntriesByType("paint").find((entry) => entry.name === "first-contentful-paint")?.startTime ?? 0;
+    const scripts = performance.getEntriesByType("resource").filter((entry) => entry.name.includes(".js") && entry.startTime > paint);
+    let gzip = 0;
+    let drawing = 0;
+    for (const script of scripts) {
+      const text = await fetch(script.name).then((response) => response.text()).catch(() => "");
+      if (text.includes("WebGLRenderer") || text.includes("THREE.")) drawing += 1;
+      const packed = await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+      gzip += packed.byteLength;
+    }
+    return { gzip, drawing, count: scripts.length };
+  });
+  // One evaluation of the renderer is over the frame budget, so it is imported
+  // in idle slices. Their combined gzip, with every other script after first
+  // paint, stays within 160 KB.
+  expect(report.drawing).toBeGreaterThan(0);
+  expect(report.gzip).toBeLessThanOrEqual(160_000);
+});
+

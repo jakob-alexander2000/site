@@ -1,26 +1,31 @@
-# Noir
+# Schnitt
 
-Black, white, and one grey. Type does the work. Each look is one real screenshot.
+Paper, ink, and one red pen. The page is a set of construction drawings.
 
 | Token | Value | Role |
 | --- | --- | --- |
-| `--black` | `#000000` | Ground |
-| `--white` | `#ffffff` | Sentences, links, focus |
-| `--grey` | `#8c8c8c` | Garment tags. 6.25:1 on black |
-| settle | 1.2 s | One change from grey to colour |
+| `--paper` | `#F7F7F5` | Page |
+| `--sheet` | `#FBFAF7` | Sheets |
+| `--ink` | `#111111` | Type and rules |
+| `--fail` | `#C6302A` | Fail and the pen |
 
 ## Type
 
-- Geist 100 for the name. Geist 200 for look titles and sentences.
-- Geist Mono 400 for tags, the contact block, and captions.
-- Instrument Serif italic, once, on the opening screen.
+Five steps, defined in `app/globals.css`. Every text size on the page is one of them; `test/application-ready.spec.ts` fails on any other computed size outside the hero drawing.
 
-Nothing is set below 16px. Links and buttons are at least 44px.
+| Token | Size | Use |
+| --- | --- | --- |
+| `--t-label` | 12px | Geist Mono labels, captions, kickers |
+| `--t-body` | 17px | Geist 300 body, links |
+| `--t-lead` | 22px | Project names, the name in the header, the address |
+| `--t-title` | clamp(2rem, 3.4vw, 3rem) | Section titles, the flagship name |
+| `--t-display` | clamp(2.5rem, 4.4vw, 4.25rem) | The who-I-am line |
+
+- Geist 200 for display and titles.
+- Instrument Serif italic, once, on the word check.
+
+Labels sit on leaders. Links and buttons are at least 44px. The theme color is paper.
 
 ## Motion
 
-Grain behind the type is a generated turbulence tile. Each screenshot starts in greyscale, with a second generated turbulence tile over the image only. When the image enters the viewport it settles once into the true-colour file over 1.2s. `SETTLE_MS` in `lib/reveal.ts` is that duration. There is no loop and no video. `prefers-reduced-motion` shows the colour image immediately, with no transition. On a fine pointer, hover may also clear the grey. Hover is not required.
-
-## Adding a look
-
-Put the screenshot in `public/recordings`. Add the look to `lib/looks.ts` with a proof (`repo`, `file`, `line`, `excerpt`). The sentence on the page has to contain that excerpt. If the product page is public, link it. If it is not, say that the product page is coming. Names that are not ready stay in `lib/shelf.ts` and are not rendered.
+Desktop scroll moves one camera through the hero. Phones, reduced motion, and a missing WebGL context stay on the flat drawing. There is no video.

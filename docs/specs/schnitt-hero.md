@@ -1,6 +1,6 @@
 # Schnitt hero
 
-The homepage opens with one construction drawing. Four sheets — handbook, passages, sentences, verdict — sit in real depth. Scroll pulls them apart. The sheets below that drawing are the existing looks.
+The homepage opens with one construction drawing. Four sheets — handbook, passages, sentences, verdict — sit in real depth. Scroll pulls them apart. The sheets below that drawing are the Schnitt plates.
 
 ## Data
 
@@ -19,7 +19,7 @@ The place name, the currency case, and every slash ratio stay in `content/fixtur
 
 ## Picture
 
-Paper `#F7F7F5`. Sheets `#FBFAF7`. Verdict sheet `#111111`. Ink `#111111`. Mute `#3A3A36`. Fail red `#C6302A` on paper and `#FF8A84` on the verdict sheet. Red is the fail word and the pen loop only.
+Paper `#F7F7F5`. Sheets `#FBFAF7`. Verdict sheet `#111111`. Ink `#111111`. Mute `#3A3A36`. Fail red `#C6302A` on paper and `#FF8A84` on the verdict sheet. Red is the fail word and the pen loop only. The `theme-color` meta tag is paper `#F7F7F5`, and `color-scheme` is light. Body copy is 17px. Labels sit on leaders, including `D · VERDICT`, and do not meet a sheet.
 
 Geist 200 for the sentence, Geist 300 for the support line and the sheet body, Geist Mono for labels and evidence, Instrument Serif italic on the word "check" only.
 
@@ -34,9 +34,9 @@ One thread runs from the passing sentence to the passage span it rests on. The f
 | Situation | What you get |
 | --- | --- |
 | Desktop, motion allowed, WebGL on | Orthographic-feeling perspective camera. Four Three.js groups at different z. Scroll increases the separation. Text is HTML on `CSS3DRenderer` planes. The thread and the sheet edges are WebGL. |
-| Width at most 800, including 390×844 and 390×780 | The static tilted stack at full type size, with the label above each sheet. The scroll scene is desktop only: fitting four sheets into a phone stage scaled sheet type to 8 to 11px. |
-| `prefers-reduced-motion: reduce` | No scroll animation. The sheets are a static exploded stack in the page. The same words, the same thread, the same loop. |
-| WebGL missing or blocked | That same static stack. The stage is never an empty box. |
+| Width at most 800, including 390×844, 390×780, and 375×667 | The static tilted stack at full type size, with the label above each sheet. The tilt does not scale type below 1. The scroll scene is desktop only. No WebGL context is created and `three` is not requested. |
+| `prefers-reduced-motion: reduce` | No scroll animation. On a phone the sheets stay the static tilted stack. On desktop they are the flat still: sheets separated on leaders, not tilted. The same words, the same thread, the same loop. |
+| WebGL missing or blocked | Desktop shows that same flat reduced-motion still. The stage is never an empty canvas. The phone stack is unchanged. |
 | JavaScript off | The sheets are still in the HTML, stacked in the stage. |
 
 Labels are at least 11px. Links and buttons are at least 44px. The hero reserves its box before paint so the first screen does not shift.
@@ -47,7 +47,9 @@ Labels are at least 11px. Links and buttons are at least 44px. The hero reserves
 | --- | --- |
 | `test/schnitt-run.test.ts` | Blob pins, both claims, the question, the trimmed handbook, the passage span, 18 of 18, the pin date, and a clean copy scan of the exported strings. |
 | `test/schnitt.spec.ts` | The sentence and the italic word, both claims, the pass thread, the absent fail thread, the pen loop, phone type size, reduced motion, the WebGL fallback, canvas ink on Chromium, axe, console, and layout shift. |
-| `test/noir.spec.ts` | The looks stay. The hero is outside the noir palette walk. The opening sentence is the new one. |
+| `test/schnitt-page.spec.ts` | The page-wide limits: tap targets, contrast, sideways scroll, the main link on the first screen, and no iframes. |
+| `test/b1-drawn-cards.spec.ts` | Drawn-card labels, monotonic separation on Chromium and WebKit, and the paper sitting on its card at the end of the scroll. The paper-on-card test reads pixels from the WebGL canvas (`preserveDrawingBuffer`). WebKit on this runner does not return those pixels, so that one test is Chromium-only. The separation test reads element boxes, not pixels, and runs in WebKit. |
+| `test/plates-draw.spec.ts` | The CiteBot rail, the autopsy strikes and checks, the style sheet, and the phone verdict spacing. |
 
 Chromium launches with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader` so the canvas can draw without a GPU.
 
@@ -69,12 +71,32 @@ Measured on this machine after `npm run build`. Playwright Chromium launches wit
 | WebGL blocked still shows the sheets | `a blocked WebGL context still shows the sheets` | Pass, Chromium and WebKit |
 | Canvas pixels are not blank | `the WebGL canvas draws ink` | Pass on Chromium. Skipped on WebKit |
 | axe, console, hero CLS | `axe, console, and hero layout shift` | Pass. 0 violations, 0 console errors, CLS 0. Chromium and WebKit |
-| Frame time, 4× CPU, software WebGL | `docs/evidence/schnitt-frame-timing.json` | 390×844, WebGL on: 73 frames, median 16.70 ms, p95 16.70 ms, max 16.80 ms, share above 20 ms = 0. 1440×900, WebGL on, with the fit loop: 73 frames, median 16.70 ms, p95 16.80 ms, max 33.40 ms, share above 20 ms = 0.014. |
+| Frame time, 4× CPU, hero method | `docs/evidence/schnitt-frame-timing.json` | 390×844, static HTML stack, WebGL off: 58 frames, median 16.7 ms, p95 16.7 ms, max 266.7 ms, share above 20 ms = 0.017. 1440×900, WebGL on, with the fit loop: 62 frames, median 16.7 ms, p95 16.7 ms, max 200 ms, share above 20 ms = 0.016. Phone is not a 73-frame WebGL run. The single long phone frame is recorded and explained before M7. |
 | Desktop 1440×900: every sheet title uncovered and the verdict inside the stage, above the footer, at scroll 0, mid and end | `desktop sheet titles stay uncovered and the verdict stays in frame through the scroll` | Pass, Chromium and WebKit |
-| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass. 15 unit tests. Copy scan ok. Playwright 71 passed, 3 skipped. The skips are the WebKit copies of the Chromium-only still capture, the canvas-ink test, and the frame-time test |
-| Screenshots at 1440×900 and 390×844, scroll 0, mid-scroll, reduced motion | `docs/evidence/` | Pass |
+| Typecheck, lint, unit, copy scan, Chromium, WebKit | `npm run verify` | Pass on the stop-3 r4 head. Unit 24 passed. Copy scan 141 files. Playwright count is in the verify log for that commit. The WebKit skips are canvas ink, frame time, the two drawn-card pixel reads, three.js paint order, the rail budget, the loader frame budget, and the after-paint byte budget. Separation, the plate-text intersection, and the label clearance run on WebKit. |
+| Screenshots at 1280, 1366, and 1440, and at 390×844, scroll 0, mid, end, and reduced motion, for the hero and plates 01–03. Rail stills at 1440, 16 frames | `docs/evidence/stop3/` | Pass on `56b97b2` |
 | Real iPhone Safari | — | Not checked |
 | Real 60fps on a phone | — | Not checked |
+
+## Declared reasons
+
+1. Canvas ink is Chromium-only because headless WebKit does not return WebGL pixels.
+2. Frame time is Chromium-only because headless WebKit cannot time WebGL reliably: it has no CPU-throttle session.
+3. The drawn-card label pixel read is Chromium-only for the same readback limit.
+4. The paper-on-card pixel read is Chromium-only for the same readback limit.
+5. The three.js paint-order test is Chromium-only because headless WebKit's resource timing is not comparable to the Chromium paint clock.
+6. The rail-budget test is Chromium-only because headless WebKit cannot time WebGL reliably, and the draw counters are read from the Chromium context.
+7. Separation stays on WebKit because it reads element boxes, not pixels.
+8. The inline probe checks for a WebGL constructor and does not create a context, so a phone never counts one.
+9. Evidence scripts live in `tools/evidence` and no page imports them.
+10. The hero fit loop runs once per width, then later frames place the sheets a single time.
+11. Initial JavaScript is the sum of the module scripts, without the `noModule` polyfill.
+12. The loader frame budget is Chromium-only because long-animation-frame entries and the CPU throttle are read in Chromium. Headless WebKit cannot time that work. It counts every chunk that is not react-dom or the Next.js runtime, on a quiet load and a full wheel scroll, and takes the max of 5 loads.
+13. The after-paint byte budget is Chromium-only because it sums gzip of every script whose start time is after first paint, which headless WebKit does not time the same way.
+14. The HTML-figure cover check is Chromium-only because the plate canvas only exists where the WebGL scene runs, and headless WebKit is checked on element boxes instead.
+15. The plate travel check is Chromium-only because it reads the WebGL camera and the plate projection, which only exist where the WebGL scene runs.
+16. The plate-font check is Chromium-only because the texture is built only where the WebGL scene runs.
+17. The plate paint-failure checks are Chromium-only because the plate canvas only exists where the WebGL scene runs.
 
 ## Not checked
 

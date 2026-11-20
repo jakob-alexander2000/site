@@ -1,21 +1,19 @@
-export const HERO_BEFORE = "I build AI answers you can ";
+export const HERO_BEFORE = "I’m Jakob Alex. I\u00a0build AI products you can ";
 export const HERO_WORD = "check";
-export const HERO_AFTER = ", sentence by sentence.";
+export const HERO_AFTER = ".";
 export const HERO_LINE = `${HERO_BEFORE}${HERO_WORD}${HERO_AFTER}`;
 
 export const HERO_SUPPORT =
-  "Each answer is built in layers, from the company's own documents up to a verdict on every sentence.";
+  "Agents, retrieval and evals, each shipped with the tests that prove it works. The drawing takes one answer apart, from the source to a verdict on every claim.";
 export const HERO_SCROLL = "Scroll pulls the layers apart.";
 
-export const RUN_LINK = "See CiteBot run";
-export const BUILT_LINK = "How it is built";
-export const PATTERN_LABEL = "PATTERN 01 · CITEBOT · EXPLODED VIEW";
+export const PARTS_LINK = "Selected work";
 
 export const LAYERS = [
-  { id: "handbook", letter: "A", name: "HANDBOOK", note: "Source document" },
-  { id: "passages", letter: "B", name: "PASSAGES", note: "Retrieved for this question" },
-  { id: "sentences", letter: "C", name: "SENTENCES", note: "Recorded claims" },
-  { id: "verdict", letter: "D", name: "VERDICT", note: "A result per sentence" },
+  { id: "handbook", letter: "A", name: "SOURCE", note: "Source document" },
+  { id: "passages", letter: "B", name: "EXTRACT", note: "Lines for this question" },
+  { id: "sentences", letter: "C", name: "CHECK", note: "Recorded claims" },
+  { id: "verdict", letter: "D", name: "VERDICT", note: "A result per claim" },
 ] as const;
 
 export type LayerId = (typeof LAYERS)[number]["id"];

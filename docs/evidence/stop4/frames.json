@@ -1,0 +1,103 @@
+{
+  "commit": "7065828c0c6f8e5c7333320cd2f44fe06035ce0d",
+  "url": "https://jakobalex-7baonomci-jakobalexander2000s-projects.vercel.app",
+  "rate": 4,
+  "width": 1440,
+  "peaks": [
+    {
+      "max": 0,
+      "over": []
+    },
+    {
+      "max": 0,
+      "over": []
+    },
+    {
+      "max": 0,
+      "over": []
+    },
+    {
+      "max": 0,
+      "over": []
+    },
+    {
+      "max": 0,
+      "over": []
+    },
+    {
+      "max": 0,
+      "over": []
+    }
+  ],
+  "sample": {
+    "fcp": 328,
+    "ready": "ready",
+    "loafCount": 2,
+    "loafSample": [
+      {
+        "startTime": 172,
+        "duration": 137,
+        "scripts": []
+      },
+      {
+        "startTime": 314,
+        "duration": 112,
+        "scripts": [
+          {
+            "dur": 110,
+            "url": "07633gcd18of8.js",
+            "invoker": "classic-script"
+          }
+        ]
+      }
+    ],
+    "longTasks": [
+      {
+        "name": "self",
+        "startTime": 221,
+        "duration": 92
+      },
+      {
+        "name": "self",
+        "startTime": 314,
+        "duration": 111
+      }
+    ],
+    "raf": [
+      6451,
+      6468,
+      6484,
+      6501,
+      6518,
+      6534
+    ]
+  },
+  "mutation": {
+    "injectedMs": 80,
+    "where": "after the first await in mountSchnittScene, local only",
+    "rate": 4,
+    "peaks": [
+      {
+        "max": 80,
+        "over": [
+          {
+            "duration": 80,
+            "file": "1ajcxw-eqzocv.js",
+            "startTime": 442
+          }
+        ]
+      },
+      {
+        "max": 80,
+        "over": [
+          {
+            "duration": 80,
+            "file": "1ajcxw-eqzocv.js",
+            "startTime": 280
+          }
+        ]
+      }
+    ]
+  },
+  "whyZero": "A maximum of 0 means no long animation frame after first paint had more than 50 ms of our script. On load 0 the observer did record two long frames, at 172 ms and 314 ms, both before first contentful paint at 328 ms, so the frame test ignores them. The 110 ms script in the second of those is the initial document script. After that, rAF stamps at 6451 through 6534 ms show the page was still running and no later long frame was opened. The mutation is the same recorder with an 80 ms busy loop after an await in the loader. It reports 80 ms. That loop is not in the shipped source."
+}

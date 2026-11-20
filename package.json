@@ -11,9 +11,10 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/scan.test.ts test/schnitt-run.test.ts",
+    "postinstall": "node scripts/apply-three-patch.mjs",
+    "test:unit": "node --import tsx --test test/contact.test.tsx test/looks.test.ts test/scan.test.ts test/schnitt-run.test.ts test/round3.test.ts",
     "test:scan": "node --import tsx scripts/scan-copy.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --retries=0",
     "test": "npm run test:unit && npm run test:scan && npm run test:e2e",
     "verify": "npm run typecheck && npm run lint && npm run build && npm test"
   },
@@ -34,6 +35,7 @@
     "@types/three": "^0.170.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "patch-package": "8.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
