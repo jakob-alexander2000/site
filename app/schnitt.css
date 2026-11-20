@@ -47,7 +47,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
 
 .schnitt h1 {
   flex: 0 0 auto;
-  font-size: 1.2rem;
+  font-size: var(--t-lead);
   font-weight: 200;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -61,7 +61,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
 .schnitt-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  gap: 0 18px;
   margin: 0 auto 0 0;
   padding: 0;
 }
@@ -69,7 +69,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
 .schnitt-head a,
 .actions a {
   font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
+  font-size: var(--t-body);
   font-weight: 300;
   letter-spacing: 0;
   line-height: 1;
@@ -99,10 +99,10 @@ html[data-schnitt="gl"] .schnitt-sticky {
 
 .display {
   margin: 0;
-  max-width: 8.4em;
+  max-width: 9.6em;
   color: var(--ink);
   font-weight: 200;
-  font-size: clamp(2.35rem, 3.5vw, 3.7rem);
+  font-size: var(--t-display);
   letter-spacing: -0.04em;
   line-height: 0.94;
   text-wrap: balance;
@@ -112,7 +112,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
   margin: 14px 0 0;
   max-width: 34rem;
   color: var(--mute);
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.45;
 }
@@ -127,7 +127,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
 .numeral {
   margin: 18px 0 0;
   font-weight: 100;
-  font-size: clamp(5.5rem, 9vw, 7.5rem);
+  font-size: var(--t-display);
   letter-spacing: -0.08em;
   line-height: 0.8;
   color: var(--ink);
@@ -238,7 +238,7 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
 .question,
 .mark,
 .evidence {
-  font-size: 13px;
+  font-size: var(--t-label);
   line-height: 1.35;
 }
 
@@ -252,14 +252,14 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
   display: block;
   color: var(--mute);
   font-family: var(--font-sans), sans-serif;
-  font-size: 13px;
+  font-size: var(--t-label);
   font-weight: 300;
   line-height: 1.3;
 }
 
 .sheet-title {
   margin: 6px 0;
-  font-size: 18px;
+  font-size: var(--t-body);
   font-weight: 300;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -267,7 +267,7 @@ html[data-schnitt="gl"] .schnitt-stage.is-rail * {
 
 .body {
   margin: 0 0 6px;
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.35;
 }
@@ -513,7 +513,7 @@ html.is-past .plate figcaption {
   gap: 12px 24px;
   margin: 0;
   color: var(--mute);
-  font-size: 12px;
+  font-size: var(--t-label);
   line-height: 1.4;
 }
 
@@ -590,24 +590,24 @@ html[data-schnitt="flat"] .plane-slot {
   }
 
   .schnitt-head {
-    gap: 0 4px;
+    gap: 0 16px;
     width: 100%;
     min-width: 0;
   }
 
   .schnitt-nav {
-    gap: 0 2px;
+    gap: 0 16px;
     margin-right: 0;
   }
 
   .schnitt h1 {
-    font-size: 0.92rem;
+    font-size: var(--t-lead);
     letter-spacing: -0.05em;
   }
 
   .schnitt-head a {
     flex: 0 0 auto;
-    font-size: 13px;
+    font-size: var(--t-body);
     min-width: 44px;
     padding: 0;
     justify-content: center;
@@ -616,16 +616,21 @@ html[data-schnitt="flat"] .plane-slot {
 
   .schnitt-nav {
     flex: 1 0 100%;
+    order: 3;
+  }
+
+  .schnitt-head h1 {
+    margin-right: auto;
   }
 
   .display {
-    font-size: 1.7rem;
+    font-size: var(--t-display);
     line-height: 0.95;
     max-width: 12em;
   }
 
   .support {
-    font-size: 17px;
+    font-size: var(--t-body);
     line-height: 1.35;
     margin-top: 6px;
   }
@@ -646,7 +651,7 @@ html[data-schnitt="flat"] .plane-slot {
     margin: 0;
     height: 0.86em;
     overflow: hidden;
-    font-size: 8.75rem;
+    font-size: var(--t-display);
     line-height: 0.68;
     pointer-events: none;
   }
@@ -660,12 +665,12 @@ html[data-schnitt="flat"] .plane-slot {
   }
 
   .sheet-title {
-    font-size: 18px;
+    font-size: var(--t-body);
     line-height: 1.2;
   }
 
   .body {
-    font-size: 17px;
+    font-size: var(--t-body);
     line-height: 1.35;
   }
 
@@ -701,7 +706,7 @@ html[data-schnitt="flat"] .plane-slot {
   .mark,
   .evidence,
   .schnitt-foot {
-    font-size: 12px;
+    font-size: var(--t-label);
     line-height: 1.3;
   }
 
@@ -762,7 +767,7 @@ html[data-schnitt="flat"] .plane-slot {
 
 @media (max-height: 420px) {
   .display {
-    font-size: 1.55rem;
+    font-size: var(--t-title);
     max-width: 18em;
   }
 
@@ -792,21 +797,21 @@ html[data-schnitt="flat"] .plane-slot {
   max-width: 16em;
   color: var(--ink);
   font-weight: 200;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: var(--t-title);
   letter-spacing: -0.04em;
   line-height: 0.98;
 }
 
 .plate h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--t-lead);
   font-weight: 300;
   letter-spacing: -0.03em;
 }
 
 .plate .body,
 .plate li {
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.45;
 }
@@ -818,7 +823,7 @@ html[data-schnitt="flat"] .plane-slot {
   margin: 0;
   color: var(--mute);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 1.4;
@@ -908,7 +913,7 @@ article.verdict-sheet,
   justify-content: space-between;
   gap: 16px;
   color: var(--ink);
-  font-size: 17px;
+  font-size: var(--t-body);
   font-family: var(--font-sans), sans-serif;
   font-weight: 300;
 }
@@ -917,7 +922,7 @@ article.verdict-sheet,
 .address {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 20px;
+  font-size: var(--t-lead);
   line-height: 1.3;
   letter-spacing: 0;
 }
@@ -1054,7 +1059,7 @@ article.verdict-sheet,
 .plate-stack .leader-name {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
 }
 
 .leader-note {
@@ -1062,7 +1067,7 @@ article.verdict-sheet,
   margin: 0;
   max-width: 40rem;
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--t-body);
 }
 
 .plate-stack {
@@ -1091,7 +1096,7 @@ article.verdict-sheet,
 .answer-line {
   margin: 0;
   min-height: calc(17px * 1.35);
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.35;
 }
@@ -1145,7 +1150,7 @@ article.verdict-sheet,
   gap: 8px;
   margin: 8px 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
 }
 
 .dimension::before {
@@ -1170,7 +1175,7 @@ article.verdict-sheet,
   gap: 8px;
   color: var(--ink);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
   line-height: 1.4;
   min-height: 28px;
 }
@@ -1324,7 +1329,7 @@ article.verdict-sheet,
   margin: 0;
   color: var(--ink);
   font-family: ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
   line-height: 1;
 }
 
@@ -1453,7 +1458,7 @@ html.is-cut svg.plate-drawing {
   left: 22px;
   top: 0;
   font-family: ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
 }
 
 .cut-mark {
@@ -1484,12 +1489,12 @@ html.is-cut svg.plate-drawing {
   background: var(--sheet);
   color: var(--ink);
   font: inherit;
-  font-size: 15px;
+  font-size: var(--t-body);
 }
 
 .copy-status {
   min-height: 1.2em;
-  font-size: 15px;
+  font-size: var(--t-body);
 }
 
 /* CiteBot: question, then source, then answer. */
@@ -1506,12 +1511,12 @@ html.is-cut svg.plate-drawing {
 .cite-stack .leader-name {
   margin: 0 0 8px;
   color: #5a5a55;
-  font-size: 12px;
+  font-size: var(--t-label);
 }
 
 .cite-stack .cite-question {
   margin: 0 0 28px;
-  font-size: 20px;
+  font-size: var(--t-lead);
   font-weight: 300;
   line-height: 1.35;
 }
@@ -1534,12 +1539,12 @@ html.is-cut svg.plate-drawing {
 .cite-stack .cite-file {
   margin: 0 0 6px;
   color: #5a5a55;
-  font-size: 13px;
+  font-size: var(--t-label);
 }
 
 .cite-stack .cite-passage {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.5;
 }
@@ -1556,7 +1561,7 @@ html.is-cut svg.plate-drawing {
 .cite-stack .cite-refusal {
   margin: 20px 0 0;
   color: #5a5a55;
-  font-size: 13px;
+  font-size: var(--t-label);
 }
 
 .cite-stack .cite-answer {
@@ -1566,13 +1571,13 @@ html.is-cut svg.plate-drawing {
 
 .cite-stack .cite-sentence {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-lead);
   font-weight: 400;
   line-height: 1.3;
 }
 
 .cite-stack .cite-mark {
-  font-size: 14px;
+  font-size: var(--t-label);
 }
 
 .cite-stack .cite-fail {
@@ -1581,7 +1586,7 @@ html.is-cut svg.plate-drawing {
   align-items: center;
   gap: 10px 16px;
   margin-top: 6px;
-  font-size: 28px;
+  font-size: var(--t-title);
 }
 
 .cite-stack .cite-loop {
@@ -1602,13 +1607,13 @@ html.is-cut svg.plate-drawing {
 }
 
 .cite-stack .cite-fail-label {
-  font-size: 13px;
+  font-size: var(--t-label);
 }
 
 .cite-stack .cite-why {
   margin: 0;
   color: #3a3a36;
-  font-size: 15px;
+  font-size: var(--t-body);
 }
 
 .cite-stack .cite-link {
@@ -1629,7 +1634,7 @@ html.is-cut svg.plate-drawing {
   max-width: none;
   color: var(--mute);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: var(--t-label);
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 1.4;
@@ -1642,7 +1647,7 @@ html.is-cut svg.plate-drawing {
   min-height: 44px;
   color: var(--ink);
   font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
+  font-size: var(--t-body);
   font-weight: 300;
   letter-spacing: 0;
   line-height: 1;
@@ -1774,7 +1779,7 @@ html.is-cut svg.plate-drawing {
   border: 1px solid var(--ink);
   padding: 6px 8px;
   font-family: var(--font-sans), sans-serif;
-  font-size: 13px;
+  font-size: var(--t-label);
   font-weight: 300;
   line-height: 1.3;
   letter-spacing: 0;
@@ -1822,7 +1827,7 @@ html.is-cut svg.plate-drawing {
   }
 
   .hero-continue a {
-    font-size: 12px;
+    font-size: var(--t-label);
     font-family: var(--font-mono), ui-monospace, monospace;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -1849,4 +1854,208 @@ html.is-cut svg.plate-drawing {
     position: absolute;
     inset: -12px;
   }
+}
+
+
+/* Selected work, skills, about, contact. */
+.plates {
+  gap: clamp(72px, 9vw, 128px);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: max(clamp(20px, 4vw, 72px), env(safe-area-inset-left));
+  padding-right: max(clamp(20px, 4vw, 72px), env(safe-area-inset-right));
+}
+
+.plate h2 {
+  font-size: var(--t-title);
+}
+
+.work-list {
+  display: grid;
+  gap: clamp(48px, 6vw, 88px);
+  margin-top: 16px;
+}
+
+.work {
+  display: grid;
+  gap: 20px;
+  scroll-margin-top: 24px;
+}
+
+.work h3 {
+  margin: 4px 0 0;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.work-text {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  max-width: 34rem;
+}
+
+.work-text .body {
+  margin: 0;
+}
+
+.work-detail {
+  color: var(--mute);
+}
+
+.work-figure {
+  margin: 0;
+}
+
+.work-figure figcaption {
+  margin-top: 10px;
+  color: var(--mute);
+}
+
+.work-shot,
+.work-drawing {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--ink);
+  background: var(--sheet);
+  overflow: hidden;
+}
+
+.work-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.work-private {
+  margin-top: 4px;
+}
+
+@media (min-width: 801px) {
+  .work {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
+  }
+
+  .work:nth-child(odd) .work-figure {
+    order: 2;
+  }
+
+  .work-flagship {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+
+  .work-flagship .work-figure {
+    order: 0 !important;
+  }
+
+  .work-flagship h3 {
+    font-size: var(--t-title);
+    font-weight: 200;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+}
+
+.skill-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+
+.skill-list li {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid #d6d5cf;
+  font-size: var(--t-body);
+}
+
+.skill-name {
+  font-weight: 300;
+}
+
+.skill-shows {
+  color: var(--mute);
+}
+
+.skill-proof {
+  justify-self: start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+}
+
+@media (min-width: 801px) {
+  .skill-list li {
+    grid-template-columns: minmax(10rem, 0.8fr) minmax(0, 2fr) minmax(9rem, 0.6fr);
+    align-items: center;
+  }
+
+  .skill-proof {
+    justify-self: end;
+  }
+}
+
+.about {
+  display: grid;
+  gap: 24px;
+}
+
+.about-text {
+  display: grid;
+  gap: 12px;
+  max-width: 34rem;
+}
+
+.about-text .body {
+  margin: 0;
+}
+
+.portrait-slot {
+  width: min(100%, 280px);
+  aspect-ratio: 4 / 5;
+  border: 1px dashed var(--ink);
+  background: var(--sheet);
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+}
+
+@media (min-width: 801px) {
+  .about {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: end;
+  }
+}
+
+.site-foot {
+  padding-top: 16px;
+  border-top: 1px solid var(--ink);
+}
+
+.site-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.actions a:only-child {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
 }

@@ -1,18 +1,13 @@
-export const HERO_BEFORE = "I build AI answers you can ";
+export const HERO_BEFORE = "I’m Jakob Alex. I build AI products you can ";
 export const HERO_WORD = "check";
-export const HERO_AFTER = ", sentence by sentence.";
+export const HERO_AFTER = ".";
 export const HERO_LINE = `${HERO_BEFORE}${HERO_WORD}${HERO_AFTER}`;
 
 export const HERO_SUPPORT =
-  "Each answer is built in layers, from the company's own documents up to a verdict on every sentence.";
+  "Agents, retrieval and evals, each shipped with the tests that prove it works. The drawing is one recorded CiteBot answer, taken apart layer by layer.";
 export const HERO_SCROLL = "Scroll pulls the layers apart.";
 
-export const RUN_LINK = "See CiteBot run";
-export const BUILT_LINK = "How it is built";
-export const PROJECT_INDEX = "01";
-export const PROJECT_NAME = "CITEBOT";
-export const PARTS_LABEL = "The parts in detail";
-export const PARTS_LINK = "See the parts";
+export const PARTS_LINK = "Selected work";
 
 export const LAYERS = [
   { id: "handbook", letter: "A", name: "HANDBOOK", note: "Source document" },

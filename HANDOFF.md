@@ -9,4 +9,4 @@ The lookbook checks that used to live in `test/noir.spec.ts` now live on the Sch
 | No video | `test/looks.test.ts` and the page spec |
 | Copy scan | `scripts/scan-copy.ts`, including `content/fixtures` and `.json` |
 
-The hero is specified in `docs/specs/schnitt-hero.md`. Plates 01–03 are CiteBot, Retrieval Autopsy, and Style Distance.
+The hero is specified in `docs/specs/schnitt-hero.md`. Below it: 01 Selected work (Persona, CiteBot, Retrieval Autopsy, Style Distance), 02 Skills, 03 About, 04 Contact. The application-ready checks are in `test/application-ready.spec.ts`.

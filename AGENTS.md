@@ -12,9 +12,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Schnitt plates. Read DESIGN.md before changing type, color, or motion.
 
-The home page is the Schnitt hero (`docs/specs/schnitt-hero.md`) and the plates in `components/Plates.tsx`. Projects on the page are CiteBot, Retrieval Autopsy, and Style Distance. `lib/shelf.ts` lists names that are not rendered. `showCiteBotLive` in `lib/looks.ts` stays false, so Ask stays hidden.
+The home page is the Schnitt hero (`docs/specs/schnitt-hero.md`), then Selected work, Skills, About and Contact in `components/Plates.tsx`. Projects and skills live in `lib/work.ts`: Persona (flagship, formerly Dockbot), CiteBot, Retrieval Autopsy, Style Distance. One picture per project, none repeated; every skill points at the project that shows it. `lib/shelf.ts` lists names that are not rendered. `showCiteBotLive` in `lib/looks.ts` stays false, so Ask stays hidden.
 
-`lib/contact.ts` is the only contact config. `phone` stays `null`, so no phone row renders. `email` is the one allowed address (`ALLOWED_EMAIL`), a `mailto:` link next to GitHub. The copy scan fails on any other address, and on gear brands, a currency mark next to a digit, or a fixture place name.
+The About section has a marked portrait slot (`data-portrait-slot`) for a line drawing.
+
+`lib/contact.ts` is the only contact config. `phone` stays `null`, so no phone row renders. `email` is the one allowed address (`ALLOWED_EMAIL`). The Contact section is that one `mailto:` link. The copy scan fails on any other address, and on gear brands, a currency mark next to a digit, or a fixture place name.
 
 Write about Jakob Alex in the first person. Run `npm run build` and then `node --import tsx scripts/scan-copy.ts`.
 

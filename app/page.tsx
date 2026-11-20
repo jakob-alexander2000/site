@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main>
       <SchnittHero run={run} />
-      <Plates run={run} />
+      <Plates />
     </main>
   );
 }

@@ -1,54 +1,38 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { CITEBOT_PLATE, DROPPED, STYLE_DISTANCE } from "../lib/diagrams";
+import { SHEETS } from "../lib/plates";
+import { PROJECTS, SKILLS } from "../lib/work";
 
-test("every plate is in the served html", async ({ page }) => {
+test("every section is in the served html", async ({ page }) => {
   await page.goto("/");
-  const html = await page.content();
-  for (const line of [
-    "The parts in detail",
-    CITEBOT_PLATE.body,
-    DROPPED.headline,
-    "FAIL",
-    STYLE_DISTANCE.headline,
-    STYLE_DISTANCE.label,
-    STYLE_DISTANCE.drifted,
-    STYLE_DISTANCE.heldOut,
-    "I check each sentence against the passage it came from and mark what fell out.",
-    "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.",
-  ]) {
-    expect(html, line).toContain(line);
-  }
   const served = await (await page.request.get("/")).text();
-  const servedText = served.replace(/<[^>]+>/g, "").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
-  expect(servedText, "passage in the served html").toContain(DROPPED.passage);
-  expect(servedText, "answer in the served html").toContain(DROPPED.answer);
-  expect(html).not.toContain("[Draft");
-  expect(html).not.toContain("[Needs");
-  expect(html).not.toContain("[Optional");
+  const text = served.replace(/<[^>]+>/g, "").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
+  for (const project of PROJECTS) {
+    expect(text, project.name).toContain(project.name);
+    expect(text, `${project.name} lead`).toContain(project.lead);
+  }
+  for (const skill of SKILLS) expect(text, skill.name).toContain(skill.name);
+  expect(text).toContain("I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.");
+  const html = await page.content();
   expect(html).not.toContain("MCP");
-  expect(html).not.toContain("LOOK 01");
-  expect(html).not.toContain("The product page is coming.");
   expect(html).not.toContain("citebot-chi.vercel.app/ask");
   await expect(page.locator("h1")).toHaveCount(1);
-  await expect(page.locator("h2")).toHaveCount(8);
-  await expect(page.locator("svg")).not.toHaveCount(0);
+  await expect(page.locator("h2")).toHaveCount(5);
 });
 
-test("the sheet index reaches every plate", async ({ page }) => {
+test("the header reaches every section with 44px targets", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  const header = page.getByRole("navigation", { name: "Sheets" });
-  for (const label of ["00 Hero", "01 CiteBot", "02 Retrieval Autopsy", "03 Style Distance", "04 Skills", "05 About", "06 Contact", "07 Footer"]) {
-    const link = header.getByRole("link", { name: label });
+  const header = page.getByRole("navigation", { name: "Sections" });
+  for (const sheet of SHEETS) {
+    const link = header.getByRole("link", { name: sheet.label, exact: true });
     await expect(link).toHaveCount(1);
+    await expect(link).toHaveAttribute("href", `#${sheet.id}`);
+    await expect(page.locator(`#${sheet.id}`)).toHaveCount(1);
     const box = await link.boundingBox();
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
   }
-  const footer = page.getByRole("navigation", { name: "Sheet index" });
-  await expect(footer.getByRole("link", { name: "07 Footer" })).toHaveCount(0);
-  await expect(footer.getByRole("link", { name: "06 Contact" })).toHaveCount(1);
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   const focused = page.locator(":focus");
@@ -57,14 +41,14 @@ test("the sheet index reaches every plate", async ({ page }) => {
   expect(outline === "none" || outline === "auto" ? await focused.evaluate((node) => getComputedStyle(node).outlineWidth) : outline).not.toBe("0px");
 });
 
-test("javascript off still serves the plate text and drawings", async ({ browser }) => {
+test("javascript off still serves the work, the pictures and the drawing", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "The parts in detail" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: DROPPED.headline })).toBeVisible();
-  await expect(page.locator("#citebot").getByRole("link", { name: "Harness" })).toBeVisible();
-  await expect(page.locator("svg")).not.toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Selected work" })).toBeVisible();
+  await expect(page.locator("#citebot").getByRole("link", { name: "Evals" })).toBeVisible();
+  await expect(page.locator("#persona svg")).toHaveCount(1);
+  await expect(page.locator("#work img")).toHaveCount(3);
   await context.close();
 });
 
@@ -115,7 +99,7 @@ test("no page shows an email address other than the contact address", async ({ p
 test("about returns home", async ({ page }) => {
   await page.goto("/about");
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: "Jakob Alex" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Jakob Alex", exact: true })).toBeVisible();
 });
 
 for (const viewport of [

@@ -1,6 +1,12 @@
 :root {
   --paper: #f7f7f5;
   --ink: #111111;
+  /* The type scale. Five steps; every text size on the page is one of them. */
+  --t-label: 12px;
+  --t-body: 17px;
+  --t-lead: 22px;
+  --t-title: clamp(2rem, 3.4vw, 3rem);
+  --t-display: clamp(2.5rem, 4.4vw, 4.25rem);
   color-scheme: light;
 }
 
@@ -19,7 +25,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans), sans-serif;
-  font-size: 17px;
+  font-size: var(--t-body);
   font-weight: 300;
   line-height: 1.45;
   text-rendering: optimizeLegibility;
@@ -49,7 +55,7 @@ body > * {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 16px;
+  font-size: var(--t-body);
   font-weight: 400;
   line-height: 1.4;
   min-height: 44px;
@@ -86,7 +92,7 @@ a {
 .missing h1 {
   margin: 0;
   font-weight: 200;
-  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-size: var(--t-title);
   letter-spacing: -0.04em;
   line-height: 1;
 }

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { OPENING } from "@/lib/looks";
+import { HERO_LINE } from "@/lib/schnitt-copy";
 import "./globals.css";
 
 const sans = Geist({
@@ -34,10 +34,10 @@ const title = "Jakob Alex";
 export const metadata: Metadata = {
   metadataBase: new URL("https://jakobalex.vercel.app"),
   title,
-  description: OPENING,
+  description: HERO_LINE,
   openGraph: {
     title,
-    description: OPENING,
+    description: HERO_LINE,
     url: "https://jakobalex.vercel.app",
     siteName: title,
     type: "website",

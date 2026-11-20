@@ -70,7 +70,6 @@ test("phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 
   const start = await page.evaluate(() => document.documentElement.scrollHeight);
   const heights = await toolbar(page, 390, 844);
   const end = await page.evaluate(() => document.documentElement.scrollHeight);
-  const margin = await page.locator("#autopsy .label-rail .leader-name").nth(1).evaluate((node) => (node as HTMLElement).style.marginTop || "0px");
   // Idle for a second: the page must not move by itself.
   await page.evaluate(() => {
     (window as unknown as { __probe: Probe }).__probe.ys = [];
@@ -80,7 +79,6 @@ test("phone toolbar resizes settle: no growth, no scroll oscillation, CLS under 
   const moved = Math.max(...after.ys) - Math.min(...after.ys);
   expect(Math.max(...heights) - Math.min(...heights), `document height range over 20 toggles ${heights.join(",")}`).toBeLessThanOrEqual(200);
   expect(Math.abs(end - start), "document height returns to where it started").toBeLessThanOrEqual(1);
-  expect(margin, "the phone label rail is never pushed by a hidden row").toBe("0px");
   expect(moved, "scrollY stays still while idle").toBe(0);
   expect(after.cls).toBeLessThan(0.1);
   expect(errors).toEqual([]);

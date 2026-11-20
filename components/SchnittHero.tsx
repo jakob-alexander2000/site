@@ -1,14 +1,9 @@
-import { PlateKicker } from "@/components/PlateKicker";
-import { RunLink } from "@/components/RunLink";
 import { SchnittMount } from "@/components/SchnittStage";
 import { SchnittSheets } from "@/components/SchnittSheets";
 import { contact } from "@/lib/contact";
-import { BUILT_LINK, HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PARTS_LINK, PROJECT_INDEX, PROJECT_NAME, RUN_LINK } from "@/lib/schnitt-copy";
+import { HERO_AFTER, HERO_BEFORE, HERO_SCROLL, HERO_SUPPORT, HERO_WORD, PARTS_LINK } from "@/lib/schnitt-copy";
 import type { SchnittRun } from "@/lib/schnitt-extract";
-import { LOOKS } from "@/lib/looks";
 import { SHEETS } from "@/lib/plates";
-
-const source = LOOKS.find((look) => look.id === "citebot")?.source ?? contact.github;
 
 export function SchnittHero({ run }: { run: SchnittRun }) {
   return (
@@ -16,18 +11,16 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
       <div className="schnitt-sticky">
         <header className="schnitt-head">
           <h1 id="name">Jakob Alex</h1>
-          <nav className="schnitt-nav sheet-index" aria-label="Sheets">
+          <nav className="schnitt-nav" aria-label="Sections">
             {SHEETS.map((sheet) => (
-              <a key={sheet.index} href={`#${sheet.id}`} aria-label={sheet.label}>
-                {sheet.index}
+              <a key={sheet.id} href={`#${sheet.id}`} aria-label={sheet.label}>
+                {sheet.name}
               </a>
             ))}
           </nav>
           {contact.email ? <a href={`mailto:${contact.email}`}>Email</a> : null}
-          <a href={contact.github}>GitHub</a>
         </header>
         <div className="schnitt-copy">
-          <PlateKicker index={PROJECT_INDEX} name={PROJECT_NAME} className="hero-project" />
           <h2 className="display" id="opening">
             {HERO_BEFORE}
             <em>{HERO_WORD}</em>
@@ -38,11 +31,7 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
             <span className="support-scroll"> {HERO_SCROLL}</span>
           </p>
           <p className="actions">
-            <RunLink href="#schnitt-layers">{RUN_LINK}</RunLink>
-            <a href={source}>{BUILT_LINK}</a>
-          </p>
-          <p className="numeral" aria-hidden="true">
-            {run.evalCount.passed}
+            {contact.email ? <a href={`mailto:${contact.email}`}>Email me</a> : null}
           </p>
         </div>
         <div className="stage-spacer" aria-hidden="true" />
@@ -52,14 +41,14 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
         </div>
         <footer className="schnitt-foot">
           <p className="hero-continue">
-            <a href="#citebot" data-hero-thread>
+            <a href="#work" data-hero-thread>
               {PARTS_LINK}
               <span className="hero-thread" aria-hidden="true" />
             </a>
           </p>
           <p>
             <span>
-              {run.evalCount.caption} · offline eval · {run.evalCount.dated}
+              CiteBot · {run.evalCount.caption} · offline eval · {run.evalCount.dated}
             </span>
             <span>{run.recordedLabel}</span>
           </p>
