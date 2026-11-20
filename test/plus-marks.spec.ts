@@ -217,3 +217,44 @@ for (const width of [900, 1024]) {
     await expect(note).toBeHidden();
   });
 }
+
+test("tapping outside closes the plus note at mid-band and phone widths", async ({ page }) => {
+  for (const width of [960, 390] as const) {
+    if (width === 960) {
+      await page.setViewportSize({ width, height: 768 });
+      await page.goto("/");
+      await page.waitForFunction(() => document.querySelector(".schnitt-stage")?.getAttribute("data-gl") === "ready");
+    } else {
+      await open(page, width, 844);
+    }
+    const button = width === 960
+      ? page.locator(".schnitt .callout button.plus-mark").first()
+      : page.locator("button.plus-mark").first();
+    await button.scrollIntoViewIfNeeded();
+    await expect(button).toBeVisible();
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await button.click();
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    const note = page.locator(`#${await button.getAttribute("aria-controls")}`);
+    await expect(note).toBeVisible();
+    const point = await page.evaluate(() => {
+      const trigger = document.querySelector("button.plus-mark[aria-expanded='true']");
+      const panelId = trigger?.getAttribute("aria-controls");
+      const panel = panelId ? document.getElementById(panelId) : null;
+      const avoid = [trigger, panel].flatMap((node) => (node ? [node.getBoundingClientRect()] : []));
+      const spots = [
+        { x: 16, y: 16 },
+        { x: 16, y: window.innerHeight - 16 },
+        { x: window.innerWidth - 16, y: 16 },
+        { x: window.innerWidth / 2, y: 16 },
+      ];
+      return spots.find((spot) =>
+        avoid.every((box) => spot.x < box.left - 2 || spot.x > box.right + 2 || spot.y < box.top - 2 || spot.y > box.bottom + 2),
+      ) ?? null;
+    });
+    expect(point, `no outside tap target at ${width}px`).not.toBeNull();
+    await page.mouse.click(point!.x, point!.y);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await expect(note).toBeHidden();
+  }
+});

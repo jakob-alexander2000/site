@@ -17,6 +17,7 @@ export function RegisterMark({ className }: { className?: string } = {}) {
 export function PartNote({ id, label, note }: { id: string; label: string; note: string }) {
   const [open, setOpen] = useState(false);
   const panelId = `${id}-note`;
+  const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -34,6 +35,19 @@ export function PartNote({ id, label, note }: { id: string; label: string; note:
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Node && (trigger.current?.contains(target) || panel.current?.contains(target))) {
+        return;
+      }
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
   useLayoutEffect(() => {
@@ -73,6 +87,7 @@ export function PartNote({ id, label, note }: { id: string; label: string; note:
     <span className="part-note">
       <RegisterMark className="part-note-register" />
       <button
+        ref={trigger}
         type="button"
         className="plus-mark"
         data-mark="plus"
