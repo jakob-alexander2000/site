@@ -47,12 +47,6 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
               <span className="hero-thread" aria-hidden="true" />
             </a>
           </p>
-          <p>
-            <span>
-              CiteBot · {run.evalCount.caption} · offline eval · {run.evalCount.dated}
-            </span>
-            <span>{run.recordedLabel}</span>
-          </p>
         </footer>
       </div>
     </section>

@@ -41,3 +41,12 @@ A reader gets the page in thirty seconds: who I am, the work, the proof, how to 
 
 - The Persona repository is private, so its card has no link.
 - The portrait slot is hidden until the drawing exists.
+
+## Round 4
+
+Jakob asked for a harder cut: Persona as the only entry point, one line-drawing system, and less clutter.
+
+- Hero copy and layer labels no longer name CiteBot. The 3D geometry is unchanged. Layers are relabelled SOURCE, EXTRACT, CHECK, VERDICT (the verification idea, not a CiteBot poster).
+- Below the hero: one `--gutter` alignment token, fewer labels and rules, more space. CiteBot, Autopsy and Style Distance are compact rows under a larger Persona.
+- All four project pictures are construction drawings in `WorkFrame`, with body-size type (14px or more on a phone). Raster shots are gone.
+- In-page links scroll the heading to the top, so "Flagship: Persona" lands on the Persona heading at 1440 as well as 390.

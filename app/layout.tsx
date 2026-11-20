@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { ScrollToHash } from "@/components/ScrollToHash";
 import { HERO_LINE } from "@/lib/schnitt-copy";
 import "./globals.css";
 
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip" href="#top">
           Skip to content
         </a>
+        <ScrollToHash />
         {children}
       </body>
     </html>

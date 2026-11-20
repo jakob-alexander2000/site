@@ -7,6 +7,9 @@
   --t-lead: 22px;
   --t-title: clamp(2rem, 3.4vw, 3rem);
   --t-display: clamp(2.5rem, 4.4vw, 4.25rem);
+  /* One alignment grid. Hero and every section below share this inset. */
+  --gutter: clamp(20px, 4vw, 72px);
+  --page: 72rem;
   color-scheme: light;
 }
 

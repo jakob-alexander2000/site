@@ -22,7 +22,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   column-gap: 20px;
   row-gap: 10px;
-  padding: max(12px, env(safe-area-inset-top)) max(clamp(20px, 4vw, 72px), env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(clamp(20px, 4vw, 72px), env(safe-area-inset-left));
+  padding: max(12px, env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
 }
 
 html[data-schnitt="gl"] .schnitt {
@@ -38,6 +38,8 @@ html[data-schnitt="gl"] .schnitt-sticky {
 
 .schnitt-head {
   grid-column: 1 / -1;
+  position: relative;
+  z-index: 10;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -92,7 +94,7 @@ html[data-schnitt="gl"] .schnitt-sticky {
   grid-row: 2;
   align-self: end;
   position: relative;
-  z-index: 2;
+  z-index: 10;
   max-width: 34rem;
   padding-bottom: 8px;
 }
@@ -578,7 +580,7 @@ html[data-schnitt="flat"] .plane-slot {
   .schnitt-sticky {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
-    padding: max(4px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    padding: max(4px, env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
   }
 
   .schnitt-copy,
@@ -783,7 +785,7 @@ html[data-schnitt="flat"] .plane-slot {
   display: flex;
   flex-direction: column;
   gap: 72px;
-  padding: max(48px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(64px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  padding: max(48px, env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right)) max(64px, env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
 }
 
 .plate {
@@ -1862,11 +1864,11 @@ html.is-cut svg.plate-drawing {
 
 /* Selected work, skills, about, contact. */
 .plates {
-  gap: clamp(72px, 9vw, 128px);
-  max-width: 1280px;
+  gap: var(--gap, clamp(80px, 12vw, 160px));
+  max-width: var(--page);
   margin: 0 auto;
-  padding-left: max(clamp(20px, 4vw, 72px), env(safe-area-inset-left));
-  padding-right: max(clamp(20px, 4vw, 72px), env(safe-area-inset-right));
+  padding-left: max(var(--gutter), env(safe-area-inset-left));
+  padding-right: max(var(--gutter), env(safe-area-inset-right));
 }
 
 .plate h2 {
@@ -1917,21 +1919,7 @@ html.is-cut svg.plate-drawing {
   color: var(--mute);
 }
 
-.work-shot,
-.work-receipt {
-  display: block;
-  width: 100%;
-  border: 1px solid var(--ink);
-  background: var(--sheet);
-  overflow: hidden;
-}
 
-.work-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
 
 .work-receipt {
   display: grid;
@@ -2022,6 +2010,11 @@ html.is-cut svg.plate-drawing {
     order: 0 !important;
   }
 
+}
+
+.work-flagship .work-board {
+  padding: 28px 32px;
+  min-height: 22rem;
 }
 
 .work-flagship h3 {
@@ -2130,4 +2123,124 @@ html.is-cut svg.plate-drawing {
 .actions a:only-child {
   color: var(--ink);
   border-bottom-color: var(--ink);
+}
+
+
+/* Shared project drawings. */
+.work-frame {
+  margin: 0;
+}
+
+.work-board {
+  border: 1px solid var(--ink);
+  background: var(--sheet);
+  padding: 20px 22px;
+}
+
+.diagram {
+  display: grid;
+  gap: 14px;
+}
+
+.diagram-kicker,
+.diagram-stack,
+.diagram-stack li,
+.diagram-close {
+  margin: 0;
+  font-size: var(--t-body);
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.diagram-stack {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--ink);
+}
+
+.diagram-stack li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #d6d5cf;
+}
+
+.diagram-close {
+  border-bottom: 0;
+}
+
+.diagram-fail {
+  color: var(--fail);
+}
+
+.work-list {
+  display: grid;
+  gap: clamp(64px, 10vw, 120px);
+  margin-top: 28px;
+}
+
+.work-flagship {
+  display: grid;
+  gap: 24px;
+}
+
+.work-flagship .work-board {
+  padding: 28px 32px;
+  min-height: 22rem;
+}
+
+.work-flagship h3 {
+  font-size: var(--t-title);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.work-rest {
+  display: grid;
+  gap: clamp(40px, 6vw, 72px);
+}
+
+.work-compact {
+  display: grid;
+  gap: 16px;
+}
+
+.work-compact .work-board {
+  padding: 16px 18px;
+}
+
+.work-compact h3 {
+  font-size: var(--t-lead);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 801px) {
+  .work-flagship {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
+  }
+
+  .work-compact {
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+    align-items: start;
+  }
+}
+
+.site-foot {
+  padding-top: 8px;
+  border-top: 1px solid var(--ink);
+}
+
+.site-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }

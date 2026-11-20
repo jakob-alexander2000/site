@@ -2,9 +2,7 @@ export const REVISION = "20 Nov 2026";
 
 export type ProjectId = "persona" | "citebot" | "autopsy" | "style";
 
-export type Visual =
-  | { kind: "image"; src: string; width: number; height: number; minTextPx: number; alt: string; caption: string }
-  | { kind: "drawing"; id: string; label: string; caption: string };
+export type Visual = { id: string; label: string };
 
 export type Project = {
   id: ProjectId;
@@ -23,17 +21,14 @@ export const PROJECTS: readonly Project[] = [
     id: "persona",
     index: "01",
     name: "Persona",
-    mark: "Flagship · in progress · formerly Dockbot",
-    lead: "A model-agnostic agent app. Every task ends in a receipt: each model it tried, each check it passed, the cost and the time.",
+    mark: "Flagship, formerly Dockbot",
+    lead: "Formerly Dockbot. A model-agnostic agent app. Every task ends in a receipt: each model it tried, each check it passed, the cost and the time.",
     detail:
       "A cheaper model only takes over a job after it passes the same checks as a strong one. Hard budget caps stop a task before it overspends.",
     links: [],
     visual: {
-      kind: "drawing",
       id: "persona-receipt",
-      label:
-        "Drawing of one task receipt. Attempt one on the cheap tier passes not-empty and fails required-headings; attempt two on the strong tier passes both; the receipt closes as passed with cost and time.",
-      caption: "One receipt, drawn from the receipt schema: two attempts, the checks, the close.",
+      label: "A receipt: the cheap model fails a headings check, the strong model passes both, and the task closes as passed.",
     },
   },
   {
@@ -48,13 +43,8 @@ export const PROJECTS: readonly Project[] = [
       { label: "Source", href: "https://github.com/jakob-alexander2000/citebot" },
     ],
     visual: {
-      kind: "image",
-      src: "/work/citebot-verify.webp",
-      width: 576,
-      height: 710,
-      minTextPx: 20,
-      alt: "CiteBot verify step on a two-part answer: thirty days of paid vacation passes against the handbook; carrying unused days past June fails, because the page says March 31.",
-      caption: "The verify step on the live harness: one claim passes, one fails.",
+      id: "citebot-verify",
+      label: "A source that says 30 days of leave, a claim that PTO is unlimited, and a failing verdict.",
     },
   },
   {
@@ -69,13 +59,8 @@ export const PROJECTS: readonly Project[] = [
       { label: "Source", href: "https://github.com/jakob-alexander2000/retrieval-autopsy" },
     ],
     visual: {
-      kind: "image",
-      src: "/work/autopsy-qualifier.webp",
-      width: 900,
-      height: 804,
-      minTextPx: 30,
-      alt: "Retrieval Autopsy result: Scope passes, Qualifier fails because the answer drops two conditions from the handbook passage.",
-      caption: "Qualifier fails: the answer dropped two conditions.",
+      id: "autopsy-qualifier",
+      label: "A passage that limits leave to full-time staff after probation, and an answer that dropped both conditions.",
     },
   },
   {
@@ -90,13 +75,8 @@ export const PROJECTS: readonly Project[] = [
       { label: "Source", href: "https://github.com/jakob-alexander2000/style-distance" },
     ],
     visual: {
-      kind: "image",
-      src: "/work/style-distance.webp",
-      width: 576,
-      height: 532,
-      minTextPx: 22,
-      alt: "Style Distance result: a distance of 1.33 marked off-voice, next to a held-out reference chunk that reads close.",
-      caption: "A draft reads off-voice; the held-out chunk reads close.",
+      id: "style-distance",
+      label: "A house voice that reads close, and a draft 1.33 off-voice.",
     },
   },
 ];
