@@ -1,5 +1,7 @@
 import { RegisterMark } from "@/components/PartNote";
 import { CopyAddress } from "@/components/CopyAddress";
+import { PortraitSlot } from "@/components/PortraitSlot";
+import { portraitSource } from "@/lib/portrait";
 import { PersonaReceipt } from "@/components/PersonaReceipt";
 import { BACKGROUND } from "@/lib/looks";
 import { contact } from "@/lib/contact";
@@ -27,7 +29,7 @@ function ProjectVisual({ project }: { project: Project }) {
       ) : (
         <div className="work-shot" data-visual={visual.src}>
           {/* eslint-disable-next-line @next/next/no-img-element -- static captures, sized up front */}
-          <img src={visual.src} width={visual.width} height={visual.height} alt={visual.alt} decoding="async" />
+          <img src={visual.src} width={visual.width} height={visual.height} data-min-text-px={visual.minTextPx} alt={visual.alt} decoding="async" />
         </div>
       )}
       <figcaption>{visual.caption}</figcaption>
@@ -37,6 +39,7 @@ function ProjectVisual({ project }: { project: Project }) {
 
 export function Plates() {
   const [flagship, ...rest] = PROJECTS;
+  const portrait = portraitSource();
   return (
     <div className="plates">
       <section className="plate" id="work" aria-labelledby="work-title">
@@ -84,8 +87,8 @@ export function Plates() {
             <li key={skill.name} data-skill>
               <span className="skill-name">{skill.name}</span>
               <span className="skill-shows">{skill.shows}</span>
-              <a className="skill-proof" href={`#${skill.project}`} data-proof>
-                {projectName(skill.project)}
+              <a className="skill-proof" href={skill.proof?.href ?? `#${skill.project}`} data-proof>
+                {skill.proof?.label ?? projectName(skill.project)}
               </a>
             </li>
           ))}
@@ -94,10 +97,8 @@ export function Plates() {
 
       <section className="plate" id="about" aria-labelledby="about-title">
         <SheetRule index="03" />
-        <div className="about">
-          <div className="portrait-slot" data-portrait-slot role="img" aria-label="Portrait slot: a line drawing goes here">
-            <span className="kicker" aria-hidden="true">PORTRAIT · LINE DRAWING</span>
-          </div>
+        <div className={portrait ? "about about-portrait" : "about"}>
+          <PortraitSlot src={portrait} />
           <div className="about-text">
             <h2 id="about-title">About</h2>
             <p className="body">{BACKGROUND}</p>

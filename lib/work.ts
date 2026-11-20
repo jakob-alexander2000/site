@@ -3,7 +3,7 @@ export const REVISION = "20 Nov 2026";
 export type ProjectId = "persona" | "citebot" | "autopsy" | "style";
 
 export type Visual =
-  | { kind: "image"; src: string; width: number; height: number; alt: string; caption: string }
+  | { kind: "image"; src: string; width: number; height: number; minTextPx: number; alt: string; caption: string }
   | { kind: "drawing"; id: string; label: string; caption: string };
 
 export type Project = {
@@ -50,8 +50,9 @@ export const PROJECTS: readonly Project[] = [
     visual: {
       kind: "image",
       src: "/work/citebot-verify.webp",
-      width: 900,
-      height: 675,
+      width: 576,
+      height: 710,
+      minTextPx: 20,
       alt: "CiteBot verify step on a two-part answer: thirty days of paid vacation passes against the handbook; carrying unused days past June fails, because the page says March 31.",
       caption: "The verify step on the live harness: one claim passes, one fails.",
     },
@@ -71,7 +72,8 @@ export const PROJECTS: readonly Project[] = [
       kind: "image",
       src: "/work/autopsy-qualifier.webp",
       width: 900,
-      height: 675,
+      height: 804,
+      minTextPx: 30,
       alt: "Retrieval Autopsy result: Scope passes, Qualifier fails because the answer drops two conditions from the handbook passage.",
       caption: "Qualifier fails: the answer dropped two conditions.",
     },
@@ -90,15 +92,23 @@ export const PROJECTS: readonly Project[] = [
     visual: {
       kind: "image",
       src: "/work/style-distance.webp",
-      width: 900,
-      height: 675,
+      width: 576,
+      height: 532,
+      minTextPx: 22,
       alt: "Style Distance result: a distance of 1.33 marked off-voice, next to a held-out reference chunk that reads close.",
       caption: "A draft reads off-voice; the held-out chunk reads close.",
     },
   },
 ];
 
-export type Skill = { name: string; shows: string; project: ProjectId };
+export type Skill = {
+  name: string;
+  shows: string;
+  /** The project on this page that shows it. */
+  project: ProjectId;
+  /** Public proof outside the page, when the project has none of its own. */
+  proof?: { label: string; href: string };
+};
 
 /** Each skill names the project that shows it. A skill without a public project is not listed. */
 export const SKILLS: readonly Skill[] = [
@@ -107,7 +117,12 @@ export const SKILLS: readonly Skill[] = [
   { name: "Claim verification", shows: "Each sentence is checked against the passage it came from.", project: "autopsy" },
   { name: "Retrieval", shows: "Keyword and meaning search compared on the same pages.", project: "autopsy" },
   { name: "Text measurement", shows: "Burrows’ Delta against a house voice, with a held-out check.", project: "style" },
-  { name: "TypeScript and Playwright", shows: "End-to-end tests in Chromium and WebKit at phone and desktop sizes.", project: "persona" },
+  {
+    name: "TypeScript and Playwright",
+    shows: "This site: strict TypeScript, and end-to-end tests in Chromium and WebKit at phone and desktop sizes.",
+    project: "persona",
+    proof: { label: "This site’s tests", href: "https://github.com/jakob-alexander2000/site/tree/main/test" },
+  },
 ];
 
 export function projectName(id: ProjectId): string {

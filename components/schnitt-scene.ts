@@ -1,11 +1,9 @@
 import { loadThree } from "@/components/load-three";
-import { bandForWidth, type PlateBand } from "@/lib/plate-bake";
 import { SECTION_RAIL } from "@/lib/section-rail";
 import type { Group } from "three/src/objects/Group.js";
 import type { Mesh } from "three/src/objects/Mesh.js";
 import { placeThread } from "@/components/schnitt-fallback";
 import { alignCiteLeaders } from "@/lib/align-leaders";
-import { STYLE_DISTANCE } from "@/lib/diagrams";
 
 const PLATES = ["citebot", "autopsy", "style", "skills"] as const;
 const DEPTHS = [-1600, -3200, -4800, -6400];
@@ -88,44 +86,10 @@ function railProgress() {
   return Math.min(1, Math.max(0, window.scrollY / end));
 }
 
-function sectionProgress(section: HTMLElement) {
-  const rect = section.getBoundingClientRect();
-  return clamp01((window.innerHeight - rect.top) / (rect.height + window.innerHeight));
-}
-
 function layoutPlates() {
   if (document.documentElement.dataset.schnitt !== "gl") return;
   const rail = railProgress();
   document.documentElement.dataset.rail = rail.toFixed(4);
-  const cite = document.getElementById("citebot");
-  const sheets = [...document.querySelectorAll<SVGElement>("#citebot .draw-sheet")];
-  if (cite && sheets.length) {
-    const progress = sectionProgress(cite);
-    sheets.forEach((sheet, index) => {
-      const lift = Math.round(progress * (sheets.length - 1)) === index ? -10 : 0;
-      sheet.setAttribute("transform", `translate(0 ${lift.toFixed(1)})`);
-    });
-  }
-  const autopsy = document.getElementById("autopsy");
-  if (autopsy) {
-    const drop = sectionProgress(autopsy) * 28;
-    autopsy.querySelectorAll<HTMLElement>(".offcut").forEach((node) => {
-      node.style.transform = `translateY(${drop.toFixed(1)}px)`;
-    });
-  }
-  const style = document.getElementById("style");
-  if (style) {
-    const progress = sectionProgress(style);
-    const shift = progress * 16;
-    style.querySelectorAll<HTMLElement>(".draft-sheet").forEach((draft) => {
-      if (draft.tagName.toLowerCase() === "g") draft.setAttribute("transform", `translate(0 ${shift.toFixed(1)})`);
-      else draft.style.transform = `translateY(${shift.toFixed(1)}px)`;
-    });
-    const figure = progress < 0.5 ? STYLE_DISTANCE.heldOut : STYLE_DISTANCE.drifted;
-    style.querySelectorAll(".depth-read").forEach((read) => {
-      read.textContent = figure;
-    });
-  }
 }
 
 function placeCallouts(stage: HTMLElement) {
@@ -354,32 +318,6 @@ async function raster(node: Element, faces: string) {
   return paint;
 }
 
-function plateBand(id: string): PlateBand {
-  const frame = document.querySelector(`#${id} .drawing-frame`);
-  const width = frame instanceof HTMLElement ? frame.getBoundingClientRect().width : window.innerWidth;
-  return bandForWidth(width > 2 ? width : window.innerWidth);
-}
-
-/** A plate baked at build time. Decoding happens off the main thread. */
-async function loadBuiltPlate(id: string) {
-  const scale = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
-  const band = plateBand(id);
-  let response: Response;
-  try {
-    response = await fetch(`/plates/${id}@${band}@${scale}.webp`);
-  } catch {
-    return null;
-  }
-  if (!response.ok) return null;
-  const blob = await response.blob();
-  await yieldTurn();
-  try {
-    return await createImageBitmap(blob, { imageOrientation: "flipY" });
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Upload a plate in short row bands. initTexture only allocates; each band is a
  * few rows, and a frame stops once 8ms have passed so one callback cannot grow
@@ -424,40 +362,9 @@ async function uploadPlate(
 void pageFaces;
 void raster;
 
-/** The baked still for each painted section. A failed image leaves the SVG figure. */
-function mountSectionStills() {
-  const scale = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
-  for (const id of ["citebot", "style"] as const) {
-    const frame = document.querySelector(`#${id} .drawing-frame`);
-    if (!(frame instanceof HTMLElement) || frame.querySelector(".plate-still")) continue;
-    const width = frame.getBoundingClientRect().width;
-    const band = bandForWidth(width > 2 ? width : window.innerWidth);
-    const img = new Image();
-    img.className = "plate-still";
-    img.alt = "";
-    img.decoding = "sync";
-    img.src = `/plates/${id}@${band}@${scale}.webp`;
-    img.addEventListener("load", () => {
-      frame.dataset.still = id;
-      const svg = frame.querySelector("svg.plate-drawing");
-      if (svg instanceof HTMLElement) svg.style.visibility = "hidden";
-      const labels = frame.querySelector(".sheet-labels");
-      if (labels instanceof HTMLElement) labels.style.visibility = "hidden";
-    });
-    img.addEventListener("error", () => {
-      img.remove();
-      frame.dataset.still = "figure";
-    });
-    frame.appendChild(img);
-  }
-}
-
 export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasElement): Promise<() => void> {
   painted.clear();
   const plateLoads = new Map<string, Promise<ImageBitmap | null>>();
-  if (SECTION_RAIL) {
-    for (const id of ["citebot", "style"]) plateLoads.set(id, loadBuiltPlate(id));
-  }
   await yieldTurn();
   const T = await loadThree();
   await yieldTurn();
@@ -1101,7 +1008,6 @@ export async function mountSchnittScene(stage: HTMLElement, canvas: HTMLCanvasEl
   await yieldTurn();
   render(true);
   stage.dataset.rail = SECTION_RAIL ? "on" : "off";
-  if (!SECTION_RAIL) mountSectionStills();
   stage.dataset.gl = "ready";
   const onScroll = () => {
     if (frame) return;

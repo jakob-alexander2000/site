@@ -31,6 +31,7 @@ export function SchnittHero({ run }: { run: SchnittRun }) {
             <span className="support-scroll"> {HERO_SCROLL}</span>
           </p>
           <p className="actions">
+            <a href="#persona">Flagship: Persona</a>
             {contact.email ? <a href={`mailto:${contact.email}`}>Email me</a> : null}
           </p>
         </div>

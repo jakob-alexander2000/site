@@ -1,4 +1,4 @@
-export const HERO_BEFORE = "I’m Jakob Alex. I build AI products you can ";
+export const HERO_BEFORE = "I’m Jakob Alex. I\u00a0build AI products you can ";
 export const HERO_WORD = "check";
 export const HERO_AFTER = ".";
 export const HERO_LINE = `${HERO_BEFORE}${HERO_WORD}${HERO_AFTER}`;

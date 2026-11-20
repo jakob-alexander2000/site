@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect } from "react";
-import { showExplodedFallback } from "@/components/schnitt-fallback";
+import { placeThread, showExplodedFallback } from "@/components/schnitt-fallback";
 
 function kick(task: () => void) {
   const idle = window.requestIdleCallback;
@@ -22,6 +22,9 @@ function kick(task: () => void) {
   };
   idle(run, { timeout: 800 });
 }
+
+/** Seconds of a visible page the 3D scene gets to appear before the flat drawing takes over. */
+const SCENE_WATCHDOG_SECONDS = 10;
 
 export function SchnittMount() {
   useLayoutEffect(() => {
@@ -51,6 +54,20 @@ export function SchnittMount() {
     }
   }, []);
 
+  // The flat drawing is laid out in CSS. Its thread is drawn from measurements, so a resize redraws it.
+  useEffect(() => {
+    const stage = document.getElementById("schnitt-layers");
+    if (!(stage instanceof HTMLElement)) return;
+    let last = stage.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (document.documentElement.dataset.schnitt !== "flat" || stage.clientWidth === last) return;
+      last = stage.clientWidth;
+      placeThread(stage);
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const stage = document.getElementById("schnitt-layers");
     const canvas = stage?.querySelector("canvas");
@@ -74,6 +91,22 @@ export function SchnittMount() {
     };
     const onLost = () => flatten();
     canvas.addEventListener("webglcontextlost", onLost);
+    // A scene that never becomes ready (no frames in a background tab, a stalled load) would leave the
+    // hero blank, because the sheets stay hidden until the canvas is ready. Give it a fixed budget of
+    // visible seconds, then show the flat drawing.
+    let waited = 0;
+    const watchdog = window.setInterval(() => {
+      if (cancelled || stage.dataset.gl === "ready") {
+        window.clearInterval(watchdog);
+        return;
+      }
+      if (document.visibilityState !== "visible") return;
+      waited += 1;
+      if (waited >= SCENE_WATCHDOG_SECONDS) {
+        window.clearInterval(watchdog);
+        flatten();
+      }
+    }, 1000);
     const start = () => {
       kick(() => {
         if (cancelled || document.documentElement.dataset.schnitt !== "gl") return;
@@ -104,6 +137,7 @@ export function SchnittMount() {
     else window.addEventListener("load", start, { once: true });
     return () => {
       cancelled = true;
+      window.clearInterval(watchdog);
       canvas.removeEventListener("webglcontextlost", onLost);
       window.removeEventListener("load", start);
       destroy();
