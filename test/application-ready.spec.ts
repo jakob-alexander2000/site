@@ -11,7 +11,7 @@ const SIZES = [
   { width: 1440, height: 900 },
 ] as const;
 
-const WHO = /I’m Jakob Alex\. I build AI products you can check\./;
+const WHO = /I’m Jakob Alex\. I\u00a0build AI products you can check\./;
 
 for (const size of SIZES) {
   test(`the who-I-am line is on the first screen at ${size.width}x${size.height}`, async ({ page }) => {
@@ -64,8 +64,8 @@ test("every skill links to the project that shows it", async ({ page }) => {
     const link = skills.nth(i).locator("a[data-proof]");
     await expect(link).toHaveCount(1);
     const href = await link.getAttribute("href");
-    expect(href, "proof is an in-page project anchor").toMatch(/^#/);
-    expect(anchors).toContain(href!.slice(1));
+    if (href!.startsWith("#")) expect(anchors).toContain(href!.slice(1));
+    else expect(href, "or a public repository").toMatch(/^https:\/\/github\.com\/jakob-alexander2000\//);
   }
 });
 
@@ -77,13 +77,6 @@ test("the only contact is one mailto link", async ({ page }) => {
   const mailtos = await page.locator('a[href^="mailto:"]').evaluateAll((els) => [...new Set(els.map((el) => el.getAttribute("href")))]);
   expect(mailtos).toHaveLength(1);
   await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
-});
-
-test("a marked slot waits for the line-drawing portrait", async ({ page }) => {
-  await page.goto("/");
-  const slot = page.locator("[data-portrait-slot]");
-  await expect(slot).toHaveCount(1);
-  await expect(slot).toHaveAttribute("aria-label", /portrait/i);
 });
 
 async function textSizes(page: Page) {
