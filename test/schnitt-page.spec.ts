@@ -47,8 +47,8 @@ test("javascript off still serves the work, the pictures and the drawing", async
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Selected work" })).toBeVisible();
   await expect(page.locator("#citebot").getByRole("link", { name: "Evals" })).toBeVisible();
-  await expect(page.locator("#persona [data-visual]")).toContainText("required-headings");
-  await expect(page.locator("#work img")).toHaveCount(3);
+  await expect(page.locator("#persona [data-work-frame]")).toContainText("Cheap model");
+  await expect(page.locator("#work [data-work-frame]")).toHaveCount(4);
   await context.close();
 });
 

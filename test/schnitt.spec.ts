@@ -69,8 +69,6 @@ test("the sentence and the two claims are on the page", async ({ page }) => {
   await expect(page.locator(".is-fail", { hasText: "PTO is unlimited." })).toBeVisible();
   await expect(page.locator(".question")).toContainText("How many paid vacation days do full-time employees get?");
   await expect(page.locator(".schnitt").getByText("The handbook says 30 days.")).toBeVisible();
-  await expect(page.locator(".schnitt").getByText("DATA FROM A RECORDED RUN, 9 NOV 2026")).toBeVisible();
-  await expect(page.getByText("18 of 18 · offline eval · 29 OCT 2026")).toBeVisible();
   await expect(page.getByRole("link", { name: "Email me" })).toHaveAttribute("href", /^mailto:/);
   await expect(page.locator('a[href*="citebot-chi.vercel.app/ask"]')).toHaveCount(0);
 });

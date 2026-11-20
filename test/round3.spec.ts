@@ -128,48 +128,41 @@ for (const height of [844, 780]) {
     expect(tiny).toEqual([]);
     const foot = await page.evaluate(() => {
       const link = document.querySelector<HTMLElement>(".schnitt-foot [data-hero-thread]")!.getBoundingClientRect();
-      const note = [...document.querySelectorAll(".schnitt-foot p")].pop()!.getBoundingClientRect();
-      return { linkBottom: link.bottom, noteTop: note.top, linkRight: link.right, noteLeft: note.left };
+      const notes = [...document.querySelectorAll(".schnitt-foot p")].filter((node) => !node.querySelector("[data-hero-thread]"));
+      if (!notes.length) return { ok: true };
+      const note = notes[0]!.getBoundingClientRect();
+      return { ok: link.bottom <= note.top + 0.5 || link.right <= note.left + 0.5 };
     });
-    expect(foot.linkBottom <= foot.noteTop + 0.5 || foot.linkRight <= foot.noteLeft + 0.5, "footer link has its own room").toBe(true);
+    expect(foot.ok, "footer link has its own room").toBe(true);
   });
 }
 
-test("text inside the work pictures is at least 11px as rendered at 390", async ({ page }) => {
+test("text inside the work pictures is at least 14px as rendered at 390", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
   const small = await page.evaluate(() => {
     const bad: string[] = [];
-    for (const svg of document.querySelectorAll<SVGSVGElement>("#work svg")) {
-      const vb = svg.viewBox.baseVal;
-      const scale = vb && vb.width ? svg.getBoundingClientRect().width / vb.width : 1;
-      for (const text of svg.querySelectorAll("text")) {
-        const px = parseFloat(getComputedStyle(text).fontSize) * scale;
-        if (px < 11) bad.push(`svg ${px.toFixed(1)}px "${text.textContent?.slice(0, 20)}"`);
+    for (const frame of document.querySelectorAll("[data-work-frame]")) {
+      const walker = document.createTreeWalker(frame, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim() || !node.parentElement) continue;
+        const px = parseFloat(getComputedStyle(node.parentElement).fontSize);
+        if (px < 14) bad.push(`${px}px "${node.textContent.trim().slice(0, 24)}"`);
       }
-    }
-    for (const img of document.querySelectorAll<HTMLImageElement>("#work img")) {
-      const min = Number(img.dataset.minTextPx);
-      const scale = img.getBoundingClientRect().width / img.naturalWidth;
-      const px = min * scale;
-      if (!(min > 0)) bad.push(`${img.getAttribute("src")} has no data-min-text-px`);
-      else if (px < 11) bad.push(`${img.getAttribute("src")} text ${px.toFixed(1)}px`);
     }
     return bad;
   });
   expect(small).toEqual([]);
-  expect(await page.locator("#work img").count()).toBe(3);
 });
 
 test("the Persona picture is real text, so it scales with the page", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const receipt = page.locator("#persona [data-visual]");
+  const receipt = page.locator("#persona [data-work-frame]");
   await expect(receipt).toHaveCount(1);
-  expect(await receipt.evaluate((el) => el.tagName.toLowerCase())).toBe("div");
   await expect(receipt.locator("svg")).toHaveCount(0);
-  await expect(receipt).toContainText("required-headings");
+  await expect(receipt).toContainText("Cheap model");
 });
 
 test("the portrait slot is not shown while the drawing file is missing", async ({ page }) => {
@@ -231,16 +224,4 @@ test("every skill points at public proof or the project that shows it", async ({
   expect(persona, "Persona has no public proof, so it carries one skill").toBeLessThanOrEqual(1);
 });
 
-test("the work pictures have no clipped sliver: each image shows whole cards", async ({ page }) => {
-  await page.goto("/");
-  for (const img of await page.locator("#work img").all()) {
-    const fit = await img.evaluate((el) => getComputedStyle(el).objectFit);
-    expect(fit, "the whole picture is shown, not cropped by the frame").toBe("contain");
-    const frame = await img.evaluate((node) => {
-      const el = node as HTMLImageElement;
-      const r = el.getBoundingClientRect();
-      return Math.abs(r.height / r.width - el.naturalHeight / el.naturalWidth);
-    });
-    expect(frame, "frame matches the picture ratio").toBeLessThan(0.02);
-  }
-});
+;

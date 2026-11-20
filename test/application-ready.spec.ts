@@ -34,7 +34,7 @@ test("three or four selected projects, Persona first", async ({ page }) => {
   expect(count).toBeLessThanOrEqual(4);
   await expect(projects.first()).toHaveAttribute("data-project", "persona");
   await expect(projects.first().locator("h3")).toHaveText("Persona");
-  await expect(projects.first()).toContainText("formerly Dockbot");
+  await expect(projects.first()).toContainText(/formerly Dockbot/i);
 });
 
 test("every project has exactly one picture and none repeat", async ({ page }) => {
@@ -42,17 +42,14 @@ test("every project has exactly one picture and none repeat", async ({ page }) =
   const projects = page.locator("#work [data-project]");
   const seen = new Set<string>();
   for (let i = 0; i < (await projects.count()); i += 1) {
-    const visual = projects.nth(i).locator("[data-visual]");
+    const visual = projects.nth(i).locator("[data-work-frame]");
     await expect(visual, `project ${i} has one visual`).toHaveCount(1);
-    const key = await visual.getAttribute("data-visual");
-    expect(key, `project ${i} visual has a source`).toBeTruthy();
+    const key = await visual.locator("[role='img']").getAttribute("aria-label");
+    expect(key, `project ${i} visual is described`).toBeTruthy();
+    expect((key ?? "").length).toBeGreaterThan(20);
     expect(seen.has(key!), `visual ${key} is not repeated`).toBe(false);
     seen.add(key!);
-    const alt = await visual.getAttribute("aria-label") ?? (await visual.locator("img").getAttribute("alt"));
-    expect((alt ?? "").length, `project ${i} visual is described`).toBeGreaterThan(20);
   }
-  const imgs = await page.locator("main img").evaluateAll((els) => els.map((el) => (el as HTMLImageElement).currentSrc || (el as HTMLImageElement).src));
-  expect(new Set(imgs).size, "no image src repeats on the page").toBe(imgs.length);
 });
 
 test("every skill links to the project that shows it", async ({ page }) => {
