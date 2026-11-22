@@ -940,3 +940,8 @@ html:not([data-construction="on"]) .wire .spec {
 .verdicts .pair > span:last-child {
   text-align: right;
 }
+
+.specimen-foot .stamp {
+  flex: 1 1 100%;
+  min-height: 44px;
+}

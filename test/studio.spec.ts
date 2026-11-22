@@ -29,6 +29,9 @@ test("answer checks show three recorded runs, and Run again replays them", async
   await expect(autopsy.getByRole("button", { name: "Run the Retrieval Autopsy check again" })).toHaveText("Run again");
   await expect(page.locator("#specimen-citebot")).toContainText("page says 30");
   await expect(page.locator("#specimen-voice")).toContainText("1.33 · off-voice");
+  for (const stamp of await page.locator(".stamp").all()) {
+    await expect(stamp).toHaveAttribute("href", /jakob-alexander2000\/studio\/blob\/main\/checks\/receipts\/.+\.json$/);
+  }
 });
 
 test("Persona and the benchmark each have a flow figure", async ({ page }) => {
