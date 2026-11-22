@@ -158,7 +158,7 @@ export default function Home() {
                     {entry.date}
                   </time>
                   <span className="meta">{entry.kind}</span>
-                  <span className="log-title">{entry.href ? <a href={entry.href}>{entry.title}</a> : entry.title}</span>
+                  <span className="log-title">{entry.href ? <a href={entry.href} className="link">{entry.title}</a> : entry.title}</span>
                 </li>
               ))}
             </ol>
