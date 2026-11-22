@@ -5,8 +5,11 @@ import { Header } from "@/components/Header";
 import { StatusStrip } from "@/components/StatusStrip";
 import { StudioSection } from "@/components/StudioSection";
 import { LOG } from "@/lib/log";
+import { Flow } from "@/components/Flow";
+import { Specimens } from "@/components/Specimens";
+import { HANDOVER, METHOD } from "@/lib/specimens";
 import { PERSONA_RECEIPT, PERSONA_VERDICT } from "@/lib/studio";
-import { ANSWER_CHECKS, PROJECTS } from "@/lib/work";
+import { PROJECTS } from "@/lib/work";
 
 export default function Home() {
   return (
@@ -109,34 +112,44 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <Flow
+            steps={HANDOVER}
+            label="How a task moves from the strong model to the cheap one"
+            fig="Fig. 2"
+            caption="How a task changes hands"
+          />
         </section>
 
-        <section className="section two-up" style={{ paddingTop: 144 }} aria-label="More work">
-          <article id="checks" className="rule-hair" aria-labelledby="checks-title">
-            <span className="meta quiet">02 · Three tools · Live</span>
-            <h3 id="checks-title" className="headline">
-              Answer checks
-            </h3>
-            <p style={{ maxWidth: 460 }}>Tools that catch what an AI answer got wrong, left out, or said in the wrong voice.</p>
-            <div>
-              {ANSWER_CHECKS.map((tool) => (
-                <a key={tool.name} href={tool.href} className="check-row">
-                  <span>{tool.line}</span>
-                  <span className="meta">{tool.name}</span>
-                </a>
-              ))}
+        <section id="checks" className="section" style={{ paddingTop: 144 }} aria-labelledby="checks-title">
+          <div className="split rule-hair" style={{ paddingTop: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <span className="meta quiet">02 · Three tools · Live</span>
+              <h3 id="checks-title" className="headline">
+                Answer checks
+              </h3>
             </div>
-          </article>
-          <article id="benchmark" className="rule-hair" aria-labelledby="benchmark-title">
-            <span className="meta quiet">03 · Research · Next</span>
-            <h3 id="benchmark-title" className="headline">
-              How well do models answer from German documents?
-            </h3>
             <p style={{ maxWidth: 460 }}>
-              An open benchmark on public German policy and handbook pages, scored with my own claim checks. I’ll publish the
-              data and the results in the log as I go.
+              Tools that catch what an AI answer got wrong, left out, or said in the wrong voice. Each one below is a real
+              recorded run. Press Run again to watch the checks.
             </p>
-          </article>
+          </div>
+          <Specimens />
+        </section>
+
+        <section id="benchmark" className="section" style={{ paddingTop: 144 }} aria-labelledby="benchmark-title">
+          <div className="split rule-hair" style={{ paddingTop: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 640 }}>
+              <span className="meta quiet">03 · Research · Next</span>
+              <h3 id="benchmark-title" className="headline">
+                How well do models answer from German documents?
+              </h3>
+            </div>
+            <p style={{ maxWidth: 460 }}>
+              An open benchmark on public German policy and handbook pages, scored claim by claim. It looks hardest at one
+              thing: conditions an answer quietly drops. Data and results go in the log as I go.
+            </p>
+          </div>
+          <Flow steps={METHOD} label="How the benchmark scores an answer" fig="Fig. 3" caption="The method, before any results" />
         </section>
 
         <StudioSection />

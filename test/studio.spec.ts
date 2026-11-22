@@ -17,6 +17,28 @@ test("home: opening line, work index and the four studio layers", async ({ page 
   await expect(page.locator("video")).toHaveCount(0);
 });
 
+test("answer checks show three recorded runs, and Run again replays them", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#checks .specimen")).toHaveCount(3);
+  const autopsy = page.locator("#specimen-autopsy");
+  await expect(autopsy).toContainText("employees receive 30 days");
+  await expect(autopsy.locator("mark")).toHaveText(["full-time employees only", "after the probation period"]);
+  await expect(autopsy.locator(".verdicts .fault")).toContainText("fail");
+  await autopsy.getByRole("button", { name: "Run the Retrieval Autopsy check again" }).click();
+  await expect(autopsy.locator(".verdicts .fault")).toContainText("two limits dropped", { timeout: 5000 });
+  await expect(autopsy.getByRole("button", { name: "Run the Retrieval Autopsy check again" })).toHaveText("Run again");
+  await expect(page.locator("#specimen-citebot")).toContainText("page says 30");
+  await expect(page.locator("#specimen-voice")).toContainText("1.33 · off-voice");
+});
+
+test("Persona and the benchmark each have a flow figure", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("list", { name: "How a task moves from the strong model to the cheap one" }).locator("li")).toHaveCount(5);
+  await expect(page.getByRole("list", { name: "How the benchmark scores an answer" }).locator("li")).toHaveCount(5);
+  await expect(page.locator("#persona")).toContainText("Fig. 2");
+  await expect(page.locator("#benchmark")).toContainText("Fig. 3");
+});
+
 test("contact shows the one address and GitHub, no phone", async ({ page }) => {
   await page.goto("/");
   const contact = page.getByRole("list", { name: "Contact" });
