@@ -1,26 +1,27 @@
-# Noir
+# Studio
 
-Black, white, and one grey. Type does the work. Each look is one real screenshot.
+A studio, not a portfolio. Monochrome, measured, built like a drawing. The full system lives in the Jakob Alex design system artifact; this file is the part the code needs.
 
 | Token | Value | Role |
 | --- | --- | --- |
-| `--black` | `#000000` | Ground |
-| `--white` | `#ffffff` | Sentences, links, focus |
-| `--grey` | `#8c8c8c` | Garment tags. 6.25:1 on black |
-| settle | 1.2 s | One change from grey to colour |
+| `--ground` | `#f2f2f0` | Page |
+| `--sheet` | `#ffffff` | Figures, panels, receipts |
+| `--ink` | `#0b0b0b` | Type, rules, the one solid plane |
+| `--grey` | `#5f5f5d` | Secondary text, 6.1:1 on ground |
+| `--rule` | `#d4d4d1` | Hairlines between rows |
+| `--fault` | `#c4161c` | Only a failed check. Never decoration |
 
 ## Type
 
-- Geist 100 for the name. Geist 200 for look titles and sentences.
-- Geist Mono 400 for tags, the contact block, and captions.
-- Instrument Serif italic, once, on the opening screen.
+- Archivo. The wordmark is 800 at width 125, uppercase. Headlines are 700 with tight tracking. Body is 400 to 500.
+- Martian Mono 13 px for receipts, records and the status strip.
+- Meta labels: 12 px, 600, uppercase, 0.06 em tracking.
+- No italics, no serif, no second accent colour.
 
-Nothing is set below 16px. Links and buttons are at least 44px.
+## Rules
 
-## Motion
-
-Grain behind the type is a generated turbulence tile. Each screenshot starts in greyscale, with a second generated turbulence tile over the image only. When the image enters the viewport it settles once into the true-colour file over 1.2s. `SETTLE_MS` in `lib/reveal.ts` is that duration. There is no loop and no video. `prefers-reduced-motion` shows the colour image immediately, with no transition. On a fine pointer, hover may also clear the grey. Hover is not required.
-
-## Adding a look
-
-Put the screenshot in `public/recordings`. Add the look to `lib/looks.ts` with a proof (`repo`, `file`, `line`, `excerpt`). The sentence on the page has to contain that excerpt. If the product page is public, link it. If it is not, say that the product page is coming. Names that are not ready stay in `lib/shelf.ts` and are not rendered.
+- Two rules only: 3 px heavy opens a section, 1 px hair separates rows.
+- Square corners. Buttons are black rectangles or a hairline outline, at least 48 px tall. Every link is at least 44 px tall.
+- Fig. 1 (the exploded section) is the motif. The Studio section draws each of its planes on its own row.
+- Every number on the page traces to something real. If it isn't measured yet, it isn't shown.
+- "Show construction" draws the 12-column grid and type specs over the page. Elements with `.spec` only show while it is on.

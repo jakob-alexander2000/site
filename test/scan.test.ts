@@ -17,7 +17,7 @@ test("every banned rule fires on the fixture", () => {
   const found = rules(readFileSync("test/fixtures/bad-copy.txt", "utf8"));
   for (const rule of [
     "made-in-berlin", "guitar", "cost", "commit-count", "self-taught", "taught-himself", "taught-myself",
-    "third-person", "ledger", "grounded-docs", "mittelstand", "white-label", "vierspur", "open-to-work",
+    "third-person", "ledger", "grounded-docs", "mittelstand", "white-label", "open-to-work",
     "hiring", "income", "salary", "euro", "tape-brand", "slash-count", "email",
   ]) {
     assert.equal(found.has(rule), true, rule);
@@ -54,7 +54,8 @@ test("approved copy stays clean", () => {
     "I came into software through a coding bootcamp and am finishing a distance-learning degree in computer science.",
     "No account and no key. It shows where an answer drops a condition, sentence by sentence.",
     "Checks each claim against the handbook passage. Development build, no AI model.",
-    "The product page is coming.",
+    "I build AI tools that show their working.",
+    "Vierspur: a four-track tape recorder in your pocket.",
     "18 of 18",
   ]) {
     assert.deepEqual(findHits(text), [], text);
