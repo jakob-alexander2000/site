@@ -22,7 +22,6 @@ const RULES: ReadonlyArray<readonly [string, RegExp]> = [
   ["grounded-docs", /grounded docs/i],
   ["mittelstand", /mittelstand/i],
   ["white-label", /white-label/i],
-  ["vierspur", /vierspur/i],
   ["open-to-work", /open to work/i],
   ["hiring", /\b(hire|hires|hired|hiring|recruit\w*)\b/i],
   ["income", /\bincome\b|\beinkommen\b/i],

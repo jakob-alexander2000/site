@@ -1,43 +1,33 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { OPENING } from "@/lib/looks";
+import { Archivo, Martian_Mono } from "next/font/google";
 import "./globals.css";
 
-const sans = Geist({
+const sans = Archivo({
   subsets: ["latin"],
-  weight: ["100", "200"],
+  axes: ["wdth"],
   display: "swap",
   variable: "--font-sans",
   adjustFontFallback: true,
 });
 
-const mono = Geist_Mono({
+const mono = Martian_Mono({
   subsets: ["latin"],
-  weight: "400",
   display: "swap",
   variable: "--font-mono",
   adjustFontFallback: true,
 });
 
-const serif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: "italic",
-  display: "swap",
-  variable: "--font-serif",
-  adjustFontFallback: true,
-});
-
 const title = "Jakob Alex";
+const description = "I build AI tools that show their working.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jakobalex.vercel.app"),
   title,
-  description: OPENING,
+  description,
   openGraph: {
     title,
-    description: OPENING,
+    description,
     url: "https://jakobalex.vercel.app",
     siteName: title,
     type: "website",
@@ -45,17 +35,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
-  colorScheme: "dark",
+  themeColor: "#f2f2f0",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <a className="skip" href="#top">
+        <a className="skip" href="#main">
           Skip to content
         </a>
         {children}
