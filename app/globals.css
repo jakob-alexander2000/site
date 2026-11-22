@@ -749,3 +749,194 @@ html[data-construction="on"] .spec {
 html:not([data-construction="on"]) .wire .spec {
   display: none;
 }
+
+/* Recorded runs of the answer checks */
+.specimens {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.specimen {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.specimen .kv {
+  grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.specimen-head .link {
+  min-height: 44px;
+  font-weight: 500;
+}
+
+.verdicts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mark {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.mark-fault {
+  color: var(--fault);
+}
+
+.specimen-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.replay {
+  min-height: 44px;
+  padding: 0 16px;
+  border: var(--hair);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.replay:disabled {
+  color: var(--grey);
+  cursor: default;
+}
+
+.scale {
+  position: relative;
+  margin: 12px 0 4px;
+  height: 44px;
+}
+
+.scale-zones {
+  display: flex;
+  height: 100%;
+  border-top: 1px solid var(--ink);
+}
+
+.scale-zones span {
+  border-left: 1px solid var(--rule);
+  padding: 6px 0 0 6px;
+  color: var(--grey);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.scale-mark {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 22px;
+  margin-left: -1px;
+  background: var(--ink);
+  transition: left 0.4s ease, opacity 0.4s ease;
+}
+
+.scale-mark.fault {
+  background: var(--fault);
+}
+
+/* Fig. 2 and Fig. 3: flows drawn with rules */
+.flow-figure {
+  margin: 48px 0 0;
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  background: var(--sheet);
+}
+
+.flow-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 24px 24px;
+  border-top: 3px solid var(--ink);
+}
+
+.flow-step + .flow-step {
+  border-left: 1px solid var(--rule);
+}
+
+.flow-step:not(.flow-end)::after {
+  content: "→";
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  color: var(--grey);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+}
+
+.flow-name {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.flow-line {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--grey);
+}
+
+.flow-fault {
+  margin-top: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@media (max-width: 720px) {
+  .flow-step + .flow-step {
+    border-left: 0;
+  }
+
+  .flow-step {
+    border-top-width: 1px;
+  }
+
+  .flow-step:first-child {
+    border-top-width: 3px;
+  }
+
+  .flow-step:not(.flow-end)::after {
+    content: "↓";
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scale-mark {
+    transition: none;
+  }
+}
+
+.verdicts .pair > span:last-child {
+  text-align: right;
+}
