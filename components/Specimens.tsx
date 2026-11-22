@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Stamp } from "@/lib/receipts";
 import { AUTOPSY, CITEBOT, VOICE, type Specimen } from "@/lib/specimens";
 
 const STEP_MS = 420;
@@ -57,6 +58,16 @@ function Head({ tool, href }: { tool: string; href: string }) {
   );
 }
 
+/** The last weekly check, from its receipt. Shows nothing without a receipt. */
+function StampLine({ stamp }: { stamp: Stamp | null }) {
+  if (!stamp) return null;
+  return (
+    <a href={stamp.href} className={`link stamp${stamp.fault ? " fault" : ""}`}>
+      Weekly check: {stamp.label.replace(/^checked /, "")} →
+    </a>
+  );
+}
+
 function Replay({ onClick, running, label }: { onClick: () => void; running: boolean; label: string }) {
   return (
     <button type="button" className="replay meta" onClick={onClick} disabled={running} aria-label={`Run the ${label} check again`}>
@@ -65,7 +76,7 @@ function Replay({ onClick, running, label }: { onClick: () => void; running: boo
   );
 }
 
-function ClaimSpecimen({ specimen }: { specimen: Specimen }) {
+function ClaimSpecimen({ specimen, stamp }: { specimen: Specimen; stamp: Stamp | null }) {
   const { shown, replay, running } = useReplay(specimen.checks.length);
   const failed = specimen.checks.some((check) => check.verdict === "fail");
   return (
@@ -104,13 +115,14 @@ function ClaimSpecimen({ specimen }: { specimen: Specimen }) {
       </ol>
       <figcaption className="specimen-foot">
         <span className="quiet">{specimen.recorded}</span>
+        <StampLine stamp={stamp} />
         <Replay onClick={replay} running={running} label={specimen.tool} />
       </figcaption>
     </figure>
   );
 }
 
-function VoiceSpecimen() {
+function VoiceSpecimen({ stamp }: { stamp: Stamp | null }) {
   const { shown, replay, running } = useReplay(VOICE.readings.length);
   const at = (value: number) => `${(Math.min(value, VOICE.max) / VOICE.max) * 100}%`;
   return (
@@ -158,6 +170,7 @@ function VoiceSpecimen() {
       </ol>
       <figcaption className="specimen-foot">
         <span className="quiet">{VOICE.recorded}</span>
+        <StampLine stamp={stamp} />
         <Replay onClick={replay} running={running} label={VOICE.tool} />
       </figcaption>
     </figure>
@@ -165,12 +178,12 @@ function VoiceSpecimen() {
 }
 
 /** The three answer checks, each showing a real recorded run. */
-export function Specimens() {
+export function Specimens({ stamps }: { stamps: Record<"autopsy" | "citebot" | "voice", Stamp | null> }) {
   return (
     <div className="specimens">
-      <ClaimSpecimen specimen={AUTOPSY} />
-      <ClaimSpecimen specimen={CITEBOT} />
-      <VoiceSpecimen />
+      <ClaimSpecimen specimen={AUTOPSY} stamp={stamps.autopsy} />
+      <ClaimSpecimen specimen={CITEBOT} stamp={stamps.citebot} />
+      <VoiceSpecimen stamp={stamps.voice} />
     </div>
   );
 }

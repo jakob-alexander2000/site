@@ -7,11 +7,18 @@ import { StudioSection } from "@/components/StudioSection";
 import { LOG } from "@/lib/log";
 import { Flow } from "@/components/Flow";
 import { Specimens } from "@/components/Specimens";
+import { getReceipts, stampFor } from "@/lib/receipts";
 import { HANDOVER, METHOD } from "@/lib/specimens";
 import { PERSONA_RECEIPT, PERSONA_VERDICT } from "@/lib/studio";
 import { PROJECTS } from "@/lib/work";
 
-export default function Home() {
+export default async function Home() {
+  const receipts = await getReceipts();
+  const stamps = {
+    autopsy: stampFor(receipts, "retrieval-autopsy"),
+    citebot: stampFor(receipts, "citebot"),
+    voice: stampFor(receipts, "style-distance"),
+  };
   return (
     <div className="page">
       <div className="overlay" aria-hidden="true" />
@@ -130,10 +137,10 @@ export default function Home() {
             </div>
             <p style={{ maxWidth: 460 }}>
               Tools that catch what an AI answer got wrong, left out, or said in the wrong voice. Each one below is a real
-              recorded run. Press Run again to watch the checks.
+              recorded run, and every tool is checked again each week. Press Run again to watch the checks.
             </p>
           </div>
-          <Specimens />
+          <Specimens stamps={stamps} />
         </section>
 
         <section id="benchmark" className="section" style={{ paddingTop: 144 }} aria-labelledby="benchmark-title">
