@@ -15,9 +15,9 @@ import { PROJECTS } from "@/lib/work";
 export default async function Home() {
   const receipts = await getReceipts();
   const stamps = {
-    autopsy: stampFor(receipts, "retrieval-autopsy"),
-    citebot: stampFor(receipts, "citebot"),
-    voice: stampFor(receipts, "style-distance"),
+    autopsy: stampFor(receipts, "answer-checker", "handbook-samples"),
+    citebot: stampFor(receipts, "answer-checker", "unit"),
+    voice: stampFor(receipts, "answer-checker", "unit"),
   };
   return (
     <div className="page">
@@ -130,15 +130,21 @@ export default async function Home() {
         <section id="checks" className="section" style={{ paddingTop: 144 }} aria-labelledby="checks-title">
           <div className="split rule-hair" style={{ paddingTop: 24 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <span className="meta quiet">02 · Three tools · Live</span>
+              <span className="meta quiet">02 · Product · Open source</span>
               <h3 id="checks-title" className="headline">
-                Answer checks
+                answer-checker
               </h3>
             </div>
-            <p style={{ maxWidth: 460 }}>
-              Tools that catch what an AI answer got wrong, left out, or said in the wrong voice. Each one below is a real
-              recorded run, and every tool is checked again each week. Press Run again to watch the checks.
-            </p>
+            <div style={{ maxWidth: 460, display: "flex", flexDirection: "column", gap: 12 }}>
+              <p style={{ margin: 0 }}>
+                It checks a document chatbot&apos;s answer against its sources before a user sees it. It catches the
+                condition an answer dropped, the claim no source backs, and drift from the house voice. English and
+                German, free to self-host. The panels below are recorded runs, and its tests run again every week.
+              </p>
+              <a href="https://github.com/jakob-alexander2000/answer-checker" className="link meta">
+                Source, docs and a live check →
+              </a>
+            </div>
           </div>
           <Specimens stamps={stamps} />
         </section>

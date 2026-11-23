@@ -70,7 +70,7 @@ function StampLine({ stamp }: { stamp: Stamp | null }) {
 
 function Replay({ onClick, running, label }: { onClick: () => void; running: boolean; label: string }) {
   return (
-    <button type="button" className="replay meta" onClick={onClick} disabled={running} aria-label={`Run the ${label} check again`}>
+    <button type="button" className="replay meta" onClick={onClick} disabled={running} aria-label={`Run the ${label} again`}>
       {running ? "Checking…" : "Run again"}
     </button>
   );

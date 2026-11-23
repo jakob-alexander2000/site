@@ -7,6 +7,7 @@ const BLOB = "https://github.com/jakob-alexander2000/studio/blob/main/checks/rec
 
 export type ReceiptLine = {
   project: string;
+  eval: string | null;
   passed: number;
   total: number;
   file: string;
@@ -35,8 +36,10 @@ export function parseReceipts(raw: unknown): Receipts | null {
     ) {
       return null;
     }
+    if (r.eval !== undefined && typeof r.eval !== "string") return null;
     lines.push({
       project: r.project,
+      eval: (r.eval as string | undefined) ?? null,
       passed: r.passed as number,
       total: r.total as number,
       file: r.file,
@@ -71,12 +74,16 @@ export function receiptHref(line: ReceiptLine): string {
 /** What a specimen panel shows in place of "recorded": the last check, linked to its receipt. */
 export type Stamp = { label: string; href: string; fault: boolean };
 
-export function stampFor(receipts: Receipts | null, project: string): Stamp | null {
-  const line = receipts?.lines.find((item) => item.project === project);
+/** What each test set counts, so a stamp says "81 of 81 tests", not a bare fraction. */
+const UNITS: Record<string, string> = { unit: "tests", "handbook-samples": "sample answers" };
+
+export function stampFor(receipts: Receipts | null, project: string, evalName?: string): Stamp | null {
+  const line = receipts?.lines.find((item) => item.project === project && (evalName === undefined || item.eval === evalName));
   if (!receipts || !line) return null;
   const failed = line.passed < line.total;
+  const unit = line.eval ? UNITS[line.eval] : undefined;
   return {
-    label: `checked ${shortDate(receipts.date)} · ${line.passed} of ${line.total}${failed ? " pass" : ""}`,
+    label: `checked ${shortDate(receipts.date)} · ${line.passed} of ${line.total}${unit ? ` ${unit}` : ""}${failed ? " pass" : ""}`,
     href: receiptHref(line),
     fault: failed || line.worse,
   };

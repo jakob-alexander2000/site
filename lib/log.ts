@@ -3,6 +3,12 @@ export type LogEntry = { date: string; kind: "Shipped" | "Note" | "Learned" | "R
 
 export const LOG: readonly LogEntry[] = [
   {
+    date: "2026-11-23",
+    kind: "Shipped",
+    title: "Folded the three answer checks into one open-source product, answer-checker",
+    href: "https://github.com/jakob-alexander2000/answer-checker",
+  },
+  {
     date: "2026-11-22",
     kind: "Shipped",
     title: "Recorded runs of the three answer checks, and how Persona and the benchmark work",

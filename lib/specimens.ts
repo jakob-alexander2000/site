@@ -1,6 +1,7 @@
 /**
- * Recorded runs of the three answer checks. Every line here was copied from the tool's own
- * repo or produced by running its code; nothing is written for the site.
+ * Recorded runs of answer-checker's three kinds of check. They were recorded with the tools it grew
+ * out of. Every line was copied from a tool's own repo or produced by running its code; nothing is
+ * written for the site. The Qualifier run gives the same result in answer-checker (checked 23 Nov 2026).
  *
  * - Retrieval Autopsy: `runKeyword(HANDBOOK, "How many days of annual leave do employees get?", "naive")`
  *   at commit 92cb0f5, sample handbook (synthetic).
@@ -24,8 +25,8 @@ export type Specimen = {
 
 export const AUTOPSY: Specimen = {
   id: "autopsy",
-  tool: "Retrieval Autopsy",
-  href: "https://retrieval-autopsy.vercel.app/",
+  tool: "Qualifier check",
+  href: "https://github.com/jakob-alexander2000/answer-checker/blob/main/docs/how-it-judges.md#qualifier",
   question: "How many days of annual leave do employees get?",
   source: {
     label: "passage",
@@ -39,13 +40,13 @@ export const AUTOPSY: Specimen = {
     { label: "qualifier", verdict: "fail", note: "two limits dropped" },
     { label: "omission", verdict: "pass" },
   ],
-  recorded: "Recorded run on the sample handbook, which is synthetic",
+  recorded: "Recorded on the sample handbook, which is synthetic",
 };
 
 export const CITEBOT: Specimen = {
   id: "citebot",
-  tool: "CiteBot",
-  href: "https://github.com/jakob-alexander2000/citebot",
+  tool: "Claim mode",
+  href: "https://github.com/jakob-alexander2000/answer-checker/blob/main/docs/how-it-judges.md#claim-mode-optional",
   question: "How many paid vacation days do full-time employees get?",
   source: {
     label: "handbook",
@@ -57,13 +58,13 @@ export const CITEBOT: Specimen = {
     { label: "citation", verdict: "pass", note: "pto-and-leave.md" },
     { label: "claim: 25 days", verdict: "fail", note: "page says 30" },
   ],
-  recorded: "A wrong draft on purpose, from the eval run of 29 Oct 2026",
+  recorded: "A wrong draft on purpose, recorded by CiteBot on 29 Oct 2026",
 };
 
 /** Burrows' Delta, with the cuts from the Austen and Brontë validation in the Style Distance README. */
 export const VOICE = {
-  tool: "Style Distance",
-  href: "https://style-distance.vercel.app/",
+  tool: "Voice check",
+  href: "https://github.com/jakob-alexander2000/answer-checker/blob/main/docs/how-it-judges.md#voice-optional",
   max: 1.8,
   cuts: { close: 0.785, off: 1.272 },
   readings: [

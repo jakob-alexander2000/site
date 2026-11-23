@@ -24,9 +24,9 @@ test("answer checks show three recorded runs, and Run again replays them", async
   await expect(autopsy).toContainText("employees receive 30 days");
   await expect(autopsy.locator("mark")).toHaveText(["full-time employees only", "after the probation period"]);
   await expect(autopsy.locator(".verdicts .fault")).toContainText("fail");
-  await autopsy.getByRole("button", { name: "Run the Retrieval Autopsy check again" }).click();
+  await autopsy.getByRole("button", { name: "Run the Qualifier check again" }).click();
   await expect(autopsy.locator(".verdicts .fault")).toContainText("two limits dropped", { timeout: 5000 });
-  await expect(autopsy.getByRole("button", { name: "Run the Retrieval Autopsy check again" })).toHaveText("Run again");
+  await expect(autopsy.getByRole("button", { name: "Run the Qualifier check again" })).toHaveText("Run again");
   await expect(page.locator("#specimen-citebot")).toContainText("page says 30");
   await expect(page.locator("#specimen-voice")).toContainText("1.33 · off-voice");
   for (const stamp of await page.locator(".stamp").all()) {

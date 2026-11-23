@@ -27,7 +27,7 @@ export async function StatusStrip() {
               className={`link${clean < receipts.lines.length ? " fault" : ""}`}
               style={{ minHeight: 32 }}
             >
-              {clean} of {receipts.lines.length} tools pass
+              {clean} of {receipts.lines.length} test sets pass
             </a>{" "}
             · {shortDate(receipts.date)}
           </li>
