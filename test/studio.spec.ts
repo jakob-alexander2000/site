@@ -75,7 +75,7 @@ test("playground has its own page with Vierspur", async ({ page }) => {
 });
 
 for (const [name, viewport] of Object.entries(sizes)) {
-  for (const path of ["/", "/playground"]) {
+  for (const path of ["/", "/playground", "/answer-checker"]) {
     test(`${path} at ${name}: no sideways scroll, links are big enough to tap`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto(path);
@@ -95,3 +95,23 @@ for (const [name, viewport] of Object.entries(sizes)) {
     });
   }
 }
+
+test("answer-checker page: measured numbers, the sample audit and get in touch, no pricing", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#checks").getByRole("link", { name: "Results, audit and contact →" })).toHaveAttribute("href", "/answer-checker");
+  await page.goto("/answer-checker");
+  await expect(page.locator("h1#product-title")).toHaveText("answer-checker");
+  const table = page.locator("table.bench");
+  await expect(table.locator("tbody tr")).toHaveCount(4);
+  await expect(table).toContainText("23 of 26 · 88%");
+  await expect(table).toContainText("29 of 70 · 41%");
+  await expect(page.locator('a[href*="70e6cf6/bench/de-arbeitsrecht/results/RESULTS.md"]')).toHaveCount(1);
+  await expect(page.getByRole("list", { name: "How an audit runs" }).locator("li")).toHaveCount(5);
+  const contact = page.getByRole("list", { name: "Contact" });
+  await expect(contact.locator('a[href="mailto:jdevacc2000@gmail.com"]')).toHaveCount(1);
+  await expect(page.locator("#contact-title")).toHaveText("Get in touch");
+  await expect(page.locator("body")).not.toContainText(/pric|€|\$\d/i);
+  const report = await page.request.get("/answer-checker/sample-audit.html");
+  expect(report.ok()).toBe(true);
+  expect(await report.text()).toContain("Antwort-Audit");
+});
