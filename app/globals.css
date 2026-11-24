@@ -945,3 +945,40 @@ html:not([data-construction="on"]) .wire .spec {
   flex: 1 1 100%;
   min-height: 44px;
 }
+
+/* answer-checker results table */
+.bench-scroll {
+  overflow-x: auto;
+  background: var(--sheet);
+  padding: 8px 24px 16px;
+}
+
+.bench {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+.bench caption {
+  text-align: left;
+  padding: 12px 0;
+}
+
+.bench th,
+.bench td {
+  text-align: left;
+  font-weight: 400;
+  padding: 10px 16px 10px 0;
+  border-top: 1px solid var(--rule);
+  vertical-align: baseline;
+}
+
+.bench thead th {
+  color: var(--grey);
+  border-top: 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.bench td {
+  white-space: nowrap;
+}

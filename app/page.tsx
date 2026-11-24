@@ -141,9 +141,14 @@ export default async function Home() {
                 condition an answer dropped, the claim no source backs, and drift from the house voice. English and
                 German, free to self-host. The panels below are recorded runs, and its tests run again every week.
               </p>
-              <a href="https://github.com/jakob-alexander2000/answer-checker" className="link meta">
-                Source, docs and a live check →
-              </a>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0 32px" }}>
+                <Link href="/answer-checker" className="link meta">
+                  Results, audit and contact →
+                </Link>
+                <a href="https://github.com/jakob-alexander2000/answer-checker" className="link meta">
+                  Source and docs →
+                </a>
+              </div>
             </div>
           </div>
           <Specimens stamps={stamps} />

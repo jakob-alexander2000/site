@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-type Current = "home" | "playground";
+type Current = "home" | "playground" | "answer-checker";
 
 export function Header({ current }: { current: Current }) {
   return (
@@ -14,6 +14,9 @@ export function Header({ current }: { current: Current }) {
         </Link>
         <Link href="/#studio" className="meta link">
           Studio
+        </Link>
+        <Link href="/answer-checker" className="meta link" aria-current={current === "answer-checker" ? "page" : undefined}>
+          answer-checker
         </Link>
         <Link href="/playground" className="meta link" aria-current={current === "playground" ? "page" : undefined}>
           Playground

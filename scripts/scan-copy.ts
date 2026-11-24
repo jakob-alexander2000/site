@@ -48,12 +48,25 @@ export function normalise(text: string): string {
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
+/**
+ * Narrow, per-file exceptions. Each names one file and the rules it may trip, with the reason.
+ * The sample audit quotes German employment law (EntgFG: "Gehalt" is the statute's subject, not a figure about me).
+ */
+export const EXEMPT: Readonly<Record<string, readonly string[]>> = {
+  "public/answer-checker/sample-audit.html": ["salary"],
+};
+
+/** Inlined fonts and images are base64, not copy, so they are cut before any rule runs. */
+const DATA_URI = /data:[a-z]+\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=]+/gi;
+
 /** Only the contact address in lib/contact.ts is allowed; any other address is a hit. */
 export function findHits(raw: string, options: { file?: string } = {}): Hit[] {
   const file = options.file ?? "text";
-  const text = normalise(raw);
+  const exempt = EXEMPT[file.split("\\").join("/")] ?? [];
+  const text = normalise(raw.replace(DATA_URI, "data:"));
   const hits: Hit[] = [];
   for (const [rule, pattern] of RULES) {
+    if (exempt.includes(rule)) continue;
     pattern.lastIndex = 0;
     if (pattern.test(text)) hits.push({ rule, file });
   }

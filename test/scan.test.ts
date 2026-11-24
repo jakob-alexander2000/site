@@ -62,3 +62,14 @@ test("approved copy stays clean", () => {
   }
   assert.equal(normalise("a\u00A0\u00A0b"), "a b");
 });
+
+test("inlined base64 is not copy, and the sample audit may say Gehalt but nothing else", () => {
+  assert.deepEqual(findHits("src: url(data:font/woff2;base64,AAAA12/34BBBB+/==)"), []);
+  const sample = "public/answer-checker/sample-audit.html";
+  assert.deepEqual(findHits("Sie bekommen das Gehalt weiter", { file: sample }), []);
+  assert.equal(rules("Sie bekommen das Gehalt weiter").has("salary"), true);
+  assert.deepEqual(
+    findHits("Gehalt, Einkommen, name@example.com", { file: sample }).map((hit) => hit.rule).sort(),
+    ["email", "income"],
+  );
+});
