@@ -288,6 +288,16 @@ figure {
   font-family: var(--font-sans), sans-serif;
 }
 
+/* The construction overlay is a desktop grid; on a phone the button only pushes the opening line down. */
+@media (max-width: 720px) {
+  .status .toggle {
+    display: none;
+  }
+  .status ul {
+    gap: 0 16px;
+  }
+}
+
 /* Construction overlay: grid, margins and type specs */
 .overlay {
   display: none;

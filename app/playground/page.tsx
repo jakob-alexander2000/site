@@ -6,6 +6,7 @@ import { StatusStrip } from "@/components/StatusStrip";
 export const metadata: Metadata = {
   title: "Playground · Jakob Alex",
   description: "Things I build because I want them to exist.",
+  alternates: { canonical: "/playground" },
 };
 
 const FADERS = [48, 28, 88, 120] as const;
