@@ -142,7 +142,7 @@ export default async function Home() {
                 German, free to self-host. The panels below are recorded runs, and its tests run again every week.
               </p>
               <a href="https://github.com/jakob-alexander2000/answer-checker" className="link meta">
-                Source, docs and a live check →
+                Source and docs on GitHub →
               </a>
             </div>
           </div>

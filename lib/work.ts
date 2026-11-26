@@ -10,6 +10,6 @@ export type Project = {
 
 export const PROJECTS: readonly Project[] = [
   { id: "persona", index: "01", name: "Persona", kind: "Agent app", year: "2026", status: "Measuring" },
-  { id: "checks", index: "02", name: "Answer checks", kind: "Three tools", year: "2026", status: "Live" },
+  { id: "checks", index: "02", name: "answer-checker", kind: "Open source", year: "2026", status: "Public" },
   { id: "benchmark", index: "03", name: "German document QA", kind: "Research", year: "2026", status: "Next" },
 ];

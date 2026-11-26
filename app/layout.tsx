@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Archivo, Martian_Mono } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const sans = Archivo({
@@ -22,16 +23,19 @@ const title = "Jakob Alex";
 const description = "I build AI tools that show their working.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://jakobalex.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title,
   description,
+  alternates: { canonical: "/" },
   openGraph: {
     title,
     description,
-    url: "https://jakobalex.vercel.app",
+    url: "/",
     siteName: title,
     type: "website",
+    locale: "en",
   },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 export const viewport: Viewport = {
